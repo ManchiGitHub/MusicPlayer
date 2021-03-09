@@ -21,9 +21,15 @@ import android.widget.ImageView;
 
 public class PlayerFragment extends Fragment implements View.OnClickListener {
 
+    final static private String SONG_KEY = "songs";
+    final static private String SONG_POSITION_KEY = "song_position";
+
+
     interface PlayerFragmentListener {
         void onSkipPrevClick();
+
         void onSkipNextClick();
+
         void onPlayPauseClick();
     }
 
@@ -44,8 +50,8 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     public static PlayerFragment newInstance(Song song, int position) {
         PlayerFragment fragment = new PlayerFragment();
         Bundle args = new Bundle();
-        args.putInt("song_position", position);
-        args.putSerializable("song", song);
+        args.putInt(SONG_POSITION_KEY, position);
+        args.putSerializable(SONG_KEY, song);
         fragment.setArguments(args);
         return fragment;
     }
@@ -95,7 +101,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                 animatePlayPauseButton();
 
 
-
                 callback.onPlayPauseClick();
             }
 
@@ -104,7 +109,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         return rootView;
     }
 
-    public void animatePlayPauseButton(){
+    public void animatePlayPauseButton() {
 
         handler.post(new Runnable() {
             @Override

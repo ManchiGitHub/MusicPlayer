@@ -27,6 +27,10 @@ import java.util.List;
 
 public class SongPageFragment extends Fragment {
 
+    final static private String SONG_POSITION_KEY = "song_position";
+    final static private String SONG_KEY = "song";
+
+
     interface SongPageListener {
         void onFavoriteButtonClick(int position);
     }
@@ -56,8 +60,8 @@ public class SongPageFragment extends Fragment {
     public static SongPageFragment newInstance(Song song, int position) {
         SongPageFragment fragment = new SongPageFragment();
         Bundle args = new Bundle();
-        args.putInt("song_position", position);
-        args.putSerializable("song", song);
+        args.putInt(SONG_POSITION_KEY, position);
+        args.putSerializable(SONG_KEY, song);
         fragment.setArguments(args);
         return fragment;
     }

@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class SplashScreenFragment extends Fragment {
@@ -44,6 +45,8 @@ public class SplashScreenFragment extends Fragment {
 
 
         TextView textView = rootView.findViewById(R.id.splash_text);
+        ImageView imageView = rootView.findViewById(R.id.music_note);
+
 
         // Inflate the layout for this fragment
         return rootView;
@@ -71,4 +74,6 @@ public class SplashScreenFragment extends Fragment {
 //            }
 //        }).start();
 //    }
+
+
 }

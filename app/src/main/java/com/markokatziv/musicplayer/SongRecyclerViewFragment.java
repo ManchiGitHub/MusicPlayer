@@ -3,29 +3,23 @@ package com.markokatziv.musicplayer;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.widget.TextView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
 
 
 public class SongRecyclerViewFragment extends Fragment implements SongAdapter.SongListenerInterface {
 
-
+    final static private String SONGS_LIST_KEY = "songs_list";
 
     interface SongRecyclerViewListener {
         void onCardClick(View view, int position);
@@ -36,17 +30,12 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     private RecyclerView recyclerView;
     private SongAdapter songAdapter;
     private List<Song> songs;
-
-    //TODO This should be factory method
-//    public SongRecyclerViewFragment(List<Song> songsList) {
-//        // Required empty public constructor
-//        this.songs = songsList;
-//    }
+    private TextView addSongsText;
 
     public static SongRecyclerViewFragment newInstance(List<Song> songsList) {
         SongRecyclerViewFragment fragment = new SongRecyclerViewFragment();
         Bundle args = new Bundle();
-        args.putSerializable("songs_list", (Serializable) songsList);
+        args.putSerializable(SONGS_LIST_KEY, (Serializable) songsList);
         fragment.setArguments(args);
         return fragment;
     }
@@ -57,24 +46,11 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
 
     public void notifyItemInsert(Song song) {
         songAdapter.notifyItemInserted(songs.size());
+        changeInitialTextOnScreen(addSongsText);
     }
 
-    public void notifyFavoriteButtonClick(int position){
+    public void notifyFavoriteButtonClick(int position) {
         songAdapter.notifyItemChanged(position);
-
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try { //TODO put this in a file handler class
-//                    FileOutputStream fos = getActivity().openFileOutput("songs_list", Context.MODE_PRIVATE);
-//                    ObjectOutputStream oos = new ObjectOutputStream(fos);
-//                    oos.writeObject(songs);
-//                    oos.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).start();
     }
 
     @Override
@@ -97,17 +73,15 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_song_recycler_view, container, false);
         // Inflate the layout for this fragment
 
         recyclerView = rootView.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        addSongsText = rootView.findViewById(R.id.add_songs_text);
+        changeInitialTextOnScreen(addSongsText);
 
         RecyclerView recyclerView = rootView.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -131,42 +105,37 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
                     public void onClick(DialogInterface dialog, int which) {
                         songs.remove(viewHolder.getAdapterPosition());
                         songAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-//
-//                        if (songs.size() == 0) {
-//                            emptyMusicListText.setVisibility(View.VISIBLE);
-//                        }
-
-                        try { //TODO put this in a file handler class
-                            FileOutputStream fos = getActivity().openFileOutput("songs_list", Context.MODE_PRIVATE);
-                            ObjectOutputStream oos = new ObjectOutputStream(fos);
-                            oos.writeObject(songs);
-                            oos.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        changeInitialTextOnScreen(addSongsText);
+                        SongFileHandler.saveSongList(getActivity(), songs);
                     }
                 });
+
                 builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         songAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
                     }
                 }).show();
-
-
             }
         };
+
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
         songAdapter = new SongAdapter(songs, getActivity());
         songAdapter.setListener(this);
-
-
-
         recyclerView.setAdapter(songAdapter);
 
         return rootView;
+    }
+
+    private void changeInitialTextOnScreen(TextView addSongsText) {
+        if (songs.size() > 0) {
+            addSongsText.setVisibility(View.GONE);
+        }
+        else{
+            addSongsText.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
