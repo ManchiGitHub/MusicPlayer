@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_song_fab_btn"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_above="@id/main_fab_btn"
+        android:layout_gravity="center"
+        android:layout_marginStart="25dp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/pink"
+        android:elevation="20dp"
+        android:clipToPadding="true"
+        android:visibility="gone"
+        app:borderWidth="0dp"
+        app:fabCustomSize="80dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/main_fab_btn"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
+        android:layout_marginStart="25dp"
+        android:layout_marginBottom="140dp"
+        android:backgroundTint="@color/pink"
+        android:elevation="20dp"
+        android:src="@drawable/ic_baseline_music_note_24"
+        app:borderWidth="0dp"
+        app:fabCustomSize="80dp" />
+
+</RelativeLayout>

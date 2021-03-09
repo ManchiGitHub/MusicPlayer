@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/thumbnail_stroke"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/artist_name_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:hint="Enter Artist's Name" />
+
+    <EditText
+        android:id="@+id/song_title_input"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:hint="Enter Song Title" />
+
+    <ImageView
+        android:layout_width="200dp"
+        android:id="@+id/img_preview"
+        android:scaleType="fitXY"
+        android:visibility="gone"
+        android:background="@drawable/thumbnail_stroke"
+        android:layout_gravity="center"
+        android:layout_height="200dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:id="@+id/take_pic_btn"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:text="Choose a picture"/>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_marginTop="20dp"
+        android:id="@+id/favorite_checkbox"
+        android:text="set as favorite"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
+
+
+</LinearLayout>

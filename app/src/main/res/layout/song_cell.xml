@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:outlineProvider="paddedBounds"
+    android:outlineSpotShadowColor="#000000"
+    app:cardCornerRadius="5dp"
+    app:cardElevation="3dp"
+    app:cardUseCompatPadding="true"
+    app:layout_goneMarginStart="5dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/card_background">
+
+
+        <LinearLayout
+            android:id="@+id/top_layout"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+
+            <ImageView
+                android:id="@+id/song_image"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                android:layout_weight="3.3"
+                android:background="@drawable/thumbnail_stroke"
+                android:scaleType="centerCrop" />
+
+
+            <TextView
+                android:id="@+id/song_title"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="6"
+                android:gravity="center"
+                android:text="Never gonna give you up"
+                android:textSize="20dp" />
+
+
+            <ImageView
+                android:id="@+id/heart_img"
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:alpha="0.8"
+                android:outlineProvider="bounds"
+                android:src="@drawable/heart_solid"
+                app:tint="@color/red" />
+
+
+            <ImageButton
+                android:id="@+id/info"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:layout_margin="15dp"
+                android:layout_weight="1.3"
+                android:alpha="0.7"
+                android:background="@android:color/transparent"
+                android:outlineProvider="paddedBounds"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_outline_info_24"
+                app:backgroundTint="@null" />
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/expanded_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/top_layout"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/artist_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:text="Lorem Ipsum" />
+
+            <TextView
+                android:id="@+id/album_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Lorem Ipsum" />
+
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
