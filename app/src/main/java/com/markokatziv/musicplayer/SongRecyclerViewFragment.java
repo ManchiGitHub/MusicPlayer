@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -32,10 +33,10 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     private List<Song> songs;
     private TextView addSongsText;
 
-    public static SongRecyclerViewFragment newInstance(List<Song> songsList) {
+    public static SongRecyclerViewFragment newInstance(ArrayList<Song> songsList) {
         SongRecyclerViewFragment fragment = new SongRecyclerViewFragment();
         Bundle args = new Bundle();
-        args.putSerializable(SONGS_LIST_KEY, (Serializable) songsList);
+        args.putSerializable(SONGS_LIST_KEY, songsList);
         fragment.setArguments(args);
         return fragment;
     }

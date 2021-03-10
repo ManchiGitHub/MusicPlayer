@@ -1,5 +1,7 @@
 package com.markokatziv.musicplayer;
 
+import android.net.Uri;
+
 import java.io.Serializable;
 
 public class Song implements Serializable {

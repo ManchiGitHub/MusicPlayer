@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -98,6 +99,7 @@ public class SongPageFragment extends Fragment {
             Glide.with(getActivity()).load(defaultBitmap).into(songImage);
         }
         else {
+            Log.d("WTF", "onCreateView: "+song.getImagePath());
             Glide.with(getActivity()).load(song.getImagePath()).into(songImage);
         }
 

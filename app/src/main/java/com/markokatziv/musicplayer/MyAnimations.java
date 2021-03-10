@@ -17,8 +17,8 @@ public class MyAnimations {
         ScaleAnimation scaleUpAnimation = new ScaleAnimation(1f, 1.1f, 1f, 1.1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 1f);
         ScaleAnimation scaleDownAnimation = new ScaleAnimation(1.1f, 1f, 1.1f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 1f);
 
-        scaleUpAnimation.setDuration(50);
-        scaleDownAnimation.setDuration(50);
+        scaleUpAnimation.setDuration(200);
+        scaleDownAnimation.setDuration(200);
 
         scaleUpAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override

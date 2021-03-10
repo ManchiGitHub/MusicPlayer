@@ -5,7 +5,6 @@
     android:id="@+id/song_page_fragment"
     android:background="@drawable/background_gradient"
     android:clickable="true"
-    android:elevation="6dp"
     android:focusable="true"
     android:layout_height="match_parent">
 

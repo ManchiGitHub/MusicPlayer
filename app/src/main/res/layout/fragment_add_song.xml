@@ -24,7 +24,7 @@
     <ImageView
         android:layout_width="200dp"
         android:id="@+id/img_preview"
-        android:scaleType="fitXY"
+        android:scaleType="centerCrop"
         android:visibility="gone"
         android:background="@drawable/thumbnail_stroke"
         android:layout_gravity="center"
@@ -32,11 +32,19 @@
 
     <Button
         android:layout_width="wrap_content"
+        android:id="@+id/choose_from_gallery_btn"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:text="Choose from gallery"/>
+
+    <Button
+        android:layout_width="wrap_content"
         android:id="@+id/take_pic_btn"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:text="Choose a picture"/>
+        android:text="Take a picture"/>
 
     <CheckBox
         android:layout_width="wrap_content"

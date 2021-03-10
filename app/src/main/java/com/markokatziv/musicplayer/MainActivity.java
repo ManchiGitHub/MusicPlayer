@@ -84,9 +84,9 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             @Override
             public void run() {
                 fragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_up_fragment, R.anim.fragment_fade_out)
-                        .remove(getSupportFragmentManager().findFragmentByTag(TAG_SPLASH_SCREEN_FRAGMENT))
-//                .add(R.id.activity_main_layout, songRecyclerViewFragment, TAG_RECYCLERVIEW_FRAGMENT).addToBackStack("transaction")
-//                .add(R.id.activity_main_layout, fabButtonFragment, TAG_FAB_FRAGMENT)
+//                        .remove(getSupportFragmentManager().findFragmentByTag(TAG_SPLASH_SCREEN_FRAGMENT))
+//                        .add(R.id.activity_main_layout, songRecyclerViewFragment, TAG_RECYCLERVIEW_FRAGMENT).addToBackStack("transaction")
+//                        .add(R.id.activity_main_layout, fabButtonFragment, TAG_FAB_FRAGMENT)
                         .replace(R.id.activity_main_layout, songRecyclerViewFragment).add(R.id.activity_main_layout, fabButtonFragment)
                         .commit();
             }

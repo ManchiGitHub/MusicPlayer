@@ -1,17 +1,20 @@
 package com.markokatziv.musicplayer;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileUtils;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,31 +28,38 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
+
+import com.bumptech.glide.Glide;
+
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Objects;
 
 public class AddSongDialogFragment extends DialogFragment {
 
-    private final int WRITE_PERMISSION_REQUEST = 2;
+    private final int WRITE_PERMISSION_REQUEST = 1;
+    private final int GALLERY_REQUEST = 2;
 
     final int CAMERA_REQUEST = 1;
     File photoFile;
     SharedPreferences sp;
     Uri imageUri;
-
     ImageView imgThumbnail;
     boolean isUserPic = false;
-    //  List<Song> songs;
+    boolean isFromGallery = false;
 
-    interface  AddSongListener {
+    interface AddSongListener {
         void onAddSong(Song song);
-        //    void onAddSongDialogDestory(Song song);
     }
 
     AddSongListener callback;
-
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -63,10 +73,9 @@ public class AddSongDialogFragment extends DialogFragment {
             }
         }
 
-        try{
+        try {
             callback = (AddSongListener) context;
-        }
-        catch (ClassCastException e){
+        } catch (ClassCastException e) {
             throw new ClassCastException("The activity must implement AddSongListener interface");
         }
     }
@@ -108,6 +117,15 @@ public class AddSongDialogFragment extends DialogFragment {
             }
         });
 
+        final Button choosePicFromGalleryBtn = dialogView.findViewById(R.id.choose_from_gallery_btn);
+        choosePicFromGalleryBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+                startActivityForResult(galleryIntent, GALLERY_REQUEST);
+            }
+        });
+
         builder.setView(dialogView).setPositiveButton("Add Song", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -123,11 +141,13 @@ public class AddSongDialogFragment extends DialogFragment {
 
                 if (isUserPic) {
                     song.setImagePath(photoFile.getAbsolutePath());
-                    //  System.out.println(song.getImagePath() + "IMAGE PATH");
+                    System.out.println(song.getImagePath() + "IMAGE PATH");
+                    isUserPic = false;
                 }
-
-
-                isUserPic = false;
+                if (isFromGallery) {
+                    song.setImagePath(imageUri.toString());
+                    isFromGallery = false;
+                }
 
                 callback.onAddSong(song);
 
@@ -145,13 +165,20 @@ public class AddSongDialogFragment extends DialogFragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == CAMERA_REQUEST && resultCode == getActivity().RESULT_OK) {
-            //bitmap = (Bitmap) data.getExtras().get("data");
             if (data == null) {
                 System.out.println("--------------DATA IS NULL--------------");
             }
+
             isUserPic = true;
             imgThumbnail.setVisibility(View.VISIBLE);
-            imgThumbnail.setImageBitmap(BitmapFactory.decodeFile(photoFile.getAbsolutePath()));
+            Glide.with(getActivity()).load(photoFile.getAbsoluteFile()).into(imgThumbnail);
+        }
+
+        if (requestCode == GALLERY_REQUEST && resultCode == getActivity().RESULT_OK) {
+            isFromGallery = true;
+            imgThumbnail.setVisibility(View.VISIBLE);
+            imageUri = data.getData();
+            Glide.with(getActivity()).load(imageUri).into(imgThumbnail);
         }
     }
 

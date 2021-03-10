@@ -4,7 +4,9 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -191,6 +193,12 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             Glide.with(this.context).load(defaultBitmap).thumbnail(0.25f).into(holder.songThumbNailIV);
         }
         else {
+            Log.d("PATHOFIMAGE", "onBindViewHolder: "+song.getImagePath());
+
+            if (song.getImagePath().contains("content")){
+                System.out.println(song.getImagePath()+"HELLLOOOOO");
+      //          Uri uri = Uri.parse(song.getImagePath());
+            }
             Glide.with(this.context).load(song.getImagePath()).thumbnail(0.15f).into(holder.songThumbNailIV);
         }
     }
