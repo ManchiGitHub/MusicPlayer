@@ -95,6 +95,21 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         RecyclerView recyclerView = rootView.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        ItemTouchHelper.SimpleCallback callback = createSongTouchHelper();
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+
+   //     ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+  //      itemTouchHelper.attachToRecyclerView(recyclerView);
+
+        songAdapter = new SongAdapter(songs, getActivity());
+        songAdapter.setListener(this);
+        recyclerView.setAdapter(songAdapter);
+
+        return rootView;
+    }
+
+    private ItemTouchHelper.SimpleCallback createSongTouchHelper() {
         ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP|ItemTouchHelper.DOWN, ItemTouchHelper.START | ItemTouchHelper.END) {
 
             Animation scaleDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_scale_down);
@@ -123,12 +138,6 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
                     viewHolder.itemView.startAnimation(scaleUpAnimation);
                 }
             }
-
-//            @Override
-//            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-//                int dragFlags = ItemTouchHelper.UP|ItemTouchHelper.DOWN;
-//                return makeMovementFlags(dragFlags,ItemTouchHelper.START|ItemTouchHelper.END);
-//            }
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
@@ -164,14 +173,7 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
             }
         };
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
-
-        songAdapter = new SongAdapter(songs, getActivity());
-        songAdapter.setListener(this);
-        recyclerView.setAdapter(songAdapter);
-
-        return rootView;
+        return callback;
     }
 
     private void changeInitialTextOnScreen(TextView addSongsText) {
