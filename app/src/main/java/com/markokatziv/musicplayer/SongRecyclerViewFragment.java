@@ -95,7 +95,7 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         RecyclerView recyclerView = rootView.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP|ItemTouchHelper.DOWN, ItemTouchHelper.START | ItemTouchHelper.END) {
 
             Animation scaleDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_scale_down);
             Animation scaleUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_scale_up);
@@ -113,7 +113,6 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
             public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
                 super.clearView(recyclerView, viewHolder);
                 viewHolder.itemView.startAnimation(scaleDownAnimation);
-
             }
 
             @Override
@@ -125,11 +124,11 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
                 }
             }
 
-            @Override
-            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-                int dragFlags = ItemTouchHelper.UP|ItemTouchHelper.DOWN;
-                return makeMovementFlags(dragFlags,0);
-            }
+//            @Override
+//            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+//                int dragFlags = ItemTouchHelper.UP|ItemTouchHelper.DOWN;
+//                return makeMovementFlags(dragFlags,ItemTouchHelper.START|ItemTouchHelper.END);
+//            }
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
@@ -138,7 +137,14 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
 
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
                 builder.setTitle("Delete Song").setIcon(R.drawable.ic_baseline_remove_circle_outline_24).setMessage("Are you sure you want to remove " + song.getSongTitle() + " ?");
-                builder.setCancelable(true);
+                //builder.setCancelable(true);
+                builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        songAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
+
+                    }
+                });
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
