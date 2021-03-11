@@ -24,10 +24,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.Collections;
 import java.util.List;
 
 
-public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
+public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder>  {
 
     private List<Song> songsList;
     Context context;
@@ -71,6 +72,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         // ScaleAnimation scaleDownAnimation = new ScaleAnimation(1.5f, 1f, 1.5f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 1f);
 
         OvershootInterpolator overshootInterpolator = new OvershootInterpolator();
+
+
 
 
         public SongViewHolder(View v) {
@@ -173,6 +176,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     }
 
 
+
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
 
@@ -204,6 +208,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     }
 
 
+
     @Override
     public int getItemCount() {
         return songsList == null ? 0 : songsList.size();
@@ -215,4 +220,5 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         return super.getItemViewType(position);
 
     }
+
 }
