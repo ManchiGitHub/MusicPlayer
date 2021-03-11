@@ -39,8 +39,6 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     private List<Song> songs;
     private TextView addSongsText;
 
-
-
     public static SongRecyclerViewFragment newInstance(ArrayList<Song> songsList) {
         SongRecyclerViewFragment fragment = new SongRecyclerViewFragment();
         Bundle args = new Bundle();
@@ -99,9 +97,6 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
-   //     ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
-  //      itemTouchHelper.attachToRecyclerView(recyclerView);
-
         songAdapter = new SongAdapter(songs, getActivity());
         songAdapter.setListener(this);
         recyclerView.setAdapter(songAdapter);
@@ -141,39 +136,43 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
-                Song song = songs.get(viewHolder.getAdapterPosition());
-
-                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
-                builder.setTitle("Delete Song").setIcon(R.drawable.ic_baseline_remove_circle_outline_24).setMessage("Are you sure you want to remove " + song.getSongTitle() + " ?");
-                //builder.setCancelable(true);
-                builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        songAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
-
-                    }
-                });
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        songs.remove(viewHolder.getAdapterPosition());
-                        songAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-                        changeInitialTextOnScreen(addSongsText);
-                        SongFileHandler.saveSongList(getActivity(), songs);
-                    }
-                });
-
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        songAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
-                    }
-                }).show();
+                MaterialAlertDialogBuilder builder = createSongDeleteDialog(viewHolder);
+                builder.show();
             }
         };
 
         return callback;
+    }
+
+    private MaterialAlertDialogBuilder createSongDeleteDialog(RecyclerView.ViewHolder viewHolder) {
+        Song song = songs.get(viewHolder.getAdapterPosition());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
+        builder.setTitle("Delete Song").setIcon(R.drawable.ic_baseline_remove_circle_outline_24).setMessage("Are you sure you want to remove " + song.getSongTitle() + " ?");
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                songAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
+
+            }
+        });
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                songs.remove(viewHolder.getAdapterPosition());
+                songAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
+                changeInitialTextOnScreen(addSongsText);
+                SongFileHandler.saveSongList(getActivity(), songs);
+            }
+        });
+
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                songAdapter.notifyItemChanged(viewHolder.getAdapterPosition());
+            }
+        });
+
+        return builder;
     }
 
     private void changeInitialTextOnScreen(TextView addSongsText) {

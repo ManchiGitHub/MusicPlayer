@@ -25,21 +25,17 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         SongPageFragment.SongPageListener,
         PlayerFragment.PlayerFragmentListener {
 
-    final String TAG_FAB_FRAGMENT = "fab_btn_fragment";
     final String TAG_SPLASH_SCREEN_FRAGMENT = "splash_screen_fragment";
-    final String TAG_RECYCLERVIEW_FRAGMENT = "recycler_view_fragment";
     final String TAG_ADD_SONG_FRAGMENT = "add_song_fragment";
     final String TAG_PLAYER_FRAGMENT = "player_fragment";
     final String TAG_SONG_PAGE_FRAGMENT = "song_page_fragment";
+    final int SPLASH_DELAY_MILISEC = 1000;
 
     SplashScreenFragment splashScreenFragment;
     SongRecyclerViewFragment songRecyclerViewFragment;
     FABButtonFragment fabButtonFragment;
     AddSongDialogFragment addSongDialogFragment;
     PlayerFragment playerFragment;
-    /// SongPageFragment songPageFragment;
-
-
     ArrayList<Song> songs;
     SongPageFragment songPageFragment;
 
@@ -63,17 +59,11 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             songs = new ArrayList<Song>();
         }
 
-
         splashScreenFragment = new SplashScreenFragment();
         songRecyclerViewFragment = SongRecyclerViewFragment.newInstance(songs);
         fabButtonFragment = new FABButtonFragment();
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-
-//        fragmentTransaction = fragmentManager.beginTransaction();
-//        fragmentTransaction.setCustomAnimations(R.anim.fragment_fade_in, R.anim.fragment_fade_out, R.anim.fragment_fade_in, R.anim.fragment_fade_out);
-//        fragmentTransaction.add(R.id.activity_main_layout, splashScreenFragment, TAG_SPLASH_SCREEN_FRAGMENT).addToBackStack("splash_screen");
-//        fragmentTransaction.commit();
 
         fragmentManager.
                 beginTransaction().
@@ -90,8 +80,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
                         .replace(R.id.activity_main_layout, songRecyclerViewFragment).add(R.id.activity_main_layout, fabButtonFragment)
                         .commit();
             }
-        }, 1000);
-
+        }, SPLASH_DELAY_MILISEC);
     }
 
     @Override
@@ -119,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 //                }
 //            }
 //        }).start();
-
         songRecyclerViewFragment.notifyItemInsert(song);
     }
 
