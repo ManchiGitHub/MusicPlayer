@@ -41,6 +41,7 @@ public class SongPageFragment extends Fragment {
     private Song song;
     private int songPosition;
     Bitmap defaultBitmap;
+    private boolean isActive;
 
     public SongPageFragment() {
         // Required empty public constructor
@@ -64,6 +65,7 @@ public class SongPageFragment extends Fragment {
         args.putInt(SONG_POSITION_KEY, position);
         args.putSerializable(SONG_KEY, song);
         fragment.setArguments(args);
+        System.out.println("FRAGMENT NEW INSTANCE---------------------------------");
         return fragment;
     }
 
@@ -72,6 +74,7 @@ public class SongPageFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            this.isActive = true;
             song = (Song) getArguments().getSerializable("song");
             songPosition = (int) getArguments().getInt("song_position", 0);
         }
@@ -99,7 +102,7 @@ public class SongPageFragment extends Fragment {
             Glide.with(getActivity()).load(defaultBitmap).into(songImage);
         }
         else {
-            Log.d("WTF", "onCreateView: "+song.getImagePath());
+            Log.d("WTF", "onCreateView: " + song.getImagePath());
             Glide.with(getActivity()).load(song.getImagePath()).into(songImage);
         }
 
@@ -128,5 +131,16 @@ public class SongPageFragment extends Fragment {
         return rootView;
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
 
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.out.println("ON DESTROY");
+        this.isActive = false; // page fragment is destroyed,
+                               // need to set isActive to false to be able to create new instance.
+    }
 }

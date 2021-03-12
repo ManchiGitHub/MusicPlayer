@@ -115,6 +115,13 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     public void onCardClick(View view, int position) {
         Song song = songs.get(position);
 
+        // this is for making sure only one song page fragment and one player fragment are alive.
+        if (songPageFragment!=null){
+            if (songPageFragment.isActive()){
+                return;
+            }
+        }
+
         songPageFragment = SongPageFragment.newInstance(song, position);
         playerFragment = PlayerFragment.newInstance(song, position);
 
@@ -125,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         fragmentTransaction.add(R.id.activity_main_layout, playerFragment, TAG_PLAYER_FRAGMENT).addToBackStack("player_frag");
         fragmentTransaction.add(R.id.activity_main_layout, songPageFragment, TAG_SONG_PAGE_FRAGMENT).addToBackStack("song_page_frag");
         fragmentTransaction.commit();
+
     }
 
     @Override
