@@ -165,18 +165,15 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
                 int ID = v.getId();
 
-                switch (ID) {
-                    case R.id.skip_prev:
-                        System.out.println("prev");
-                        MyAnimations.AnimateBackAndPrevBtns(v, (-1 * Y_TRANSITION_SKIP_PREV));
-                        callback.onSkipPrevClick();
-
-                        break;
-                    case R.id.skip_next:
-                        System.out.println("next");
-                        MyAnimations.AnimateBackAndPrevBtns(v, Y_TRANSITION_SKIP_PREV);
-                        callback.onSkipNextClick();
-                        break;
+                if (ID==R.id.skip_prev){
+                    System.out.println("prev");
+                    MyAnimations.AnimateBackAndPrevBtns(v, (-1 * Y_TRANSITION_SKIP_PREV));
+                    callback.onSkipPrevClick();
+                }
+                else if (ID==R.id.skip_next){
+                    System.out.println("next");
+                    MyAnimations.AnimateBackAndPrevBtns(v, Y_TRANSITION_SKIP_PREV);
+                    callback.onSkipNextClick();
                 }
             }
         });
