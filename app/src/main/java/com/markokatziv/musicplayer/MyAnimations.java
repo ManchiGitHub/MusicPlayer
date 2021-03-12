@@ -12,7 +12,7 @@ import android.view.animation.ScaleAnimation;
 public class MyAnimations {
 
 
-    public static void AnimateFavoriteButton(View v){
+    public static void AnimateFavoriteButton(View v) {
 
         ScaleAnimation scaleUpAnimation = new ScaleAnimation(1f, 1.1f, 1f, 1.1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 1f);
         ScaleAnimation scaleDownAnimation = new ScaleAnimation(1.1f, 1f, 1.1f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 1f);
@@ -43,6 +43,12 @@ public class MyAnimations {
     }
 
     public static void AnimateBackAndPrevBtns(View v, float value) {
+
+        // if current language is not english, flip animation transition to fit current language.
+        if (LanguageUtils.getCurrentLanguage() != LanguageUtils.EN_LANGUAGE) {
+            value *= -1;
+        }
+
         ObjectAnimator animation;
         AccelerateInterpolator accelerateInterpolator = new AccelerateInterpolator();
 

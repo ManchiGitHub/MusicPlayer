@@ -23,6 +23,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
     final static private String SONG_KEY = "songs";
     final static private String SONG_POSITION_KEY = "song_position";
+    final static private int Y_TRANSITION_SKIP_PREV = 40;
 
 
     interface PlayerFragmentListener {
@@ -81,6 +82,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -92,6 +94,13 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         Button skipNext = rootView.findViewById(R.id.skip_next);
         skipNext.setOnClickListener(this);
 
+        // flip prev and next buttons according to current locale.
+        String language = LanguageUtils.getCurrentLanguage();
+        if (!(language.equals(LanguageUtils.EN_LANGUAGE))) {
+            skipPrev.setScaleX(-1);
+            skipNext.setScaleX(-1);
+        }
+
         playPauseIV = rootView.findViewById(R.id.play_pause_button);
         playPauseIV.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,7 +109,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                 //TODO insert animation to handler and separate private function
                 animatePlayPauseButton();
 
-
                 callback.onPlayPauseClick();
             }
 
@@ -108,6 +116,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
         return rootView;
     }
+
 
     public void animatePlayPauseButton() {
 
@@ -159,13 +168,13 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                 switch (ID) {
                     case R.id.skip_prev:
                         System.out.println("prev");
-                        MyAnimations.AnimateBackAndPrevBtns(v, -40); //TODO should be private final int
+                        MyAnimations.AnimateBackAndPrevBtns(v, (-1 * Y_TRANSITION_SKIP_PREV));
                         callback.onSkipPrevClick();
 
                         break;
                     case R.id.skip_next:
                         System.out.println("next");
-                        MyAnimations.AnimateBackAndPrevBtns(v, 40); //TODO should be private final int
+                        MyAnimations.AnimateBackAndPrevBtns(v, Y_TRANSITION_SKIP_PREV);
                         callback.onSkipNextClick();
                         break;
                 }
