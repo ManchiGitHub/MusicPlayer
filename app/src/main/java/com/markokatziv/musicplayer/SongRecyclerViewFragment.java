@@ -14,16 +14,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.ScaleAnimation;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
+/**
+ * Created By marko katziv
+ */
 public class SongRecyclerViewFragment extends Fragment implements SongAdapter.SongListenerInterface {
 
     final static private String SONGS_LIST_KEY = "songs_list";

@@ -4,17 +4,16 @@ package com.markokatziv.musicplayer;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Toast;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import java.util.ArrayList;
 
+/**
+ * Created By marko katziv
+ */
 public class MainActivity extends AppCompatActivity implements FABButtonFragment.FABButtonFragmentListener,
         AddSongDialogFragment.AddSongListener,
         SongRecyclerViewFragment.SongRecyclerViewListener,
@@ -25,7 +24,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     final String TAG_ADD_SONG_FRAGMENT = "add_song_fragment";
     final String TAG_PLAYER_FRAGMENT = "player_fragment";
     final String TAG_SONG_PAGE_FRAGMENT = "song_page_fragment";
-    final int SPLASH_DELAY_MILISEC = 1000;
+    final int SPLASH_DELAY_MILISEC = 500;
     private boolean isPlaying = false;
     private boolean isStarted = false;
 
@@ -37,15 +36,13 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     ArrayList<Song> songs;
     SongPageFragment songPageFragment;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        // load songs
         songs = SongFileHandler.readSongList(this);
-
 
         if (songs == null || songs.size() == 0) {
             songs = new ArrayList<Song>();
@@ -57,18 +54,14 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         FragmentManager fragmentManager = getSupportFragmentManager();
 
-        fragmentManager.
-                beginTransaction().
-                setCustomAnimations(R.anim.fragment_fade_in, R.anim.fragment_fade_out, R.anim.fragment_fade_in, R.anim.fragment_fade_out).
-                add(R.id.activity_main_layout, splashScreenFragment, TAG_SPLASH_SCREEN_FRAGMENT).commit();
+        fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fragment_fade_in, R.anim.fragment_fade_out, R.anim.fragment_fade_in, R.anim.fragment_fade_out)
+                .add(R.id.activity_main_layout, splashScreenFragment, TAG_SPLASH_SCREEN_FRAGMENT).commit();
 
         new Handler(getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 fragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_up_fragment, R.anim.fragment_fade_out)
-//                        .remove(getSupportFragmentManager().findFragmentByTag(TAG_SPLASH_SCREEN_FRAGMENT))
-//                        .add(R.id.activity_main_layout, songRecyclerViewFragment, TAG_RECYCLERVIEW_FRAGMENT).addToBackStack("transaction")
-//                        .add(R.id.activity_main_layout, fabButtonFragment, TAG_FAB_FRAGMENT)
                         .replace(R.id.activity_main_layout, songRecyclerViewFragment).add(R.id.activity_main_layout, fabButtonFragment)
                         .commit();
             }
@@ -84,21 +77,26 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     public void onPlaySongBtnClick(View view) {
 
-    //    if (!isPlaying) {
-          //  isStarted= !isStarted;
-            if (songs.size() > 0) {
-                Intent intent = new Intent(MainActivity.this, MusicService.class);
-                intent.putExtra("songs_list", songs);
-                intent.putExtra("command", "new_instance");
-                startService(intent);
-            }
-    //    }
-     //   else{
-    //        Toast.makeText(this, "Already playing", Toast.LENGTH_SHORT).show();
-    //    }
+        /**
+         * TODO:
+         *  Click when NOT PLAYING:
+         *  1) Start main FAB button icon spin animation
+         *  2) Switch to play icon if needed.
+         *  3) Resume song in last position OR start song in last position OR play first song if no last position.
+         *  Click when PLAYING:
+         *  1) Stop main FAB button icon spin animation
+         *  2) Switch to pause icon.
+         *  3) Pause music.
+         *  4) Save song progress position.
+         */
 
+        if (songs.size() > 0) {
+            Intent intent = new Intent(MainActivity.this, MusicService.class);
+            intent.putExtra("songs_list", songs);
+            intent.putExtra("command", "new_instance");
+            startService(intent);
+        }
 
-     //   isPlaying = !isPlaying;
     }
 
     @Override
@@ -107,19 +105,6 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         songs.add(song);
         Toast.makeText(this, "song added", Toast.LENGTH_SHORT).show();
         SongFileHandler.saveSongList(this, songs);
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try { //TODO put this in a file handler class
-//                    FileOutputStream fos = openFileOutput("songs_list", Context.MODE_PRIVATE);
-//                    ObjectOutputStream oos = new ObjectOutputStream(fos);
-//                    oos.writeObject(songs);
-//                    oos.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).start();
         songRecyclerViewFragment.notifyItemInsert(song);
     }
 
@@ -139,19 +124,16 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
         fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_down, R.anim.animate_up, R.anim.slide_down_add_song);
         fragmentTransaction.add(R.id.activity_main_layout, playerFragment, TAG_PLAYER_FRAGMENT).addToBackStack("player_frag");
         fragmentTransaction.add(R.id.activity_main_layout, songPageFragment, TAG_SONG_PAGE_FRAGMENT).addToBackStack("song_page_frag");
         fragmentTransaction.commit();
-
     }
 
     @Override
     public void onFavoriteButtonClick(int position) {
         SongFileHandler.saveSongList(this, songs);
         songRecyclerViewFragment.notifyFavoriteButtonClick(position);
-
     }
 
     @Override
@@ -171,16 +153,4 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         //TODO: play / pause song
         Toast.makeText(this, "onPlayPauseClick", Toast.LENGTH_SHORT).show();
     }
-
-
-//    @Override
-//    public void onBackPressed() {
-//        super.onBackPressed();
-//
-//        System.out.println(fragmentManager.getFragments().size()+"-----------------------------");
-//        getSupportFragmentManager().beginTransaction().detach(splashScreenFragment).commit();
-//        if (fragmentManager.getBackStackEntryCount()==0){
-//            finish();
-//        }
-//    }
 }

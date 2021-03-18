@@ -4,7 +4,6 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,13 +20,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
-
-import java.util.Collections;
 import java.util.List;
 
-
+/**
+ * Created By marko katziv
+ */
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder>  {
 
     private List<Song> songsList;

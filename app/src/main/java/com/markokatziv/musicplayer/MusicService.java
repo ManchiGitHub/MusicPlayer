@@ -11,10 +11,8 @@ import android.os.Build;
 import android.os.IBinder;
 import android.widget.RemoteViews;
 import android.widget.Toast;
-
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -91,7 +89,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         //TODO: notification id should be const
         notification = builder.build();
-
         startForeground(NOTIFICATION_IDENTIFIER_ID, notification);
 
     }

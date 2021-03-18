@@ -4,15 +4,15 @@ import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+/**
+ * Created By marko katziv
+ */
 public class SplashScreenFragment extends Fragment {
 
     private static final String TAG_RECYCLER_VIEW_FRAGMENT = "recycler_view_fragment";

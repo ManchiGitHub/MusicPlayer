@@ -6,13 +6,14 @@ import android.animation.ObjectAnimator;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
-import android.view.animation.BounceInterpolator;
 import android.view.animation.ScaleAnimation;
 
-
+/**
+ * Created By marko katziv
+ */
 public class MyAnimations {
 
-
+    //TODO: Do I really need this?
     public static void AnimateFavoriteButton(View v) {
 
         ScaleAnimation scaleUpAnimation = new ScaleAnimation(1f, 1.1f, 1f, 1.1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 1f);

@@ -1,9 +1,10 @@
 package com.markokatziv.musicplayer;
 
-import android.net.Uri;
-
 import java.io.Serializable;
 
+/**
+ * Created By marko katziv
+ */
 public class Song implements Serializable {
 
     // private Preferences preferences;
