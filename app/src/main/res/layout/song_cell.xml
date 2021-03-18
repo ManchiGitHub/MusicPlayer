@@ -4,13 +4,12 @@
     android:id="@+id/card_main_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="5dp"
     android:outlineProvider="paddedBounds"
-    android:outlineSpotShadowColor="#000000"
-    app:cardCornerRadius="5dp"
-    app:cardElevation="8dp"
+    android:outlineSpotShadowColor="@color/grey_blue"
+    app:cardCornerRadius="20dp"
     app:cardUseCompatPadding="true"
-    app:layout_goneMarginStart="5dp">
+    android:layout_marginBottom="3dp"
+    app:cardElevation="4dp">
 
     <RelativeLayout
         android:layout_width="match_parent"

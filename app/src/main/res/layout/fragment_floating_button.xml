@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_song_fab_btn"
@@ -12,25 +12,44 @@
         android:layout_gravity="center"
         android:layout_marginStart="25dp"
         android:layout_marginBottom="20dp"
-        android:backgroundTint="@color/pink"
-        android:elevation="20dp"
+        android:backgroundTint="#BA7092"
         android:clipToPadding="true"
-        android:visibility="gone"
+        android:elevation="20dp"
+        android:src="@drawable/ic_baseline_add_24"
+        android:visibility="invisible"
+        app:borderWidth="0dp"
+        app:fabCustomSize="80dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/play_song_fab_btn"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="25dp"
+        android:layout_marginBottom="20dp"
+        android:layout_alignParentBottom="true"
+        android:backgroundTint="#BA7092"
+        android:clipToPadding="true"
+        android:elevation="20dp"
+        android:src="@drawable/ic_baseline_play_arrow_24"
+        android:visibility="invisible"
         app:borderWidth="0dp"
         app:fabCustomSize="80dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/main_fab_btn"
         android:layout_width="80dp"
+        android:layout_marginBottom="20dp"
         android:layout_height="80dp"
-        android:layout_alignParentBottom="true"
         android:layout_gravity="center"
         android:layout_marginStart="25dp"
-        android:layout_marginBottom="140dp"
-        android:backgroundTint="@color/pink"
+        android:layout_above="@+id/play_song_fab_btn"
+        android:backgroundTint="#BA7092"
         android:elevation="20dp"
         android:src="@drawable/ic_baseline_music_note_24"
         app:borderWidth="0dp"
         app:fabCustomSize="80dp" />
+
+
 
 </RelativeLayout>

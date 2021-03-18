@@ -10,6 +10,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -137,7 +139,7 @@ public class AddSongDialogFragment extends DialogFragment {
                 song.setFavorite(favoriteCheckBox.isChecked());
                 song.setSongTitle(songTitle);
                 song.setArtistTitle(artistName);
-                song.setLinkToSong("http://www.syntax.org.il/xtra/bob.m4a");
+                song.setLinkToSong("https://www.syntax.org.il/xtra/bob.m4a");
 
                 if (isUserPic) {
                     song.setImagePath(photoFile.getAbsolutePath());
@@ -155,6 +157,7 @@ public class AddSongDialogFragment extends DialogFragment {
         });
 
         AlertDialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(R.color.light_pink);
         dialog.getWindow().getAttributes().windowAnimations = R.style.SlidingDialogAnimation;
 
         return dialog;

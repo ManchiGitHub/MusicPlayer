@@ -5,19 +5,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Toast;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements FABButtonFragment.FABButtonFragmentListener,
         AddSongDialogFragment.AddSongListener,
@@ -30,6 +26,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     final String TAG_PLAYER_FRAGMENT = "player_fragment";
     final String TAG_SONG_PAGE_FRAGMENT = "song_page_fragment";
     final int SPLASH_DELAY_MILISEC = 1000;
+    private boolean isPlaying = false;
+    private boolean isStarted = false;
 
     SplashScreenFragment splashScreenFragment;
     SongRecyclerViewFragment songRecyclerViewFragment;
@@ -39,21 +37,15 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     ArrayList<Song> songs;
     SongPageFragment songPageFragment;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         songs = SongFileHandler.readSongList(this);
-        //TODO consider loading the song list from the recycler view fragment and keeping the list outside of main activity
-//        try {
-//            FileInputStream fis = openFileInput("songs_list");
-//            ObjectInputStream ois = new ObjectInputStream(fis);
-//            songs = (ArrayList<Song>) ois.readObject();
-//            fis.close();
-//        } catch (IOException | ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
+
 
         if (songs == null || songs.size() == 0) {
             songs = new ArrayList<Song>();
@@ -90,6 +82,26 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     }
 
     @Override
+    public void onPlaySongBtnClick(View view) {
+
+    //    if (!isPlaying) {
+          //  isStarted= !isStarted;
+            if (songs.size() > 0) {
+                Intent intent = new Intent(MainActivity.this, MusicService.class);
+                intent.putExtra("songs_list", songs);
+                intent.putExtra("command", "new_instance");
+                startService(intent);
+            }
+    //    }
+     //   else{
+    //        Toast.makeText(this, "Already playing", Toast.LENGTH_SHORT).show();
+    //    }
+
+
+     //   isPlaying = !isPlaying;
+    }
+
+    @Override
     public void onAddSong(Song song) {
 
         songs.add(song);
@@ -116,8 +128,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         Song song = songs.get(position);
 
         // this is for making sure only one song page fragment and one player fragment are alive.
-        if (songPageFragment!=null){
-            if (songPageFragment.isActive()){
+        if (songPageFragment != null) {
+            if (songPageFragment.isActive()) {
                 return;
             }
         }

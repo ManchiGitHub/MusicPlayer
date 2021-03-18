@@ -18,15 +18,19 @@ public class FABButtonFragment extends Fragment {
 
     interface FABButtonFragmentListener {
         void onAddSongBtnClick();
+        void onPlaySongBtnClick(View view);
     }
 
     FABButtonFragmentListener callback;
 
     private FloatingActionButton fab;
     private FloatingActionButton addSongfab;
+    private FloatingActionButton playSongfab;
     boolean isClicked = false;
     private Animation animUp;
     private Animation animDown;
+    private Animation animRight;
+    private Animation animLeft;
     private Animation rotateOpen;
     private Animation rotateClose;
 
@@ -46,8 +50,11 @@ public class FABButtonFragment extends Fragment {
     public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
         animUp = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_up);
         animDown = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_down);
+        animRight = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_down_play_btn);
+        animLeft = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_up_play_btn);
         rotateOpen = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_open_anim);
         rotateClose = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_close_anim);
+
 
         return super.onCreateAnimation(transit, enter, nextAnim);
     }
@@ -75,6 +82,15 @@ public class FABButtonFragment extends Fragment {
             }
         });
 
+        playSongfab = rootView.findViewById(R.id.play_song_fab_btn);
+        playSongfab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callback.onPlaySongBtnClick(v);
+
+            }
+        });
+
         return rootView;
     }
 
@@ -89,10 +105,15 @@ public class FABButtonFragment extends Fragment {
         if (!clicked) {
             addSongfab.setVisibility(View.VISIBLE);
             addSongfab.setClickable(true);
+            playSongfab.setVisibility(View.VISIBLE);
+            playSongfab.setClickable(true);
         }
         else {
-            addSongfab.setVisibility(View.GONE);
+            addSongfab.setVisibility(View.INVISIBLE);
             addSongfab.setClickable(false);
+            playSongfab.setVisibility(View.INVISIBLE);
+            playSongfab.setClickable(false);
+
         }
     }
 
@@ -102,6 +123,7 @@ public class FABButtonFragment extends Fragment {
 //            animationSet.addAnimation(rotateOpen);
 //            animationSet.start();
             addSongfab.startAnimation(animUp);
+            playSongfab.startAnimation(animRight);
             fab.startAnimation(rotateOpen);
         }
         else {
@@ -110,6 +132,7 @@ public class FABButtonFragment extends Fragment {
 //            animationSet.start();
             fab.startAnimation(rotateClose);
             addSongfab.startAnimation(animDown);
+            playSongfab.startAnimation(animLeft);
         }
     }
 }

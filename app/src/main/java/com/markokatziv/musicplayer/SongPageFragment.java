@@ -110,17 +110,17 @@ public class SongPageFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                MyAnimations.AnimateFavoriteButton(v);
+             //   MyAnimations.AnimateFavoriteButton(v);
                 //animate button
                 System.out.println("HELLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
                 // if song is not favorite
                 if (!song.isFavorite()) {
                     song.setFavorite(true);
-                    v.setBackground(getActivity().getDrawable(R.drawable.heart_solid));
+                    v.setBackground(getActivity().getDrawable(R.drawable.heart_full));
                 }
                 else { //song is favorite
                     song.setFavorite(false);
-                    v.setBackgroundResource(R.drawable.ic_heart);
+                    v.setBackground(getActivity().getDrawable(R.drawable.heart_empty));
                 }
 
                 callback.onFavoriteButtonClick(songPosition);

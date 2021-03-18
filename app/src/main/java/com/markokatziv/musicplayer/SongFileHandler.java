@@ -12,7 +12,7 @@ import java.util.List;
 
 public class SongFileHandler {
 
-    public static void saveSongList(Context context, List<Song> songs){
+    public static void saveSongList(Context context, List<Song> songs) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -28,14 +28,14 @@ public class SongFileHandler {
         }).start();
     }
 
-    public static ArrayList<Song> readSongList(Context context){
+    public static ArrayList<Song> readSongList(Context context) {
 
         ArrayList<Song> songs = null;
 
         try {
             FileInputStream fis = context.openFileInput("songs_list");
             ObjectInputStream ois = new ObjectInputStream(fis);
-            songs = (ArrayList<Song>) ois.readObject();
+            songs = (ArrayList<Song>) ois.readObject(); //stupid warning is stupid.
             fis.close();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

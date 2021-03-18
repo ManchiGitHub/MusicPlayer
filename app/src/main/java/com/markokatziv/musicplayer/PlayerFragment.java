@@ -16,6 +16,10 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 
@@ -38,7 +42,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
     Handler handler;
     private int switchNumber = 0;
-    ImageView playPauseIV;
+    Button playPauseBtn;
     private AnimatedVectorDrawableCompat avd;
     private AnimatedVectorDrawable avd2;
 
@@ -101,14 +105,41 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             skipNext.setScaleX(-1);
         }
 
-        playPauseIV = rootView.findViewById(R.id.play_pause_button);
-        playPauseIV.setOnClickListener(new View.OnClickListener() {
+        playPauseBtn = rootView.findViewById(R.id.play_pause_button);
+        playPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                //TODO insert animation to handler and separate private function
-                animatePlayPauseButton();
+                Animation fadeOut = new AlphaAnimation(1, 0);
+                fadeOut.setInterpolator(new AccelerateInterpolator()); //and this
+                fadeOut.setDuration(50);
 
+
+                if (switchNumber == 0) {
+                    switchNumber++;
+                    //fadeOut.start();
+                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            v.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
+                        }
+                    }, 50);
+                }
+                else {
+                    switchNumber--;
+                   // fadeOut.start();
+                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            v.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
+                        }
+                    },50);
+                }
+
+
+                //TODO insert animation to handler and separate private function
+                //animatePlayPauseButton();
+                v.startAnimation(fadeOut);
                 callback.onPlayPauseClick();
             }
 
@@ -118,44 +149,44 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     }
 
 
-    public void animatePlayPauseButton() {
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (switchNumber == 0) {
-                    Drawable drawable = ResourcesCompat.getDrawable(getActivity().getResources(), R.drawable.play_to_pause, null);
-                    playPauseIV.setImageDrawable(drawable);
-
-                    if (drawable instanceof AnimatedVectorDrawableCompat) {
-                        avd = (AnimatedVectorDrawableCompat) drawable;
-                        avd.start();
-                    }
-                    else if (drawable instanceof AnimatedVectorDrawable) {
-                        avd2 = (AnimatedVectorDrawable) drawable;
-                        avd2.start();
-                    }
-
-                    switchNumber++;
-                }
-                else {
-                    Drawable drawable = ResourcesCompat.getDrawable(getActivity().getResources(), R.drawable.pause_to_play, null);
-                    playPauseIV.setImageDrawable(drawable);
-
-                    if (drawable instanceof AnimatedVectorDrawableCompat) {
-                        avd = (AnimatedVectorDrawableCompat) drawable;
-                        avd.start();
-                    }
-                    else if (drawable instanceof AnimatedVectorDrawable) {
-                        avd2 = (AnimatedVectorDrawable) drawable;
-                        avd2.start();
-                    }
-                    switchNumber--;
-
-                }
-            }
-        });
-    }
+//    public void animatePlayPauseButton() {
+//
+//        handler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (switchNumber == 0) {
+//                    Drawable drawable = ResourcesCompat.getDrawable(getActivity().getResources(), R.drawable.play_to_pause, null);
+//                    playPauseBtn.setImageDrawable(drawable);
+//
+//                    if (drawable instanceof AnimatedVectorDrawableCompat) {
+//                        avd = (AnimatedVectorDrawableCompat) drawable;
+//                        avd.start();
+//                    }
+//                    else if (drawable instanceof AnimatedVectorDrawable) {
+//                        avd2 = (AnimatedVectorDrawable) drawable;
+//                        avd2.start();
+//                    }
+//
+//                    switchNumber++;
+//                }
+//                else {
+//                    Drawable drawable = ResourcesCompat.getDrawable(getActivity().getResources(), R.drawable.pause_to_play, null);
+//                    playPauseBtn.setImageDrawable(drawable);
+//
+//                    if (drawable instanceof AnimatedVectorDrawableCompat) {
+//                        avd = (AnimatedVectorDrawableCompat) drawable;
+//                        avd.start();
+//                    }
+//                    else if (drawable instanceof AnimatedVectorDrawable) {
+//                        avd2 = (AnimatedVectorDrawable) drawable;
+//                        avd2.start();
+//                    }
+//                    switchNumber--;
+//
+//                }
+//            }
+//        });
+//    }
 
     @Override
     public void onClick(View v) {
@@ -165,12 +196,12 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
                 int ID = v.getId();
 
-                if (ID==R.id.skip_prev){
+                if (ID == R.id.skip_prev) {
                     System.out.println("prev");
                     MyAnimations.AnimateBackAndPrevBtns(v, (-1 * Y_TRANSITION_SKIP_PREV));
                     callback.onSkipPrevClick();
                 }
-                else if (ID==R.id.skip_next){
+                else if (ID == R.id.skip_next) {
                     System.out.println("next");
                     MyAnimations.AnimateBackAndPrevBtns(v, Y_TRANSITION_SKIP_PREV);
                     callback.onSkipNextClick();
