@@ -3,12 +3,15 @@ package com.markokatziv.musicplayer;
 import android.content.Context;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
+
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,20 +31,21 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
 
     interface PlayerFragmentListener {
-        void onSkipPrevClick();
+        void onSkipPrevClick(int songPosition);
 
-        void onSkipNextClick();
+        void onSkipNextClick(int songPosition);
 
-        void onPlayPauseClick();
+        void onPlayPauseClick(int songPosition, View view);
     }
 
     PlayerFragmentListener callback;
 
     Handler handler;
-    private int switchNumber = 0;
-    Button playPauseBtn;
-    private AnimatedVectorDrawableCompat avd;
-    private AnimatedVectorDrawable avd2;
+    static int switchNumber = 0;
+    static Button playPauseBtn;
+    //    private AnimatedVectorDrawableCompat avd;
+//    private AnimatedVectorDrawable avd2;
+    private int songPosition;
 
     public PlayerFragment() {
         // Required empty public constructor
@@ -49,10 +53,13 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
 
     // TODO: Rename and change types and number of parameters
-    public static PlayerFragment newInstance(Song song, int position) {
+    public static PlayerFragment newInstance(Song song, int position, boolean isPlaying, int listSize) {
         PlayerFragment fragment = new PlayerFragment();
         Bundle args = new Bundle();
         args.putInt(SONG_POSITION_KEY, position);
+        args.putInt("list_size", listSize);
+        //  args.putBoolean("is_from_FAB_btn", isFromFabBtn);
+        args.putBoolean("is_playing", isPlaying);
         args.putSerializable(SONG_KEY, song);
         fragment.setArguments(args);
         return fragment;
@@ -79,7 +86,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-
+            this.songPosition = getArguments().getInt(SONG_POSITION_KEY);
         }
     }
 
@@ -103,6 +110,12 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         }
 
         playPauseBtn = rootView.findViewById(R.id.play_pause_button);
+
+//        if (getArguments().getBoolean("is_playing")) {
+        playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
+        switchNumber = 1;
+//        }
+
         playPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,20 +137,20 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                 }
                 else {
                     switchNumber--;
-                   // fadeOut.start();
+                    // fadeOut.start();
                     new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             v.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
                         }
-                    },50);
+                    }, 50);
                 }
 
 
                 //TODO insert animation to handler and separate private function
                 //animatePlayPauseButton();
                 v.startAnimation(fadeOut);
-                callback.onPlayPauseClick();
+                callback.onPlayPauseClick(songPosition, v);
             }
 
         });
@@ -191,17 +204,29 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             @Override
             public void run() {
 
+                int listSize = getArguments().getInt("list_size");
+
                 int ID = v.getId();
 
                 if (ID == R.id.skip_prev) {
-                    System.out.println("prev");
                     MyAnimations.AnimateBackAndPrevBtns(v, (-1 * Y_TRANSITION_SKIP_PREV));
-                    callback.onSkipPrevClick();
+
+                    songPosition--;
+                    if (songPosition < 0) {
+                        songPosition = listSize - 1;
+                    }
+                    callback.onSkipPrevClick(songPosition);
                 }
                 else if (ID == R.id.skip_next) {
                     System.out.println("next");
+                    Log.d("TAGTAG", "last song position: " + songPosition);
                     MyAnimations.AnimateBackAndPrevBtns(v, Y_TRANSITION_SKIP_PREV);
-                    callback.onSkipNextClick();
+
+                    songPosition++;
+                    if (songPosition == listSize) {
+                        songPosition = 0;
+                    }
+                    callback.onSkipNextClick(songPosition);
                 }
             }
         });

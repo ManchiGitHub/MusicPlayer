@@ -7,14 +7,21 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestOptions;
 
 /**
  * Created By marko katziv
@@ -23,7 +30,7 @@ public class SongPageFragment extends Fragment {
 
     final static private String SONG_POSITION_KEY = "song_position";
     final static private String SONG_KEY = "song";
-
+    Animation fadeOutAnimation;
 
     interface SongPageListener {
         void onFavoriteButtonClick(int position);
@@ -35,6 +42,14 @@ public class SongPageFragment extends Fragment {
     private int songPosition;
     Bitmap defaultBitmap;
     private boolean isActive;
+
+
+    ImageView songImage;
+    TextView songTitle;
+    TextView artistTitle;
+    Button favoriteBtn;
+
+
 
     public SongPageFragment() {
         // Required empty public constructor
@@ -53,6 +68,7 @@ public class SongPageFragment extends Fragment {
     }
 
     public static SongPageFragment newInstance(Song song, int position) {
+
         SongPageFragment fragment = new SongPageFragment();
         Bundle args = new Bundle();
         args.putInt(SONG_POSITION_KEY, position);
@@ -60,6 +76,39 @@ public class SongPageFragment extends Fragment {
         fragment.setArguments(args);
         System.out.println("FRAGMENT NEW INSTANCE---------------------------------");
         return fragment;
+    }
+
+    public void changeSongInfo(Song song){
+        this.songTitle.setText(song.getSongTitle());
+        this.artistTitle.setText(song.getArtistTitle());
+
+        if (song.isFavorite()) {
+            favoriteBtn.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.heart_solid));
+        }
+
+        if (song.getImagePath().equals("")) {
+            songImage.startAnimation(fadeOutAnimation);
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Glide.with(getActivity()).load(defaultBitmap).into(songImage);
+                }
+            },400 );
+
+        }
+        else {
+            Log.d("WTF", "onCreateView: " + song.getImagePath());
+
+            songImage.startAnimation(fadeOutAnimation);
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Glide.with(getActivity()).load(song.getImagePath()).into(songImage);
+                }
+            },400);
+
+        }
+
     }
 
 
@@ -71,6 +120,8 @@ public class SongPageFragment extends Fragment {
             song = (Song) getArguments().getSerializable("song");
             songPosition = (int) getArguments().getInt("song_position", 0);
         }
+
+        fadeOutAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.fragment_fade_out);
     }
 
     @Override
@@ -79,10 +130,10 @@ public class SongPageFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_song_page, container, false);
 
         defaultBitmap = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.default_song_img);
-        ImageView songImage = rootView.findViewById(R.id.song_page_frag_song_img);
-        TextView songTitle = rootView.findViewById(R.id.song_page_frag_song_title);
-        TextView artistTitle = rootView.findViewById(R.id.song_page_frag_artist);
-        Button favoriteBtn = rootView.findViewById(R.id.song_page_frag_favorite_btn);
+        songImage = rootView.findViewById(R.id.song_page_frag_song_img);
+        songTitle = rootView.findViewById(R.id.song_page_frag_song_title);
+        artistTitle = rootView.findViewById(R.id.song_page_frag_artist);
+        favoriteBtn = rootView.findViewById(R.id.song_page_frag_favorite_btn);
 
         songTitle.setText(song.getSongTitle());
         artistTitle.setText(song.getArtistTitle());

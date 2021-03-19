@@ -5,14 +5,17 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.IBinder;
 import android.widget.RemoteViews;
 import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -33,7 +36,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     NotificationCompat.Builder builder;
     Notification notification;
     ArrayList<Song> songs;
-    int currentPlaying = 0;
+    int currentPlaying = -1;
+    boolean isDataSourceSet = false;
 
     @Nullable
     @Override
@@ -44,6 +48,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onCreate() {
         super.onCreate();
+
 
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnCompletionListener(this);
@@ -98,34 +103,44 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         String command = intent.getStringExtra("command");
         System.out.println(command + " COMMAND STRING");
+        int position = intent.getIntExtra("position", 0);
+        songs = SongFileHandler.readSongList(MusicService.this);
 
         switch (command) {
             case "new_instance":
-                if (!mediaPlayer.isPlaying()) {
-                    mediaPlayer.reset();
-                    songs = (ArrayList<Song>) intent.getSerializableExtra("songs_list");
-                    Toast.makeText(this, "Playing " + songs.get(currentPlaying).getSongTitle(), Toast.LENGTH_SHORT).show();
-                    try {
-                        System.out.println(songs.get(currentPlaying).getLinkToSong() + " SONG PATH");
-                        mediaPlayer.setDataSource(songs.get(currentPlaying).getLinkToSong());
-                        remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
-                        manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
-                        mediaPlayer.prepareAsync();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.stop();
+                }
+                currentPlaying = position;
+                mediaPlayer.reset();
+                try {
+                    remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
+                    manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
+                    mediaPlayer.setDataSource(songs.get(currentPlaying).getLinkToSong());
+                    mediaPlayer.prepareAsync();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
                 break;
             case "play_pause":
-                if (!mediaPlayer.isPlaying()) {
-                    mediaPlayer.start();
-                    remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
+                if (mediaPlayer.isPlaying()) {
+                    remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_play_circle_24);
+                    manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
+                    mediaPlayer.pause();
+
+                    //TODO: this should probably be implemented with broadcasts.
+                    PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
+                    PlayerFragment.switchNumber = 0;
                 }
                 else {
-                    mediaPlayer.pause();
-                    remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_play_circle_24);
+                    remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
+                    manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
+                    mediaPlayer.start();
+
+                    //TODO: this should probably be implemented with broadcasts.
+                    PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
+                    PlayerFragment.switchNumber = 1;
                 }
-                manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
                 break;
             case "next":
                 if (!mediaPlayer.isPlaying()) {
@@ -137,6 +152,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 remoteViews.setTextViewText(R.id.song_title_notif, songs.get(currentPlaying).getSongTitle());
                 remoteViews.setTextViewText(R.id.artist_title_notif, songs.get(currentPlaying).getArtistTitle());
                 manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
+
+                //TODO: this should probably be implemented with broadcasts.
+                PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
+                PlayerFragment.switchNumber = 1;
                 break;
             case "prev":
                 if (!mediaPlayer.isPlaying()) {
@@ -147,6 +166,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 remoteViews.setTextViewText(R.id.song_title_notif, songs.get(currentPlaying).getSongTitle());
                 remoteViews.setTextViewText(R.id.artist_title_notif, songs.get(currentPlaying).getArtistTitle());
                 manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
+
+                //TODO: this should probably be implemented with broadcasts.
+                PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
+                PlayerFragment.switchNumber = 1;
                 break;
             case "close":
                 System.out.println("SHOULD CLOSE NOW");

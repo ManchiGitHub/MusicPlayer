@@ -4,11 +4,16 @@ package com.markokatziv.musicplayer;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
 import java.util.ArrayList;
 
 /**
@@ -25,8 +30,13 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     final String TAG_PLAYER_FRAGMENT = "player_fragment";
     final String TAG_SONG_PAGE_FRAGMENT = "song_page_fragment";
     final int SPLASH_DELAY_MILISEC = 500;
+    private final String LAST_SONG_KEY = "last_song_played";
+    SharedPreferences sp;
+
+
     private boolean isPlaying = false;
     private boolean isStarted = false;
+
 
     SplashScreenFragment splashScreenFragment;
     SongRecyclerViewFragment songRecyclerViewFragment;
@@ -40,6 +50,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        sp = getSharedPreferences("continuation", MODE_PRIVATE);
 
         // load songs
         songs = SongFileHandler.readSongList(this);
@@ -79,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         /**
          * TODO:
+         *  OPTION A:
          *  Click when NOT PLAYING:
          *  1) Start main FAB button icon spin animation
          *  2) Switch to play icon if needed.
@@ -88,14 +101,38 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
          *  2) Switch to pause icon.
          *  3) Pause music.
          *  4) Save song progress position.
+         *  OPTION B:
+         *  Click when NOT PLAYING:
+         *  1) get last song position.
+         *  2) open song page.
+         *  Click when PLAYING:
+         *  1) open current song page.
+         *
          */
 
-        if (songs.size() > 0) {
-            Intent intent = new Intent(MainActivity.this, MusicService.class);
-            intent.putExtra("songs_list", songs);
-            intent.putExtra("command", "new_instance");
-            startService(intent);
-        }
+//        isPlaying = true;
+//        int position = sp.getInt(LAST_SONG_KEY, 0);
+//        Song song = songs.get(position);
+//
+//        songPageFragment = SongPageFragment.newInstance(song, position);
+//        playerFragment = PlayerFragment.newInstance(song, position, true, isPlaying);
+//
+//        FragmentManager fragmentManager = getSupportFragmentManager();
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//        fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_down, R.anim.animate_up, R.anim.slide_down_add_song);
+//        fragmentTransaction.add(R.id.activity_main_layout, playerFragment, TAG_PLAYER_FRAGMENT).addToBackStack("player_frag");
+//        fragmentTransaction.add(R.id.activity_main_layout, songPageFragment, TAG_SONG_PAGE_FRAGMENT).addToBackStack("song_page_frag");
+//        fragmentTransaction.commit();
+//
+//
+//        if (songs.size() > 0) {
+//            Intent intent = new Intent(MainActivity.this, MusicService.class);
+//            //     intent.putExtra("songs_list", songs);
+//            intent.putExtra("command", "new_instance");
+//            intent.putExtra("position", position);
+//            startService(intent);
+//        }
+//
 
     }
 
@@ -119,8 +156,17 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             }
         }
 
+        sp.edit().putInt(LAST_SONG_KEY, position);
+        isPlaying = !isPlaying;
+        if (songs.size() > 0) {
+            Intent intent = new Intent(MainActivity.this, MusicService.class);
+            intent.putExtra("command", "new_instance");
+            intent.putExtra("position", position);
+            startService(intent);
+        }
         songPageFragment = SongPageFragment.newInstance(song, position);
-        playerFragment = PlayerFragment.newInstance(song, position);
+        playerFragment = PlayerFragment.newInstance(song, position, isPlaying, songs.size());
+
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -137,20 +183,45 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     }
 
     @Override
-    public void onSkipPrevClick() {
+    public void onSkipPrevClick(int prevSongPosition) {
+
         //TODO: skip to previous song
-        Toast.makeText(this, "onSkipPrevClick", Toast.LENGTH_SHORT).show();
+        if (songs.size() > 0) {
+            Intent intent = new Intent(MainActivity.this, MusicService.class);
+            intent.putExtra("command", "prev");
+            getIntent().putExtra("song", songs.get(prevSongPosition));
+            songPageFragment.changeSongInfo(songs.get(prevSongPosition));
+            startService(intent);
+        }
+
     }
 
     @Override
-    public void onSkipNextClick() {
+    public void onSkipNextClick(int nextSongPosition) {
         //TODO: skip to next song
-        Toast.makeText(this, "onSkipNextClick", Toast.LENGTH_SHORT).show();
+
+        Log.d("TAGTAG", "current song position: " + nextSongPosition);
+
+        if (songs.size() > 0) {
+            Intent intent = new Intent(MainActivity.this, MusicService.class);
+            intent.putExtra("command", "next");
+            getIntent().putExtra("song", songs.get(nextSongPosition));
+            songPageFragment.changeSongInfo(songs.get(nextSongPosition));
+            startService(intent);
+        }
     }
 
     @Override
-    public void onPlayPauseClick() {
+    public void onPlayPauseClick(int position, View view) {
         //TODO: play / pause song
-        Toast.makeText(this, "onPlayPauseClick", Toast.LENGTH_SHORT).show();
+        sp.edit().putInt(LAST_SONG_KEY, position);
+        isPlaying = !isPlaying;
+        if (songs.size() > 0) {
+            Intent intent = new Intent(MainActivity.this, MusicService.class);
+            intent.putExtra("command", "play_pause");
+            intent.putExtra("position", position);
+            startService(intent);
+        }
     }
+
 }

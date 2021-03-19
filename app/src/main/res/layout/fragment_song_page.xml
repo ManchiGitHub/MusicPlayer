@@ -1,34 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/song_page_fragment"
-
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF383F5B"
     android:clickable="true"
-    android:focusable="true"
-    android:layout_height="match_parent">
+    android:focusable="true">
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:src="@drawable/ic_baseline_music_note_24" />
 
     <ImageView
         android:id="@+id/song_page_frag_song_img"
         android:layout_width="match_parent"
         android:layout_height="410dp"
+        android:background="@drawable/thumbnail_stroke"
         android:padding="1dp"
         android:scaleType="centerCrop"
-        android:background="@drawable/thumbnail_stroke"
         android:src="@drawable/thumbnail_stroke" />
 
     <RelativeLayout
+        android:id="@+id/song_information_sub_layout"
         android:layout_width="wrap_content"
-        android:background="@drawable/information_background"
+        android:layout_height="400dp"
         android:layout_alignParentBottom="true"
-        android:layout_height="400dp">
+        android:background="@drawable/information_background">
 
         <TextView
             android:id="@+id/song_page_frag_artist"
             android:layout_width="match_parent"
-            android:gravity="center"
-            android:layout_marginTop="50dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:gravity="center"
             android:text="Artist"
             android:textSize="25dp" />
 
@@ -36,35 +44,29 @@
             android:id="@+id/song_page_frag_song_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/song_page_frag_artist"
             android:layout_marginTop="10dp"
             android:gravity="center"
-            android:layout_below="@id/song_page_frag_artist"
             android:text="Song title"
             android:textSize="25dp" />
 
         <Button
-            android:layout_width="60dp"
-            android:clickable="true"
             android:id="@+id/song_page_frag_favorite_btn"
-            android:focusable="true"
+            android:layout_width="60dp"
             android:layout_height="60dp"
-            android:scaleType="fitXY"
-            app:backgroundTint="@null"
-            android:background="@drawable/ic_heart"
-            android:padding="10dp"
-            android:backgroundTint="#E4342B"
-            android:layout_marginTop="20dp"
-            android:layout_centerHorizontal="true"
             android:layout_below="@id/song_page_frag_song_title"
-            />
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/ic_heart"
+            android:backgroundTint="#E4342B"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="10dp"
+            android:scaleType="fitXY"
+            app:backgroundTint="@null" />
 
 
     </RelativeLayout>
-
-
-
-
-
 
 
 </RelativeLayout>
