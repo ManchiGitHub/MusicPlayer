@@ -31,21 +31,9 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_gravity="center"
-            android:background="@drawable/ic_baseline_skip_previous_24"
+            android:background="@drawable/ic_baseline_skip_next_24"
             android:backgroundTint="#383F5B"
             app:backgroundTint="@null" />
-
-        <!--        <ImageView-->
-        <!--            android:id="@+id/play_pause_button"-->
-        <!--            android:layout_width="70dp"-->
-        <!--            android:layout_height="70dp"-->
-        <!--            android:layout_marginStart="20dp"-->
-        <!--            android:layout_gravity="center"-->
-        <!--            android:layout_marginEnd="20dp"-->
-        <!--            android:layout_toEndOf="@id/skip_prev"-->
-        <!--            app:backgroundTint="@null"-->
-        <!--            android:backgroundTint="#C8B5AD"-->
-        <!--            android:src="@drawable/ic_outline_play_circle_24" />-->
 
         <Button
             android:id="@+id/play_pause_button"
@@ -66,7 +54,7 @@
             android:layout_height="60dp"
             android:layout_gravity="center"
             android:layout_toEndOf="@id/play_pause_button"
-            android:background="@drawable/ic_baseline_skip_next_24"
+            android:background="@drawable/ic_baseline_skip_previous_24"
             android:backgroundTint="#383F5B"
             app:backgroundTint="@null" />
 

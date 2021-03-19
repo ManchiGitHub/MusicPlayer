@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/notification_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -51,7 +52,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
                 android:gravity="center"
-                android:text="Never Gonna give you up"
                 android:textColor="@color/black"
                 android:textSize="15sp" />
 
@@ -61,7 +61,6 @@
                 android:layout_height="wrap_content"
                 android:alpha="0.7"
                 android:gravity="center"
-                android:text="Rick Astely"
                 android:textSize="15sp" />
 
         </LinearLayout>
@@ -74,7 +73,7 @@
             android:layout_marginStart="5dp"
             android:background="@drawable/notification_btn_ripple_background"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_baseline_skip_next_24" />
+            android:src="@drawable/ic_baseline_skip_previous_24" />
 
         <ImageButton
             android:id="@+id/play_pause_btn_notif"
@@ -94,7 +93,7 @@
             android:layout_marginStart="5dp"
             android:background="@drawable/notification_btn_ripple_background"
             android:scaleType="fitXY"
-            android:src="@drawable/ic_baseline_skip_previous_24" />
+            android:src="@drawable/ic_baseline_skip_next_24" />
 
 
     </LinearLayout>

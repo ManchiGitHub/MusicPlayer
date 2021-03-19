@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
@@ -102,12 +103,17 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         Button skipNext = rootView.findViewById(R.id.skip_next);
         skipNext.setOnClickListener(this);
 
-        // flip prev and next buttons according to current locale.
-        String language = LanguageUtils.getCurrentLanguage();
-        if (!(language.equals(LanguageUtils.EN_LANGUAGE))) {
-            skipPrev.setScaleX(-1);
-            skipNext.setScaleX(-1);
+        if (LanguageUtils.getCurrentLanguage() == LanguageUtils.EN_LANGUAGE) {
+            skipPrev.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_skip_previous_24, null));
+            skipNext.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_skip_next_24, null));
         }
+
+//        // flip prev and next buttons according to current locale.
+//        String language = LanguageUtils.getCurrentLanguage();
+//        if (!(language.equals(LanguageUtils.EN_LANGUAGE))) {
+//            skipPrev.setScaleX(-1);
+//            skipNext.setScaleX(-1);
+//        }
 
         playPauseBtn = rootView.findViewById(R.id.play_pause_button);
 
@@ -209,7 +215,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                 int ID = v.getId();
 
                 if (ID == R.id.skip_prev) {
-                    MyAnimations.AnimateBackAndPrevBtns(v, (-1 * Y_TRANSITION_SKIP_PREV));
+                    MyAnimations.AnimateBackAndPrevBtns(v, (Y_TRANSITION_SKIP_PREV));
 
                     songPosition--;
                     if (songPosition < 0) {
@@ -220,7 +226,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                 else if (ID == R.id.skip_next) {
                     System.out.println("next");
                     Log.d("TAGTAG", "last song position: " + songPosition);
-                    MyAnimations.AnimateBackAndPrevBtns(v, Y_TRANSITION_SKIP_PREV);
+                    MyAnimations.AnimateBackAndPrevBtns(v, (-1 * Y_TRANSITION_SKIP_PREV));
 
                     songPosition++;
                     if (songPosition == listSize) {

@@ -69,6 +69,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         //TODO: requestcode should be const
 
+        Intent openAppIntent = new Intent(this, MainActivity.class);
+        openAppIntent.putExtra("no_splash_screen", true);
+        PendingIntent openAppPendingIntent = PendingIntent.getActivity(this,10, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        remoteViews.setOnClickPendingIntent(R.id.notification_container, openAppPendingIntent);
+
         Intent playIntent = new Intent(this, MusicService.class);
         playIntent.putExtra("command", "play_pause");
         PendingIntent playPendingIntent = PendingIntent.getService(this, PLAY_PAUSE_REQUEST_CODE, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -118,6 +123,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
                     mediaPlayer.setDataSource(songs.get(currentPlaying).getLinkToSong());
                     mediaPlayer.prepareAsync();
+                    remoteViews.setTextViewText(R.id.song_title_notif, songs.get(currentPlaying).getSongTitle());
+                    remoteViews.setTextViewText(R.id.artist_title_notif, songs.get(currentPlaying).getArtistTitle());
+                    manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

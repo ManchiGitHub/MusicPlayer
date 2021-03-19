@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     final String TAG_PLAYER_FRAGMENT = "player_fragment";
     final String TAG_SONG_PAGE_FRAGMENT = "song_page_fragment";
     final int SPLASH_DELAY_MILISEC = 500;
+    final int NO_SPLASH_DELAY_MILISEC = 0;
     private final String LAST_SONG_KEY = "last_song_played";
     SharedPreferences sp;
 
@@ -66,18 +67,30 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         FragmentManager fragmentManager = getSupportFragmentManager();
 
-        fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fragment_fade_in, R.anim.fragment_fade_out, R.anim.fragment_fade_in, R.anim.fragment_fade_out)
-                .add(R.id.activity_main_layout, splashScreenFragment, TAG_SPLASH_SCREEN_FRAGMENT).commit();
+        if (getIntent().getBooleanExtra("no_splash_screen", false) == false){
+            fragmentManager.beginTransaction()
+                    .setCustomAnimations(R.anim.fragment_fade_in, R.anim.fragment_fade_out, R.anim.fragment_fade_in, R.anim.fragment_fade_out)
+                    .add(R.id.activity_main_layout, splashScreenFragment, TAG_SPLASH_SCREEN_FRAGMENT).commit();
 
-        new Handler(getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                fragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_up_fragment, R.anim.fragment_fade_out)
-                        .replace(R.id.activity_main_layout, songRecyclerViewFragment).add(R.id.activity_main_layout, fabButtonFragment)
-                        .commit();
-            }
-        }, SPLASH_DELAY_MILISEC);
+            new Handler(getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    fragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_up_fragment, R.anim.fragment_fade_out)
+                            .replace(R.id.activity_main_layout, songRecyclerViewFragment).add(R.id.activity_main_layout, fabButtonFragment)
+                            .commit();
+                }
+            }, SPLASH_DELAY_MILISEC);
+        }
+        else{
+            new Handler(getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.activity_main_layout, songRecyclerViewFragment).add(R.id.activity_main_layout, fabButtonFragment)
+                            .commit();
+                }
+            });
+        }
     }
 
     @Override

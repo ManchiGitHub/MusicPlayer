@@ -16,15 +16,15 @@
 
         <service android:name=".MusicService"/>
         <activity
+            android:launchMode="singleTop"
             android:name=".MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
 
+        </activity>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.markokatziv.musicplayer.provider"
