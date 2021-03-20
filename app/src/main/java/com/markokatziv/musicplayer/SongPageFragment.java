@@ -4,9 +4,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -19,6 +22,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
@@ -26,11 +30,26 @@ import com.bumptech.glide.request.RequestOptions;
 /**
  * Created By marko katziv
  */
-public class SongPageFragment extends Fragment {
+public class SongPageFragment extends Fragment implements MusicServiceListener.MusicServiceListenerInterface {
 
     final static private String SONG_POSITION_KEY = "song_position";
     final static private String SONG_KEY = "song";
     Animation fadeOutAnimation;
+
+    @Override
+    public void onPlayPause() {
+        System.out.println("PLEASE WORK GOD DAMN IT");
+    }
+
+    @Override
+    public void onNext() {
+        System.out.println("PLEASE WORK GOD DAMN IT");
+    }
+
+    @Override
+    public void onPrev() {
+        System.out.println("PLEASE WORK GOD DAMN IT");
+    }
 
     interface SongPageListener {
         void onFavoriteButtonClick(int position);
@@ -78,7 +97,7 @@ public class SongPageFragment extends Fragment {
         return fragment;
     }
 
-    public void changeSongInfo(Song song){
+    public void changeSongInfo(Song song) {
         this.songTitle.setText(song.getSongTitle());
         this.artistTitle.setText(song.getArtistTitle());
 
@@ -93,7 +112,7 @@ public class SongPageFragment extends Fragment {
                 public void run() {
                     Glide.with(getActivity()).load(defaultBitmap).into(songImage);
                 }
-            },400 );
+            }, 400);
 
         }
         else {
@@ -105,7 +124,7 @@ public class SongPageFragment extends Fragment {
                 public void run() {
                     Glide.with(getActivity()).load(song.getImagePath()).into(songImage);
                 }
-            },400);
+            }, 400);
 
         }
 
@@ -150,11 +169,14 @@ public class SongPageFragment extends Fragment {
             Glide.with(getActivity()).load(song.getImagePath()).into(songImage);
         }
 
+
+
+
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-             //   MyAnimations.AnimateFavoriteButton(v);
+                //   MyAnimations.AnimateFavoriteButton(v);
                 //animate button
                 System.out.println("HELLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
                 // if song is not favorite
@@ -183,8 +205,8 @@ public class SongPageFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        System.out.println("ON DESTROY");
+        Log.d("ON STATE", "onDestroy: song page fragment");
         this.isActive = false; // page fragment is destroyed,
-                               // need to set isActive to false to be able to create new instance.
+        // need to set isActive to false to be able to create new instance.
     }
 }

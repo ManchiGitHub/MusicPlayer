@@ -11,10 +11,10 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.IBinder;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.MutableLiveData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,6 +23,14 @@ import java.util.ArrayList;
  * Created By marko katziv
  */
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+
+    interface NotificationButtonListener {
+        void onPlayPauseClick();
+        void onNextClick();
+        void onPrevClick();
+    }
+
+    MusicService.NotificationButtonListener callback;
 
     private final int PLAY_PAUSE_REQUEST_CODE = 0;
     private final int NEXT_REQUEST_CODE = 1;
@@ -34,10 +42,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     NotificationManager manager;
     RemoteViews remoteViews;
     NotificationCompat.Builder builder;
-    Notification notification;
+    Notification musicPlayerNotification;
     ArrayList<Song> songs;
     int currentPlaying = -1;
-    boolean isDataSourceSet = false;
 
     @Nullable
     @Override
@@ -48,6 +55,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onCreate() {
         super.onCreate();
+
+     //   callback = new MusicServiceListener(getApplicationContext().getSharedPreferences().edit().);
 
 
         mediaPlayer = new MediaPlayer();
@@ -71,7 +80,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         Intent openAppIntent = new Intent(this, MainActivity.class);
         openAppIntent.putExtra("no_splash_screen", true);
-        PendingIntent openAppPendingIntent = PendingIntent.getActivity(this,10, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent openAppPendingIntent = PendingIntent.getActivity(this, 10, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.notification_container, openAppPendingIntent);
 
         Intent playIntent = new Intent(this, MusicService.class);
@@ -98,8 +107,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         builder.setSmallIcon(R.drawable.ic_baseline_music_note_24);
 
         //TODO: notification id should be const
-        notification = builder.build();
-        startForeground(NOTIFICATION_IDENTIFIER_ID, notification);
+        musicPlayerNotification = builder.build();
+        startForeground(NOTIFICATION_IDENTIFIER_ID, musicPlayerNotification);
 
     }
 
@@ -107,8 +116,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         String command = intent.getStringExtra("command");
-        System.out.println(command + " COMMAND STRING");
         int position = intent.getIntExtra("position", 0);
+
+        //TODO: remove file loading from onStartCommand
         songs = SongFileHandler.readSongList(MusicService.this);
 
         switch (command) {
@@ -120,53 +130,56 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 mediaPlayer.reset();
                 try {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
-                    manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
+                    manager.notify(NOTIFICATION_IDENTIFIER_ID, musicPlayerNotification);
                     mediaPlayer.setDataSource(songs.get(currentPlaying).getLinkToSong());
                     mediaPlayer.prepareAsync();
                     remoteViews.setTextViewText(R.id.song_title_notif, songs.get(currentPlaying).getSongTitle());
                     remoteViews.setTextViewText(R.id.artist_title_notif, songs.get(currentPlaying).getArtistTitle());
-                    manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
+                    manager.notify(NOTIFICATION_IDENTIFIER_ID, musicPlayerNotification);
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
                 break;
             case "play_pause":
+              //  callback.onPlayPauseClick();
                 if (mediaPlayer.isPlaying()) {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_play_circle_24);
-                    manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
+                    manager.notify(NOTIFICATION_IDENTIFIER_ID, musicPlayerNotification);
                     mediaPlayer.pause();
 
-                    //TODO: this should probably be implemented with broadcasts.
-                    PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
-                    PlayerFragment.switchNumber = 0;
+                    //TODO: implement ui changes according to notification on clicks.
+                    PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_play_circle_24); // change button image
+                    PlayerFragment.switchNumber = 0; // changing switch to fit play/pause state
                 }
                 else {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
-                    manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
+                    manager.notify(NOTIFICATION_IDENTIFIER_ID, musicPlayerNotification);
                     mediaPlayer.start();
 
-                    //TODO: this should probably be implemented with broadcasts.
                     PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
                     PlayerFragment.switchNumber = 1;
                 }
                 break;
             case "next":
+            //    callback.onNextClick();
                 if (!mediaPlayer.isPlaying()) {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
-                    manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
+                    manager.notify(NOTIFICATION_IDENTIFIER_ID, musicPlayerNotification);
                     mediaPlayer.stop();
                 }
                 playSong(true);
                 remoteViews.setTextViewText(R.id.song_title_notif, songs.get(currentPlaying).getSongTitle());
                 remoteViews.setTextViewText(R.id.artist_title_notif, songs.get(currentPlaying).getArtistTitle());
-                manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
+                manager.notify(NOTIFICATION_IDENTIFIER_ID, musicPlayerNotification);
 
-                //TODO: this should probably be implemented with broadcasts.
+
                 PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
                 PlayerFragment.switchNumber = 1;
                 break;
             case "prev":
+           //     callback.onPrevClick();
+
                 if (!mediaPlayer.isPlaying()) {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
                     mediaPlayer.stop();
@@ -174,7 +187,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 playSong(false);
                 remoteViews.setTextViewText(R.id.song_title_notif, songs.get(currentPlaying).getSongTitle());
                 remoteViews.setTextViewText(R.id.artist_title_notif, songs.get(currentPlaying).getArtistTitle());
-                manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
+                manager.notify(NOTIFICATION_IDENTIFIER_ID, musicPlayerNotification);
 
                 //TODO: this should probably be implemented with broadcasts.
                 PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);

@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -38,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     private boolean isPlaying = false;
     private boolean isStarted = false;
 
+    Intent intent;
+
 
     SplashScreenFragment splashScreenFragment;
     SongRecyclerViewFragment songRecyclerViewFragment;
@@ -51,6 +55,10 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+
+        Log.d("ON STATE", "onCreate: main activity");
 
         sp = getSharedPreferences("continuation", MODE_PRIVATE);
 
@@ -67,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         FragmentManager fragmentManager = getSupportFragmentManager();
 
-        if (getIntent().getBooleanExtra("no_splash_screen", false) == false){
+        if (getIntent().getBooleanExtra("no_splash_screen", false) == false) {
             fragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.fragment_fade_in, R.anim.fragment_fade_out, R.anim.fragment_fade_in, R.anim.fragment_fade_out)
                     .add(R.id.activity_main_layout, splashScreenFragment, TAG_SPLASH_SCREEN_FRAGMENT).commit();
@@ -81,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
                 }
             }, SPLASH_DELAY_MILISEC);
         }
-        else{
+        else {
             new Handler(getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
@@ -160,7 +168,10 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
     @Override
     public void onCardClick(View view, int position) {
+
         Song song = songs.get(position);
+
+
 
         // this is for making sure only one song page fragment and one player fragment are alive.
         if (songPageFragment != null) {
@@ -170,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         }
 
         sp.edit().putInt(LAST_SONG_KEY, position);
-        isPlaying = !isPlaying;
+        isPlaying = true; //TODO: find usage for this
         if (songs.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
             intent.putExtra("command", "new_instance");
@@ -178,7 +189,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             startService(intent);
         }
         songPageFragment = SongPageFragment.newInstance(song, position);
-        playerFragment = PlayerFragment.newInstance(song, position, isPlaying, songs.size());
+
+        playerFragment = PlayerFragment.newInstance(song, position, songs.size());
 
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -200,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         //TODO: skip to previous song
         if (songs.size() > 0) {
-            Intent intent = new Intent(MainActivity.this, MusicService.class);
+            intent = new Intent(MainActivity.this, MusicService.class);
             intent.putExtra("command", "prev");
             getIntent().putExtra("song", songs.get(prevSongPosition));
             songPageFragment.changeSongInfo(songs.get(prevSongPosition));
@@ -227,7 +239,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     public void onPlayPauseClick(int position, View view) {
         //TODO: play / pause song
-        sp.edit().putInt(LAST_SONG_KEY, position);
+        sp.edit().putInt(LAST_SONG_KEY, position).commit();
+
         isPlaying = !isPlaying;
         if (songs.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
@@ -237,4 +250,22 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("ON STATE", "main activity onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        Log.d("ON STATE", "onPause: main activity");
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("ON STATE", "onDestroy: main activity");
+
+    }
 }
