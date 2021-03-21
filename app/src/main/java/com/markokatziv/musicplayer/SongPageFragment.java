@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -19,6 +20,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
 
 /**
@@ -48,7 +50,6 @@ public class SongPageFragment extends Fragment {
     Button favoriteBtn;
 
 
-
     public SongPageFragment() {
         // Required empty public constructor
     }
@@ -76,13 +77,22 @@ public class SongPageFragment extends Fragment {
         return fragment;
     }
 
-    public void changeSongInfo(Song song){
+    public void changeSongInfo(Song song, int position) {
+
+        this.song = song;
+        this.songPosition = position;
         this.songTitle.setText(song.getSongTitle());
         this.artistTitle.setText(song.getArtistTitle());
 
         if (song.isFavorite()) {
             favoriteBtn.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.heart_solid));
+            //    song.setFavorite(true);
         }
+        else {
+            favoriteBtn.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.heart_empty));
+            //    song.setFavorite(false);
+        }
+
 
         if (song.getImagePath().equals("")) {
             songImage.startAnimation(fadeOutAnimation);
@@ -104,9 +114,7 @@ public class SongPageFragment extends Fragment {
                     Glide.with(getActivity()).load(song.getImagePath()).into(songImage);
                 }
             }, 400);
-
         }
-
     }
 
 
@@ -149,14 +157,10 @@ public class SongPageFragment extends Fragment {
         }
 
 
-
-
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-             //   MyAnimations.AnimateFavoriteButton(v);
-                //animate button
                 System.out.println("HELLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
                 // if song is not favorite
                 if (!song.isFavorite()) {
@@ -186,6 +190,6 @@ public class SongPageFragment extends Fragment {
         super.onDestroy();
         Log.d("ON STATE", "onDestroy: song page fragment");
         this.isActive = false; // page fragment is destroyed,
-                               // need to set isActive to false to be able to create new instance.
+        // need to set isActive to false to be able to create new instance.
     }
 }

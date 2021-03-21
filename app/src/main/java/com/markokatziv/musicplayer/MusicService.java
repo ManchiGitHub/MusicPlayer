@@ -24,9 +24,11 @@ import java.util.ArrayList;
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
     interface MusicServiceListener {
-        void onPlayPauseClickFromService();
-        void onPrevClickFromService();
-        void onNextClickFromService();
+        void onPlayPauseClickFromService(boolean isPlay);
+
+        void onPrevClickFromService(int position);
+
+        void onNextClickFromService(int position);
     }
 
     // Binder given to clients
@@ -47,8 +49,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void setCallbacks(MusicServiceListener callbacks) {
         listener = callbacks;
     }
-
-
 
 
     private final int PLAY_PAUSE_REQUEST_CODE = 0;
@@ -77,7 +77,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         super.onCreate();
 
 
-
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setOnPreparedListener(this);
@@ -99,7 +98,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         Intent openAppIntent = new Intent(this, MainActivity.class);
         openAppIntent.putExtra("no_splash_screen", true);
-        PendingIntent openAppPendingIntent = PendingIntent.getActivity(this,10, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent openAppPendingIntent = PendingIntent.getActivity(this, 10, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         remoteViews.setOnClickPendingIntent(R.id.notification_container, openAppPendingIntent);
 
         Intent playIntent = new Intent(this, MusicService.class);
@@ -160,32 +159,29 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 }
                 break;
             case "play_pause":
-                if (listener!=null){
-                    listener.onPlayPauseClickFromService();
-                }
                 if (mediaPlayer.isPlaying()) {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_play_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
                     mediaPlayer.pause();
 
-                    //TODO: this should probably be implemented with broadcasts.
-                    PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
-                    PlayerFragment.switchNumber = 0;
+                    if (listener != null) {
+                        System.out.println("HELLOHELLOHELLO");
+                        listener.onPlayPauseClickFromService(false);
+                    }
                 }
-                else {
+                else { //mediaPlayer is not playing
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
                     mediaPlayer.start();
 
-                    //TODO: this should probably be implemented with broadcasts.
-                    PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
-                    PlayerFragment.switchNumber = 1;
+                    if (listener != null) {
+                        System.out.println("HELLOHELLOHELLO");
+                        listener.onPlayPauseClickFromService(true);
+                    }
                 }
+
                 break;
             case "next":
-                if (listener!=null){
-                    listener.onNextClickFromService();
-                }
                 if (!mediaPlayer.isPlaying()) {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
@@ -197,13 +193,15 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
 
                 //TODO: this should probably be implemented with broadcasts.
-                PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
-                PlayerFragment.switchNumber = 1;
+                //    PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
+                //    PlayerFragment.switchNumber = 1;
+
+                if (listener != null) {
+                    listener.onNextClickFromService(currentPlaying);
+                }
                 break;
             case "prev":
-                if (listener!=null){
-                    listener.onPrevClickFromService();
-                }
+
                 if (!mediaPlayer.isPlaying()) {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
                     mediaPlayer.stop();
@@ -214,8 +212,12 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
 
                 //TODO: this should probably be implemented with broadcasts.
-                PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
-                PlayerFragment.switchNumber = 1;
+                // PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
+                // PlayerFragment.switchNumber = 1;
+
+                if (listener != null) {
+                    listener.onPrevClickFromService(currentPlaying);
+                }
                 break;
             case "close":
                 System.out.println("SHOULD CLOSE NOW");

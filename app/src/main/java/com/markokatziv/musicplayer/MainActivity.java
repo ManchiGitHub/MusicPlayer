@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         setContentView(R.layout.activity_main);
 
 
-
         Log.d("ON STATE", "onCreate: main activity");
 
         sp = getSharedPreferences("continuation", MODE_PRIVATE);
@@ -77,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         FragmentManager fragmentManager = getSupportFragmentManager();
 
-        if (getIntent().getBooleanExtra("no_splash_screen", false) == false){
+        if (getIntent().getBooleanExtra("no_splash_screen", false) == false) {
             fragmentManager.beginTransaction()
                     .setCustomAnimations(R.anim.fragment_fade_in, R.anim.fragment_fade_out, R.anim.fragment_fade_in, R.anim.fragment_fade_out)
                     .add(R.id.activity_main_layout, splashScreenFragment, TAG_SPLASH_SCREEN_FRAGMENT).commit();
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
                 }
             }, SPLASH_DELAY_MILISEC);
         }
-        else{
+        else {
             new Handler(getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
@@ -172,6 +171,9 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     public void onCardClick(View view, int position) {
         Song song = songs.get(position);
 
+        Intent bindIntent = new Intent(this, MusicService.class);
+        bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
         // this is for making sure only one song page fragment and one player fragment are alive.
         if (songPageFragment != null) {
             if (songPageFragment.isActive()) {
@@ -208,28 +210,24 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     public void onSkipPrevClickPlayerFrag(int prevSongPosition) {
 
-        //TODO: skip to previous song
         if (songs.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
             intent.putExtra("command", "prev");
             getIntent().putExtra("song", songs.get(prevSongPosition));
-            songPageFragment.changeSongInfo(songs.get(prevSongPosition));
+            songPageFragment.changeSongInfo(songs.get(prevSongPosition), prevSongPosition);
             startService(intent);
         }
-
     }
 
     @Override
     public void onSkipNextClickPlayerFrag(int nextSongPosition) {
-        //TODO: skip to next song
-
         Log.d("TAGTAG", "current song position: " + nextSongPosition);
 
         if (songs.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
             intent.putExtra("command", "next");
             getIntent().putExtra("song", songs.get(nextSongPosition));
-            songPageFragment.changeSongInfo(songs.get(nextSongPosition));
+            songPageFragment.changeSongInfo(songs.get(nextSongPosition), nextSongPosition);
             startService(intent);
         }
     }
@@ -238,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     public void onPlayPauseClickPlayerFrag(int position, View view) {
         //TODO: play / pause song
         sp.edit().putInt(LAST_SONG_KEY, position);
-        isPlaying = !isPlaying;
+      //  isPlaying = !isPlaying;
         if (songs.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
             intent.putExtra("command", "play_pause");
@@ -248,25 +246,28 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     }
 
     @Override
-    public void onPlayPauseClickFromService() {
-        Log.d("PLEASEWORK", "onNextClick: IS IT REALLY WORKING");
+    public void onPlayPauseClickFromService(boolean isPlay) {
+        if (playerFragment != null) {
+            Log.d("PLAYERFRAGMENT", "onNextClick: IS IT REALLY WORKING");
+            playerFragment.changeBtnResource(isPlay);
+        }
     }
 
     @Override
-    public void onPrevClickFromService() {
-
+    public void onPrevClickFromService(int position) {
+        songPageFragment.changeSongInfo(songs.get(position), position);
     }
 
     @Override
-    public void onNextClickFromService() {
-
+    public void onNextClickFromService(int position) {
+        songPageFragment.changeSongInfo(songs.get(position), position);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        Intent intent = new Intent(this, MusicService.class);
-        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+//        Intent intent = new Intent(this, MusicService.class);
+//        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -280,7 +281,9 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         }
     }
 
-    /** Callbacks for service binding, passed to bindService() */
+    /**
+     * Callbacks for service binding, passed to bindService()
+     */
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override

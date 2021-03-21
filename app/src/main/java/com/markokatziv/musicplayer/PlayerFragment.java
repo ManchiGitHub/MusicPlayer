@@ -40,10 +40,8 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     PlayerFragmentListener callback;
 
     Handler handler;
-    static int switchNumber = 0;
-    static Button playPauseBtn;
-    //    private AnimatedVectorDrawableCompat avd;
-//    private AnimatedVectorDrawable avd2;
+    Button playPauseBtn;
+
     private int songPosition;
 
     public PlayerFragment() {
@@ -62,6 +60,15 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         args.putSerializable(SONG_KEY, song);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    public void changeBtnResource(boolean isPlay) {
+        if (!isPlay) {
+            playPauseBtn.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
+        }
+        else {
+            playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
+        }
     }
 
     @Override
@@ -94,7 +101,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_player, container, false);
-
         Button skipPrev = rootView.findViewById(R.id.skip_prev);
         skipPrev.setOnClickListener(this);
 
@@ -114,91 +120,16 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         }
 
         playPauseBtn = rootView.findViewById(R.id.play_pause_button);
-
         playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
-        switchNumber = 1;
-
         playPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                Animation fadeOut = new AlphaAnimation(1, 0);
-                fadeOut.setInterpolator(new AccelerateInterpolator()); //and this
-                fadeOut.setDuration(50);
-
-
-                if (switchNumber == 0) {
-                    switchNumber++;
-                    //fadeOut.start();
-                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            v.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
-                        }
-                    }, 50);
-                }
-                else {
-                    switchNumber--;
-                    // fadeOut.start();
-                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            v.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
-                        }
-                    }, 50);
-                }
-
-
-                //TODO insert animation to handler and separate private function
-                //animatePlayPauseButton();
-                v.startAnimation(fadeOut);
                 callback.onPlayPauseClickPlayerFrag(songPosition, v);
             }
-
         });
 
         return rootView;
     }
-
-
-//    public void animatePlayPauseButton() {
-//
-//        handler.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                if (switchNumber == 0) {
-//                    Drawable drawable = ResourcesCompat.getDrawable(getActivity().getResources(), R.drawable.play_to_pause, null);
-//                    playPauseBtn.setImageDrawable(drawable);
-//
-//                    if (drawable instanceof AnimatedVectorDrawableCompat) {
-//                        avd = (AnimatedVectorDrawableCompat) drawable;
-//                        avd.start();
-//                    }
-//                    else if (drawable instanceof AnimatedVectorDrawable) {
-//                        avd2 = (AnimatedVectorDrawable) drawable;
-//                        avd2.start();
-//                    }
-//
-//                    switchNumber++;
-//                }
-//                else {
-//                    Drawable drawable = ResourcesCompat.getDrawable(getActivity().getResources(), R.drawable.pause_to_play, null);
-//                    playPauseBtn.setImageDrawable(drawable);
-//
-//                    if (drawable instanceof AnimatedVectorDrawableCompat) {
-//                        avd = (AnimatedVectorDrawableCompat) drawable;
-//                        avd.start();
-//                    }
-//                    else if (drawable instanceof AnimatedVectorDrawable) {
-//                        avd2 = (AnimatedVectorDrawable) drawable;
-//                        avd2.start();
-//                    }
-//                    switchNumber--;
-//
-//                }
-//            }
-//        });
-//    }
 
     @Override
     public void onClick(View v) {
@@ -207,7 +138,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             public void run() {
 
                 int listSize = getArguments().getInt("list_size");
-
                 int ID = v.getId();
 
                 if (ID == R.id.skip_prev) {
