@@ -9,15 +9,23 @@
     android:outlineProvider="paddedBounds"
     android:elevation="10dp"
     android:focusable="true"
-    android:orientation="vertical"
-    android:padding="20dp">
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="#5A554B"
+        android:alpha="0.7"
+        android:layout_height="2dp"/>
 
     <androidx.appcompat.widget.AppCompatSeekBar
-        android:layout_width="match_parent"
+        android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:padding="2dp"
-        android:progressTint="#383F5B"
-        android:thumbTint="#383F5B" />
+        android:layout_gravity="center"
+        android:progressTint="#8C7460"
+        android:thumbTint="#9D9480" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,7 +40,7 @@
             android:layout_height="60dp"
             android:layout_gravity="center"
             android:background="@drawable/ic_baseline_skip_next_24"
-            android:backgroundTint="#383F5B"
+            android:backgroundTint="#9D9480"
             app:backgroundTint="@null" />
 
         <Button
@@ -44,7 +52,7 @@
             android:layout_marginEnd="5dp"
             android:layout_toEndOf="@id/play_pause_button"
             android:background="@drawable/ic_outline_play_circle_24"
-            android:backgroundTint="#383F5B"
+            android:backgroundTint="#9D9480"
             app:backgroundTint="@null" />
 
 
@@ -55,7 +63,7 @@
             android:layout_gravity="center"
             android:layout_toEndOf="@id/play_pause_button"
             android:background="@drawable/ic_baseline_skip_previous_24"
-            android:backgroundTint="#383F5B"
+            android:backgroundTint="#9D9480"
             app:backgroundTint="@null" />
 
     </LinearLayout>

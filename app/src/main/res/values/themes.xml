@@ -1,6 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Theme.MusicPlayer" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
         <!-- Primary brand color. -->
         <item name="colorPrimary">#383F5B</item>
         <item name="colorPrimaryVariant">#383F5B</item>
@@ -17,6 +18,11 @@
     <style name="SlidingDialogAnimation">
         <item name="android:windowEnterAnimation">@anim/slide_up_add_song</item>
         <item name="android:windowExitAnimation">@anim/slide_down_add_song</item>
+    </style>
+
+    <style name="splashScreenTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_image</item>
+        <item name="android:statusBarColor">@color/dark_blue</item>
     </style>
 
 </resources>

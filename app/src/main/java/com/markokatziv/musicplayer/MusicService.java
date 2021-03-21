@@ -9,11 +9,16 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,13 +28,18 @@ import java.util.ArrayList;
  */
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
+
     interface MusicServiceListener {
         void onPlayPauseClickFromService(boolean isPlay);
 
         void onPrevClickFromService(int position);
 
         void onNextClickFromService(int position);
+
+        void onCloseClickFromService(MediaPlayer mediaPlayer);
     }
+
+
 
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
@@ -220,7 +230,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 }
                 break;
             case "close":
+
                 System.out.println("SHOULD CLOSE NOW");
+                listener.onCloseClickFromService(mediaPlayer);
                 stopSelf();
                 mediaPlayer.reset();
                 break;
@@ -246,6 +258,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void onPrepared(MediaPlayer mp) {
         mediaPlayer.start();
     }
+
+
 
     @Override
     public void onCompletion(MediaPlayer mp) {

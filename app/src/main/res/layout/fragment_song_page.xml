@@ -36,9 +36,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="50dp"
+            android:textColor="#9A8F7B"
             android:gravity="center"
             android:text="Artist"
-            android:textSize="25dp" />
+            android:textSize="25sp" />
 
         <TextView
             android:id="@+id/song_page_frag_song_title"
@@ -46,9 +47,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/song_page_frag_artist"
             android:layout_marginTop="10dp"
+            android:textColor="#9A8F7B"
             android:gravity="center"
             android:text="Song title"
-            android:textSize="25dp" />
+            android:textSize="25sp" />
 
         <Button
             android:id="@+id/song_page_frag_favorite_btn"
@@ -58,7 +60,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:background="@drawable/ic_heart"
-            android:backgroundTint="#E4342B"
+            android:backgroundTint="#9A8F7B"
             android:clickable="true"
             android:focusable="true"
             android:padding="10dp"

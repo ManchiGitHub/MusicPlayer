@@ -127,7 +127,7 @@ public class AddSongDialogFragment extends DialogFragment {
                 song.setFavorite(favoriteCheckBox.isChecked());
                 song.setSongTitle(songTitle);
                 song.setArtistTitle(artistName);
-                song.setLinkToSong("https://www.syntax.org.il/xtra/bob.m4a");
+                song.setLinkToSong("https://www.mboxdrive.com/Circles.mp3");
 
                 if (isUserPic) {
                     song.setImagePath(photoFile.getAbsolutePath());

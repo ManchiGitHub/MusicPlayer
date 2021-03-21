@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.splashScreenTheme);
         setContentView(R.layout.activity_main);
 
 
@@ -76,30 +78,33 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         FragmentManager fragmentManager = getSupportFragmentManager();
 
-        if (getIntent().getBooleanExtra("no_splash_screen", false) == false) {
-            fragmentManager.beginTransaction()
-                    .setCustomAnimations(R.anim.fragment_fade_in, R.anim.fragment_fade_out, R.anim.fragment_fade_in, R.anim.fragment_fade_out)
-                    .add(R.id.activity_main_layout, splashScreenFragment, TAG_SPLASH_SCREEN_FRAGMENT).commit();
+        fragmentManager.beginTransaction().add(R.id.activity_main_layout, songRecyclerViewFragment).add(R.id.activity_main_layout, fabButtonFragment).commit();
 
-            new Handler(getMainLooper()).postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    fragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_up_fragment, R.anim.fragment_fade_out)
-                            .replace(R.id.activity_main_layout, songRecyclerViewFragment).add(R.id.activity_main_layout, fabButtonFragment)
-                            .commit();
-                }
-            }, SPLASH_DELAY_MILISEC);
-        }
-        else {
-            new Handler(getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    fragmentManager.beginTransaction()
-                            .replace(R.id.activity_main_layout, songRecyclerViewFragment).add(R.id.activity_main_layout, fabButtonFragment)
-                            .commit();
-                }
-            });
-        }
+//
+//        if (getIntent().getBooleanExtra("no_splash_screen", false) == false) {
+//            fragmentManager.beginTransaction()
+//                    .setCustomAnimations(R.anim.fragment_fade_in, R.anim.fragment_fade_out, R.anim.fragment_fade_in, R.anim.fragment_fade_out)
+//                    .add(R.id.activity_main_layout, splashScreenFragment, TAG_SPLASH_SCREEN_FRAGMENT).commit();
+//
+//            new Handler(getMainLooper()).postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    fragmentManager.beginTransaction().setCustomAnimations(R.anim.slide_up_fragment, R.anim.fragment_fade_out)
+//                            .replace(R.id.activity_main_layout, songRecyclerViewFragment).add(R.id.activity_main_layout, fabButtonFragment)
+//                            .commit();
+//                }
+//            }, SPLASH_DELAY_MILISEC);
+//        }
+//        else {
+//            new Handler(getMainLooper()).post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    fragmentManager.beginTransaction()
+//                            .replace(R.id.activity_main_layout, songRecyclerViewFragment).add(R.id.activity_main_layout, fabButtonFragment)
+//                            .commit();
+//                }
+//            });
+//        }
     }
 
     @Override
@@ -169,6 +174,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
     @Override
     public void onCardClick(View view, int position) {
+
+
         Song song = songs.get(position);
 
         Intent bindIntent = new Intent(this, MusicService.class);
@@ -235,11 +242,22 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     public void onPlayPauseClickPlayerFrag(int position, View view) {
         //TODO: play / pause song
-        sp.edit().putInt(LAST_SONG_KEY, position);
-      //  isPlaying = !isPlaying;
+        Intent intent = new Intent(MainActivity.this, MusicService.class);
+        intent.putExtra("command", "play_pause");
+
+        sp.edit().putInt(LAST_SONG_KEY, position).commit();
+        //  isPlaying = !isPlaying;
+        if (!bound){
+            intent.putExtra("command", "new_instance");
+            Intent bindIntent = new Intent(this, MusicService.class);
+            bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+            playerFragment.changeBtnResource(true);
+        }
+
+
+        Log.d("SONG", "onPlayPauseClickPlayerFrag: "+position);
+
         if (songs.size() > 0) {
-            Intent intent = new Intent(MainActivity.this, MusicService.class);
-            intent.putExtra("command", "play_pause");
             intent.putExtra("position", position);
             startService(intent);
         }
@@ -255,12 +273,27 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
     @Override
     public void onPrevClickFromService(int position) {
+        //TODO: check for nulls
         songPageFragment.changeSongInfo(songs.get(position), position);
     }
 
     @Override
     public void onNextClickFromService(int position) {
+        //TODO:
         songPageFragment.changeSongInfo(songs.get(position), position);
+    }
+
+    @Override
+    public void onCloseClickFromService(MediaPlayer mediaPlayer) {
+        mediaPlayer.stop();
+
+        playerFragment.changeBtnResource(false);
+
+        if (bound) {
+            musicService.setCallbacks(null); // unregister
+            unbindService(serviceConnection);
+            bound = false;
+        }
     }
 
     @Override
@@ -273,6 +306,12 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     protected void onStop() {
         super.onStop();
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         // Unbind from service
         if (bound) {
             musicService.setCallbacks(null); // unregister
@@ -288,7 +327,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            // cast the IBinder and get MyService instance
+            // cast the IBinder and get MusicService instance
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             musicService = binder.getService();
             bound = true;
