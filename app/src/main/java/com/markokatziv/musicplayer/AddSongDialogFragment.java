@@ -46,7 +46,7 @@ public class AddSongDialogFragment extends DialogFragment {
     boolean isFromGallery = false;
 
     interface AddSongListener {
-        void onAddSong(Song song);
+        void onAddSongAddSongFrag(Song song);
     }
 
     AddSongListener callback;
@@ -139,7 +139,7 @@ public class AddSongDialogFragment extends DialogFragment {
                     isFromGallery = false;
                 }
 
-                callback.onAddSong(song);
+                callback.onAddSongAddSongFrag(song);
 
             }
         });

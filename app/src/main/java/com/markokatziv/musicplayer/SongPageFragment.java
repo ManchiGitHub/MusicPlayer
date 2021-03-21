@@ -20,8 +20,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.bumptech.glide.request.RequestOptions;
 
 /**
  * Created By marko katziv
@@ -33,7 +31,7 @@ public class SongPageFragment extends Fragment {
     Animation fadeOutAnimation;
 
     interface SongPageListener {
-        void onFavoriteButtonClick(int position);
+        void onFavoriteButtonClickSongPageFrag(int position);
     }
 
     SongPageFragment.SongPageListener callback;
@@ -93,7 +91,7 @@ public class SongPageFragment extends Fragment {
                 public void run() {
                     Glide.with(getActivity()).load(defaultBitmap).into(songImage);
                 }
-            },400 );
+            }, 400);
 
         }
         else {
@@ -105,7 +103,7 @@ public class SongPageFragment extends Fragment {
                 public void run() {
                     Glide.with(getActivity()).load(song.getImagePath()).into(songImage);
                 }
-            },400);
+            }, 400);
 
         }
 
@@ -150,6 +148,9 @@ public class SongPageFragment extends Fragment {
             Glide.with(getActivity()).load(song.getImagePath()).into(songImage);
         }
 
+
+
+
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -167,7 +168,7 @@ public class SongPageFragment extends Fragment {
                     v.setBackground(getActivity().getDrawable(R.drawable.heart_empty));
                 }
 
-                callback.onFavoriteButtonClick(songPosition);
+                callback.onFavoriteButtonClickSongPageFrag(songPosition);
             }
         });
 
@@ -183,7 +184,7 @@ public class SongPageFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        System.out.println("ON DESTROY");
+        Log.d("ON STATE", "onDestroy: song page fragment");
         this.isActive = false; // page fragment is destroyed,
                                // need to set isActive to false to be able to create new instance.
     }

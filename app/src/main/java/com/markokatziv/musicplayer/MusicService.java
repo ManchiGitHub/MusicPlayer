@@ -5,13 +5,12 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -23,6 +22,34 @@ import java.util.ArrayList;
  * Created By marko katziv
  */
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+
+    interface MusicServiceListener {
+        void onPlayPauseClickFromService();
+        void onPrevClickFromService();
+        void onNextClickFromService();
+    }
+
+    // Binder given to clients
+    private final IBinder binder = new LocalBinder();
+    // Registered callbacks
+    private MusicServiceListener listener;
+
+
+    // Class used for the client Binder.
+    public class LocalBinder extends Binder {
+        MusicService getService() {
+            // Return this instance of MyService so clients can call public methods
+            return MusicService.this;
+        }
+    }
+
+
+    public void setCallbacks(MusicServiceListener callbacks) {
+        listener = callbacks;
+    }
+
+
+
 
     private final int PLAY_PAUSE_REQUEST_CODE = 0;
     private final int NEXT_REQUEST_CODE = 1;
@@ -42,12 +69,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+
 
 
         mediaPlayer = new MediaPlayer();
@@ -132,6 +160,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 }
                 break;
             case "play_pause":
+                if (listener!=null){
+                    listener.onPlayPauseClickFromService();
+                }
                 if (mediaPlayer.isPlaying()) {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_play_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
@@ -152,6 +183,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 }
                 break;
             case "next":
+                if (listener!=null){
+                    listener.onNextClickFromService();
+                }
                 if (!mediaPlayer.isPlaying()) {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
@@ -167,6 +201,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 PlayerFragment.switchNumber = 1;
                 break;
             case "prev":
+                if (listener!=null){
+                    listener.onPrevClickFromService();
+                }
                 if (!mediaPlayer.isPlaying()) {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
                     mediaPlayer.stop();

@@ -1,14 +1,12 @@
 package com.markokatziv.musicplayer;
 
 import android.content.Context;
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -32,11 +30,11 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
 
     interface PlayerFragmentListener {
-        void onSkipPrevClick(int songPosition);
+        void onSkipPrevClickPlayerFrag(int songPosition);
 
-        void onSkipNextClick(int songPosition);
+        void onSkipNextClickPlayerFrag(int songPosition);
 
-        void onPlayPauseClick(int songPosition, View view);
+        void onPlayPauseClickPlayerFrag(int songPosition, View view);
     }
 
     PlayerFragmentListener callback;
@@ -108,19 +106,17 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             skipNext.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_skip_next_24, null));
         }
 
-//        // flip prev and next buttons according to current locale.
-//        String language = LanguageUtils.getCurrentLanguage();
-//        if (!(language.equals(LanguageUtils.EN_LANGUAGE))) {
-//            skipPrev.setScaleX(-1);
-//            skipNext.setScaleX(-1);
-//        }
+        // flip prev and next buttons according to current locale.
+        String language = LanguageUtils.getCurrentLanguage();
+        if (!(language.equals(LanguageUtils.EN_LANGUAGE))) {
+            skipPrev.setScaleX(-1);
+            skipNext.setScaleX(-1);
+        }
 
         playPauseBtn = rootView.findViewById(R.id.play_pause_button);
 
-//        if (getArguments().getBoolean("is_playing")) {
         playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
         switchNumber = 1;
-//        }
 
         playPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,7 +152,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                 //TODO insert animation to handler and separate private function
                 //animatePlayPauseButton();
                 v.startAnimation(fadeOut);
-                callback.onPlayPauseClick(songPosition, v);
+                callback.onPlayPauseClickPlayerFrag(songPosition, v);
             }
 
         });
@@ -221,7 +217,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                     if (songPosition < 0) {
                         songPosition = listSize - 1;
                     }
-                    callback.onSkipPrevClick(songPosition);
+                    callback.onSkipPrevClickPlayerFrag(songPosition);
                 }
                 else if (ID == R.id.skip_next) {
                     System.out.println("next");
@@ -232,7 +228,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                     if (songPosition == listSize) {
                         songPosition = 0;
                     }
-                    callback.onSkipNextClick(songPosition);
+                    callback.onSkipNextClickPlayerFrag(songPosition);
                 }
             }
         });

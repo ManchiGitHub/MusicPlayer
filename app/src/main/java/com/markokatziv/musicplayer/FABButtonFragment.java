@@ -18,8 +18,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 public class FABButtonFragment extends Fragment {
 
     interface FABButtonFragmentListener {
-        void onAddSongBtnClick();
-        void onPlaySongBtnClick(View view);
+        void onAddSongBtnClickFABFrag();
+        void onPlaySongBtnClickFABFrag(View view);
     }
 
     FABButtonFragmentListener callback;
@@ -79,7 +79,7 @@ public class FABButtonFragment extends Fragment {
         addSongfab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.onAddSongBtnClick();
+                callback.onAddSongBtnClickFABFrag();
             }
         });
 
@@ -87,7 +87,7 @@ public class FABButtonFragment extends Fragment {
         playSongfab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.onPlaySongBtnClick(v);
+                callback.onPlaySongBtnClickFABFrag(v);
 
             }
         });

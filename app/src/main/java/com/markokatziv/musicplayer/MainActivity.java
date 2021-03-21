@@ -5,11 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -23,20 +26,17 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         AddSongDialogFragment.AddSongListener,
         SongRecyclerViewFragment.SongRecyclerViewListener,
         SongPageFragment.SongPageListener,
-        PlayerFragment.PlayerFragmentListener {
+        PlayerFragment.PlayerFragmentListener, MusicService.MusicServiceListener {
 
     final String TAG_SPLASH_SCREEN_FRAGMENT = "splash_screen_fragment";
     final String TAG_ADD_SONG_FRAGMENT = "add_song_fragment";
     final String TAG_PLAYER_FRAGMENT = "player_fragment";
     final String TAG_SONG_PAGE_FRAGMENT = "song_page_fragment";
     final int SPLASH_DELAY_MILISEC = 500;
-    final int NO_SPLASH_DELAY_MILISEC = 0;
     private final String LAST_SONG_KEY = "last_song_played";
     SharedPreferences sp;
 
-
     private boolean isPlaying = false;
-    private boolean isStarted = false;
 
 
     SplashScreenFragment splashScreenFragment;
@@ -47,15 +47,25 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     ArrayList<Song> songs;
     SongPageFragment songPageFragment;
 
+
+    private MusicService musicService;
+    private boolean bound = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
+        Log.d("ON STATE", "onCreate: main activity");
+
         sp = getSharedPreferences("continuation", MODE_PRIVATE);
 
         // load songs
         songs = SongFileHandler.readSongList(this);
+
 
         if (songs == null || songs.size() == 0) {
             songs = new ArrayList<Song>();
@@ -94,13 +104,13 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     }
 
     @Override
-    public void onAddSongBtnClick() {
+    public void onAddSongBtnClickFABFrag() {
         addSongDialogFragment = new AddSongDialogFragment();
         addSongDialogFragment.show(getSupportFragmentManager(), TAG_ADD_SONG_FRAGMENT);
     }
 
     @Override
-    public void onPlaySongBtnClick(View view) {
+    public void onPlaySongBtnClickFABFrag(View view) {
 
         /**
          * TODO:
@@ -150,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     }
 
     @Override
-    public void onAddSong(Song song) {
+    public void onAddSongAddSongFrag(Song song) {
 
         songs.add(song);
         Toast.makeText(this, "song added", Toast.LENGTH_SHORT).show();
@@ -190,13 +200,13 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     }
 
     @Override
-    public void onFavoriteButtonClick(int position) {
+    public void onFavoriteButtonClickSongPageFrag(int position) {
         SongFileHandler.saveSongList(this, songs);
         songRecyclerViewFragment.notifyFavoriteButtonClick(position);
     }
 
     @Override
-    public void onSkipPrevClick(int prevSongPosition) {
+    public void onSkipPrevClickPlayerFrag(int prevSongPosition) {
 
         //TODO: skip to previous song
         if (songs.size() > 0) {
@@ -210,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     }
 
     @Override
-    public void onSkipNextClick(int nextSongPosition) {
+    public void onSkipNextClickPlayerFrag(int nextSongPosition) {
         //TODO: skip to next song
 
         Log.d("TAGTAG", "current song position: " + nextSongPosition);
@@ -225,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     }
 
     @Override
-    public void onPlayPauseClick(int position, View view) {
+    public void onPlayPauseClickPlayerFrag(int position, View view) {
         //TODO: play / pause song
         sp.edit().putInt(LAST_SONG_KEY, position);
         isPlaying = !isPlaying;
@@ -237,4 +247,54 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         }
     }
 
+    @Override
+    public void onPlayPauseClickFromService() {
+        Log.d("PLEASEWORK", "onNextClick: IS IT REALLY WORKING");
+    }
+
+    @Override
+    public void onPrevClickFromService() {
+
+    }
+
+    @Override
+    public void onNextClickFromService() {
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = new Intent(this, MusicService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Unbind from service
+        if (bound) {
+            musicService.setCallbacks(null); // unregister
+            unbindService(serviceConnection);
+            bound = false;
+        }
+    }
+
+    /** Callbacks for service binding, passed to bindService() */
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // cast the IBinder and get MyService instance
+            MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
+            musicService = binder.getService();
+            bound = true;
+            musicService.setCallbacks(MainActivity.this); // register
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            bound = false;
+        }
+    };
 }
