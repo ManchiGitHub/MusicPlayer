@@ -18,37 +18,35 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 /**
  * Created By marko katziv
  */
-public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder>  {
-
-    private List<Song> songsList;
-    Context context;
-    Bitmap defaultBitmap;
-    private SongListenerInterface listener;
-    Handler handler;
-
+public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
 
     interface SongListenerInterface {
         void onSongCardClicked(int position, View view);
+
     }
 
+    private SongListenerInterface listener;
 
-    public void setListener(SongListenerInterface listener) {
-        this.listener = listener;
-    }
+    private List<Song> songsList;
+    private Context context;
+    private Bitmap defaultBitmap;
+    private Handler handler;
 
     public SongAdapter(List<Song> songsList, Context context) {
         this.songsList = songsList;
         this.context = context;
         defaultBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.default_song_img);
-
     }
 
     public class SongViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -64,19 +62,14 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         LinearLayout topLayout;
         ImageButton infoImageBtn;
 
-
         RotateAnimation rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        //  ScaleAnimation scaleUpAnimation = new ScaleAnimation(1f, 1.5f, 1f, 1.5f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 1f);
-        // ScaleAnimation scaleDownAnimation = new ScaleAnimation(1.5f, 1f, 1.5f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 1f);
 
         OvershootInterpolator overshootInterpolator = new OvershootInterpolator();
-
-
-
 
         public SongViewHolder(View v) {
             super(v);
 
+            /* nice info icon rotation animation on click */
             rotate.setDuration(300);
             rotate.setInterpolator(overshootInterpolator);
 
@@ -100,14 +93,11 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 }
             });
 
-
             if (!isCardExpanded) {
                 songCellDrawer.setVisibility(View.GONE);
                 songCellDrawer.setEnabled(false);
             }
-
         }
-
 
         @Override
         public void onClick(final View view) {
@@ -125,7 +115,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             else {
                 isCardExpanded = false;
                 valueAnimator = ValueAnimator.ofInt(originalHeight, originalHeight - 200); //TODO: set veriable to static final int
-
                 Animation alphaAnimation = new AlphaAnimation(1.00f, 0.00f); // fade out
                 alphaAnimation.setDuration(200);
                 alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -146,7 +135,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                     }
                 });
 
-                // Set the animation on the custom view
+                /* Set the animation on the custom view. */
                 songCellDrawer.startAnimation(alphaAnimation);
             }
             valueAnimator.setDuration(200);
@@ -159,7 +148,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 }
             });
             valueAnimator.start();
-
         }
     }
 
@@ -169,15 +157,11 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.song_cell, parent, false);
         SongViewHolder songViewHolder = new SongViewHolder(view);
 
-
         return songViewHolder;
     }
 
-
-
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
-
 
         Song song = songsList.get(position);
         holder.songTitle.setText(song.getSongTitle());
@@ -195,17 +179,13 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             Glide.with(this.context).load(defaultBitmap).thumbnail(0.25f).into(holder.songThumbNailIV);
         }
         else {
-            Log.d("PATHOFIMAGE", "onBindViewHolder: "+song.getImagePath());
 
-            if (song.getImagePath().contains("content")){
-                System.out.println(song.getImagePath()+"HELLLOOOOO");
-      //          Uri uri = Uri.parse(song.getImagePath());
-            }
+//            if (song.getImagePath().contains("content")){
+//      //          Uri uri = Uri.parse(song.getImagePath());
+//            }
             Glide.with(this.context).load(song.getImagePath()).thumbnail(0.15f).into(holder.songThumbNailIV);
         }
     }
-
-
 
     @Override
     public int getItemCount() {
@@ -214,9 +194,10 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        System.out.println(position + "    ----------------------------------");
         return super.getItemViewType(position);
-
     }
 
+    public void setListener(SongListenerInterface listener) {
+        this.listener = listener;
+    }
 }

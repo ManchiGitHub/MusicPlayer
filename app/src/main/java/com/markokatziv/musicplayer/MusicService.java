@@ -39,10 +39,9 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
     }
 
 
-    public MutableLiveData<Song> songMutableMLD;
+  //  public MutableLiveData<Song> songMutableMLD;
     public MutableLiveData<Boolean> isMusicPlayingMLD;
-    public MutableLiveData<SongWrapper> songWrapperMLD;
-    private SongWrapper songWrapper;
+    public MutableLiveData<Integer> songPositionMLD;
 
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
@@ -90,15 +89,12 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
         return binder;
     }
 
-    public MutableLiveData<Song> getSongMLD() {
-        return songMutableMLD;
-    }
-
-//    public MutableLiveData<SongWrapper> getSongWrapperMLD() {
-//        return songWrapperMLD;
+//    public MutableLiveData<Song> getSongMLD() {
+//        return songMutableMLD;
 //    }
 
-    public MutableLiveData<Boolean> getIsMusicPlayingMutableLiveData() {
+
+    public MutableLiveData<Boolean> getIsMusicPlayingMLD() {
         return isMusicPlayingMLD;
     }
 
@@ -106,27 +102,31 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
         isMusicPlayingMLD = new MutableLiveData<>();
     }
 
-    public void setSongMLD() {
-        songMutableMLD = new MutableLiveData<>();
-    }
-
-//    public void setSongWrapperMLD() {
-//        songWrapperMLD = new MutableLiveData<>();
+//    public void setSongMLD() {
+//        songMutableMLD = new MutableLiveData<>();
 //    }
 
-    SharedPreferences sp;
-
-    public void removeObserver(Observer<Song> observer){
-        songMutableMLD.removeObserver(observer);
+    public MutableLiveData<Integer> getSongPositionMLD() {
+        return songPositionMLD;
     }
+
+    public void setSongPositionMLD() {
+        songPositionMLD = new MutableLiveData<>();
+    }
+
+    //
+//    SharedPreferences sp;
+
+//    public void removeObserver(Observer<Song> observer){
+//        songMutableMLD.removeObserver(observer);
+//    }
 
     @Override
     public void onCreate() {
         super.onCreate();
-     //   setSongWrapperMLD();
-     //   songWrapper = new SongWrapper();
 
-        sp = getSharedPreferences("continuation", MODE_PRIVATE);
+
+//        sp = getSharedPreferences("continuation", MODE_PRIVATE);
 
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnCompletionListener(this);
@@ -187,7 +187,6 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
         songs = SongFileHandler.readSongList(MusicService.this);
 
         String command = intent.getStringExtra("command");
-        System.out.println(command + " COMMAND STRING");
         int position = intent.getIntExtra("position", 0);
 
         switch (command) {
@@ -198,10 +197,7 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
                 }
                 currentPlaying = position;
                 mediaPlayer.reset();
-//                songWrapper.setSong(songs.get(currentPlaying));
-//                songWrapper.setPosition(currentPlaying);
-//                System.out.println(songWrapper.getPosition() + " markomarko");
-//                songWrapperMLD.setValue(songWrapper);
+
                 try {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
@@ -228,7 +224,6 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
                      */
                     /*
                     if (listener != null) {
-                        System.out.println("HELLOHELLOHELLO");
 
                        listener.onPlayPauseClickFromService(false);
                     }
@@ -245,7 +240,6 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
                      */
                     /*
                     if (listener != null) {
-                        System.out.println("HELLOHELLOHELLO");
 
                         listener.onPlayPauseClickFromService(true);
                     }
@@ -275,13 +269,10 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
 
                  */
 
-                sp.edit().putInt("last_song_played", currentPlaying).commit();
-                System.out.println(songs.get(currentPlaying).isFavorite()+ " MARKOMARKO");
-                songMutableMLD.setValue(songs.get(currentPlaying));
-//                setSongWrapperMLD();
-//                songWrapper.setSong(songs.get(currentPlaying));
-//                songWrapper.setPosition(currentPlaying);
-//                songWrapperMLD.setValue(songWrapper);
+//                sp.edit().putInt("last_song_played", currentPlaying).commit();
+//                songMutableMLD.setValue(songs.get(currentPlaying));
+                songPositionMLD.setValue(currentPlaying);
+
 
                 break;
             case "prev":
@@ -303,25 +294,23 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
                     listener.onPrevClickFromService(currentPlaying);
                 }
                  */
-                System.out.println(songs.get(currentPlaying).isFavorite()+ " MARKOMARKO");
 
-                sp.edit().putInt("last_song_played", currentPlaying).commit();
-                songMutableMLD.setValue(songs.get(currentPlaying));
-//                songWrapper.setSong(songs.get(currentPlaying));
-//                songWrapper.setPosition(currentPlaying);
-//                songWrapperMLD.setValue(songWrapper);
+//                sp.edit().putInt("last_song_played", currentPlaying).commit();
+//                songMutableMLD.setValue(songs.get(currentPlaying));
+                songPositionMLD.setValue(currentPlaying);
+
 
                 break;
             case "close":
 
-                System.out.println("SHOULD CLOSE NOW");
 
-                /**
-                 * changed here
-                 */
+
                 listener.onCloseClickFromService(mediaPlayer);
+                songPositionMLD.removeObservers(this);
+                isMusicPlayingMLD.removeObservers(this);
+
                 stopSelf();
-                mediaPlayer.reset();
+
                 break;
         }
 

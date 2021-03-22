@@ -20,13 +20,17 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
+
 import com.bumptech.glide.Glide;
+
 import java.io.File;
+import java.security.Permission;
 import java.util.Objects;
 
 /**
@@ -34,22 +38,23 @@ import java.util.Objects;
  */
 public class AddSongDialogFragment extends DialogFragment {
 
-    private final int WRITE_PERMISSION_REQUEST = 1;
-    private final int GALLERY_REQUEST = 2;
-
-    final int CAMERA_REQUEST = 1;
-    File photoFile;
-    SharedPreferences sp;
-    Uri imageUri;
-    ImageView imgThumbnail;
-    boolean isUserPic = false;
-    boolean isFromGallery = false;
-
     interface AddSongListener {
         void onAddSongAddSongFrag(Song song);
     }
 
     AddSongListener callback;
+
+    private final int WRITE_PERMISSION_REQUEST = 1;
+    private final int GALLERY_REQUEST = 2;
+    final int CAMERA_REQUEST = 1;
+
+    File photoFile;
+    Uri imageUri;
+    SharedPreferences sp;
+    ImageView imgThumbnail;
+
+    boolean isUserPic = false;
+    boolean isFromGallery = false;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -119,11 +124,11 @@ public class AddSongDialogFragment extends DialogFragment {
         builder.setView(dialogView).setPositiveButton("Add Song", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+
                 String artistName = artistNameEt.getText().toString();
                 String songTitle = songTitleEt.getText().toString();
 
                 Song song = new Song();
-
                 song.setFavorite(favoriteCheckBox.isChecked());
                 song.setSongTitle(songTitle);
                 song.setArtistTitle(artistName);
@@ -131,7 +136,6 @@ public class AddSongDialogFragment extends DialogFragment {
 
                 if (isUserPic) {
                     song.setImagePath(photoFile.getAbsolutePath());
-                    System.out.println(song.getImagePath() + "IMAGE PATH");
                     isUserPic = false;
                 }
                 if (isFromGallery) {
@@ -140,7 +144,6 @@ public class AddSongDialogFragment extends DialogFragment {
                 }
 
                 callback.onAddSongAddSongFrag(song);
-
             }
         });
 
@@ -157,7 +160,6 @@ public class AddSongDialogFragment extends DialogFragment {
 
         if (requestCode == CAMERA_REQUEST && resultCode == getActivity().RESULT_OK) {
             if (data == null) {
-                System.out.println("--------------DATA IS NULL--------------");
             }
 
             isUserPic = true;
@@ -176,6 +178,7 @@ public class AddSongDialogFragment extends DialogFragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
 
         if (requestCode == WRITE_PERMISSION_REQUEST) {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {

@@ -7,9 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /**
@@ -17,23 +19,29 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
  */
 public class FABButtonFragment extends Fragment {
 
+    /* Interface for callbacks. */
     interface FABButtonFragmentListener {
         void onAddSongBtnClickFABFrag();
+
         void onPlaySongBtnClickFABFrag(View view);
     }
 
     FABButtonFragmentListener callback;
 
+    /* Buttons */
     private FloatingActionButton fab;
     private FloatingActionButton addSongfab;
     private FloatingActionButton playSongfab;
-    boolean isClicked = false;
+
+    /* Animations */
     private Animation animUp;
     private Animation animDown;
     private Animation animRight;
     private Animation animLeft;
     private Animation rotateOpen;
     private Animation rotateClose;
+
+    boolean isClicked = false;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -45,21 +53,6 @@ public class FABButtonFragment extends Fragment {
             throw new ClassCastException("The activity must implement FABButtonFragmentListener interface");
         }
     }
-
-    @Nullable
-    @Override
-    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
-        animUp = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_up);
-        animDown = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_down);
-        animRight = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_down_play_btn);
-        animLeft = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_up_play_btn);
-        rotateOpen = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_open_anim);
-        rotateClose = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_close_anim);
-
-
-        return super.onCreateAnimation(transit, enter, nextAnim);
-    }
-
 
     @Nullable
     @Override
@@ -88,11 +81,23 @@ public class FABButtonFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 callback.onPlaySongBtnClickFABFrag(v);
-
             }
         });
 
         return rootView;
+    }
+
+    @Nullable
+    @Override
+    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
+        animUp = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_up);
+        animDown = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_down);
+        animRight = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_down_play_btn);
+        animLeft = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_up_play_btn);
+        rotateOpen = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_open_anim);
+        rotateClose = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_close_anim);
+
+        return super.onCreateAnimation(transit, enter, nextAnim);
     }
 
     private void onFABButtonClicked() {
@@ -101,36 +106,32 @@ public class FABButtonFragment extends Fragment {
         isClicked = !isClicked;
     }
 
-
     private void setVisibilityAndClickability(boolean clicked) {
         if (!clicked) {
+
             addSongfab.setVisibility(View.VISIBLE);
             addSongfab.setClickable(true);
             playSongfab.setVisibility(View.VISIBLE);
             playSongfab.setClickable(true);
         }
         else {
+
             addSongfab.setVisibility(View.INVISIBLE);
             addSongfab.setClickable(false);
             playSongfab.setVisibility(View.INVISIBLE);
             playSongfab.setClickable(false);
-
         }
     }
 
     private void setAnimation(boolean clicked) {
         if (!clicked) {
-//            animationSet.addAnimation(animUp);
-//            animationSet.addAnimation(rotateOpen);
-//            animationSet.start();
+
             addSongfab.startAnimation(animUp);
             playSongfab.startAnimation(animRight);
             fab.startAnimation(rotateOpen);
         }
         else {
-//            animationSet.addAnimation(animDown);
-//            animationSet.addAnimation(rotateClose);
-//            animationSet.start();
+
             fab.startAnimation(rotateClose);
             addSongfab.startAnimation(animDown);
             playSongfab.startAnimation(animLeft);

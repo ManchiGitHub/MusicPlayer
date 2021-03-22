@@ -14,8 +14,6 @@ import android.view.animation.ScaleAnimation;
  */
 public class MyAnimations {
 
-
-
     //TODO: Do I really need this?
     public static void AnimateFavoriteButton(View v) {
 
@@ -49,13 +47,13 @@ public class MyAnimations {
 
     public static void AnimateBackAndPrevBtns(View v, float value) {
 
-        // if current language is not english, flip animation transition to fit current language.
+        ObjectAnimator animation;
+        AccelerateInterpolator accelerateInterpolator = new AccelerateInterpolator();
+
+        /* If current language is not english, flip animation transition to fit current language. */
         if (LanguageUtils.getCurrentLanguage() != LanguageUtils.EN_LANGUAGE) {
             value *= -1;
         }
-
-        ObjectAnimator animation;
-        AccelerateInterpolator accelerateInterpolator = new AccelerateInterpolator();
 
         animation = ObjectAnimator.ofFloat(v, "translationX", value);
         animation.setDuration(70);

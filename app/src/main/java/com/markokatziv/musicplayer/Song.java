@@ -7,7 +7,6 @@ import java.io.Serializable;
  */
 public class Song implements Serializable {
 
-
     private String artistTitle;
     private String albumTitle;
     private String songTitle;

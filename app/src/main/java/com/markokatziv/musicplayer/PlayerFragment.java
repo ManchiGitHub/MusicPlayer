@@ -2,21 +2,15 @@ package com.markokatziv.musicplayer;
 
 import android.content.Context;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
-
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.Button;
 
 /**
@@ -27,7 +21,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     final static private String SONG_KEY = "songs";
     final static private String SONG_POSITION_KEY = "song_position";
     final static private int Y_TRANSITION_SKIP_PREV = 40;
-
 
     interface PlayerFragmentListener {
         void onSkipPrevClickPlayerFrag(int songPosition);
@@ -48,33 +41,15 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         // Required empty public constructor
     }
 
-
-    // TODO: Rename and change types and number of parameters
     public static PlayerFragment newInstance(Song song, int position, boolean isPlaying, int listSize) {
         PlayerFragment fragment = new PlayerFragment();
         Bundle args = new Bundle();
         args.putInt(SONG_POSITION_KEY, position);
         args.putInt("list_size", listSize);
-        //  args.putBoolean("is_from_FAB_btn", isFromFabBtn);
         args.putBoolean("is_playing", isPlaying);
         args.putSerializable(SONG_KEY, song);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    public void changeBtnResource(boolean isPlay) {
-        if (!isPlay) {
-            playPauseBtn.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
-        }
-        else {
-            playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
-        }
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        handler = new Handler(Looper.getMainLooper());
     }
 
     @Override
@@ -96,7 +71,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -112,7 +86,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             skipNext.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_skip_next_24, null));
         }
 
-        // flip prev and next buttons according to current locale.
+        /* Flip prev and next buttons according to current locale */
         String language = LanguageUtils.getCurrentLanguage();
         if (!(language.equals(LanguageUtils.EN_LANGUAGE))) {
             skipPrev.setScaleX(-1);
@@ -129,6 +103,21 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        handler = new Handler(Looper.getMainLooper());
+    }
+
+    public void changeBtnResource(boolean isPlay) {
+        if (!isPlay) {
+            playPauseBtn.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
+        }
+        else {
+            playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
+        }
     }
 
     @Override
@@ -150,8 +139,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                     callback.onSkipPrevClickPlayerFrag(songPosition);
                 }
                 else if (ID == R.id.skip_next) {
-                    System.out.println("next");
-                    Log.d("TAGTAG", "last song position: " + songPosition);
                     MyAnimations.AnimateBackAndPrevBtns(v, (-1 * Y_TRANSITION_SKIP_PREV));
 
                     songPosition++;

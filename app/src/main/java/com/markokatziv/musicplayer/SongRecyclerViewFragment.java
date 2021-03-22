@@ -3,19 +3,23 @@ package com.markokatziv.musicplayer;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,18 +29,23 @@ import java.util.List;
  */
 public class SongRecyclerViewFragment extends Fragment implements SongAdapter.SongListenerInterface {
 
-    final static private String SONGS_LIST_KEY = "songs_list";
-
     interface SongRecyclerViewListener {
         void onCardClick(View view, int position);
+
     }
 
     SongRecyclerViewListener callback;
+
+    final static private String SONGS_LIST_KEY = "songs_list";
 
     private RecyclerView recyclerView;
     private SongAdapter songAdapter;
     private List<Song> songs;
     private TextView addSongsText;
+
+    public SongRecyclerViewFragment() {
+        // Required empty public constructor
+    }
 
     public static SongRecyclerViewFragment newInstance(ArrayList<Song> songsList) {
         SongRecyclerViewFragment fragment = new SongRecyclerViewFragment();
@@ -44,27 +53,6 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         args.putSerializable(SONGS_LIST_KEY, songsList);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    public SongRecyclerViewFragment() {
-        // Required empty public constructor
-    }
-
-    public void notifyItemInsert(Song song) {
-        songAdapter.notifyItemInserted(songs.size());
-        changeInitialTextOnScreen(addSongsText);
-    }
-
-    public void notifyFavoriteButtonClick(int position) {
-        songAdapter.notifyItemChanged(position);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            songs = (List<Song>) getArguments().getSerializable("songs_list");
-        }
     }
 
     @Override
@@ -79,9 +67,18 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            songs = (List<Song>) getArguments().getSerializable("songs_list");
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        /* Inflate the layout for this fragment */
         View rootView = inflater.inflate(R.layout.fragment_song_recycler_view, container, false);
-        // Inflate the layout for this fragment
 
         recyclerView = rootView.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -103,8 +100,17 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         return rootView;
     }
 
+    public void notifyItemInsert(Song song) {
+        songAdapter.notifyItemInserted(songs.size());
+        changeInitialTextOnScreen(addSongsText);
+    }
+
+    public void notifyFavoriteButtonClick(int position) {
+        songAdapter.notifyItemChanged(position);
+    }
+
     private ItemTouchHelper.SimpleCallback createSongTouchHelper() {
-        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP|ItemTouchHelper.DOWN, ItemTouchHelper.START | ItemTouchHelper.END) {
+        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.START | ItemTouchHelper.END) {
 
             Animation scaleDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_scale_down);
             Animation scaleUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_scale_up);
@@ -127,7 +133,7 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
             @Override
             public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
                 super.onSelectedChanged(viewHolder, actionState);
-                if (actionState==ItemTouchHelper.ACTION_STATE_DRAG){
+                if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
                     scaleUpAnimation.setFillAfter(true);
                     viewHolder.itemView.startAnimation(scaleUpAnimation);
                 }
@@ -178,7 +184,7 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         if (songs.size() > 0) {
             addSongsText.setVisibility(View.GONE);
         }
-        else{
+        else {
             addSongsText.setVisibility(View.VISIBLE);
         }
     }
