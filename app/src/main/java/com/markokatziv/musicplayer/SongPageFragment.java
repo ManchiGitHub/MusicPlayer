@@ -4,11 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -21,7 +16,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
 import com.bumptech.glide.Glide;
+
+import java.util.Objects;
+
 
 /**
  * Created By marko katziv
@@ -30,6 +32,7 @@ public class SongPageFragment extends Fragment {
 
     final static private String SONG_POSITION_KEY = "song_position";
     final static private String SONG_KEY = "song";
+    private static final String MYTAG = "my tag";
     Animation fadeOutAnimation;
 
     interface SongPageListener {
@@ -42,7 +45,6 @@ public class SongPageFragment extends Fragment {
     private int songPosition;
     Bitmap defaultBitmap;
     private boolean isActive;
-
 
     ImageView songImage;
     TextView songTitle;
@@ -58,6 +60,7 @@ public class SongPageFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        System.out.println("TAGTAG on Attach: songPageFragment");
 
         try {
             callback = (SongPageFragment.SongPageListener) context;
@@ -67,7 +70,7 @@ public class SongPageFragment extends Fragment {
     }
 
     public static SongPageFragment newInstance(Song song, int position) {
-
+        System.out.println("TAGTAG on newInstance: songPageFragment");
         SongPageFragment fragment = new SongPageFragment();
         Bundle args = new Bundle();
         args.putInt(SONG_POSITION_KEY, position);
@@ -77,7 +80,8 @@ public class SongPageFragment extends Fragment {
         return fragment;
     }
 
-    public void changeSongInfo(Song song, int position) {
+
+    public void changeSong(Song song, int position) {
 
         this.song = song;
         this.songPosition = position;
@@ -85,12 +89,12 @@ public class SongPageFragment extends Fragment {
         this.artistTitle.setText(song.getArtistTitle());
 
         if (song.isFavorite()) {
-            favoriteBtn.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.heart_solid));
-            //    song.setFavorite(true);
+          //  song.setFavorite(true);
+            favoriteBtn.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.heart_solid));
         }
         else {
-            favoriteBtn.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.heart_empty));
-            //    song.setFavorite(false);
+        //    song.setFavorite(false);
+            favoriteBtn.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.heart_empty));
         }
 
 
@@ -105,8 +109,6 @@ public class SongPageFragment extends Fragment {
 
         }
         else {
-            Log.d("WTF", "onCreateView: " + song.getImagePath());
-
             songImage.startAnimation(fadeOutAnimation);
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
@@ -123,12 +125,14 @@ public class SongPageFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             this.isActive = true;
+            System.out.println("TAGTAG on Create: songPageFragment");
             song = (Song) getArguments().getSerializable("song");
             songPosition = (int) getArguments().getInt("song_position", 0);
         }
 
         fadeOutAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.fragment_fade_out);
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -152,7 +156,6 @@ public class SongPageFragment extends Fragment {
             Glide.with(getActivity()).load(defaultBitmap).into(songImage);
         }
         else {
-            Log.d("WTF", "onCreateView: " + song.getImagePath());
             Glide.with(getActivity()).load(song.getImagePath()).into(songImage);
         }
 
@@ -160,8 +163,6 @@ public class SongPageFragment extends Fragment {
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                System.out.println("HELLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
                 // if song is not favorite
                 if (!song.isFavorite()) {
                     song.setFavorite(true);

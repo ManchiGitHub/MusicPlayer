@@ -4,21 +4,20 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleService;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ import java.util.ArrayList;
 /**
  * Created By marko katziv
  */
-public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
+public class MusicService extends LifecycleService implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
 
     interface MusicServiceListener {
@@ -40,6 +39,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
 
+    public MutableLiveData<Song> songMutableMLD;
+    public MutableLiveData<Boolean> isMusicPlayingMLD;
+    public MutableLiveData<SongWrapper> songWrapperMLD;
+    private SongWrapper songWrapper;
 
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
@@ -74,18 +77,56 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     Notification notification;
     ArrayList<Song> songs;
     int currentPlaying = -1;
-    boolean isDataSourceSet = false;
+    boolean isMusicPlaying = false;
+
+    /**
+     * changed here
+     */
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        super.onBind(intent);
         return binder;
+    }
+
+    public MutableLiveData<Song> getSongMLD() {
+        return songMutableMLD;
+    }
+
+//    public MutableLiveData<SongWrapper> getSongWrapperMLD() {
+//        return songWrapperMLD;
+//    }
+
+    public MutableLiveData<Boolean> getIsMusicPlayingMutableLiveData() {
+        return isMusicPlayingMLD;
+    }
+
+    public void setIsMusicPlayingMLD() {
+        isMusicPlayingMLD = new MutableLiveData<>();
+    }
+
+    public void setSongMLD() {
+        songMutableMLD = new MutableLiveData<>();
+    }
+
+//    public void setSongWrapperMLD() {
+//        songWrapperMLD = new MutableLiveData<>();
+//    }
+
+    SharedPreferences sp;
+
+    public void removeObserver(Observer<Song> observer){
+        songMutableMLD.removeObserver(observer);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+     //   setSongWrapperMLD();
+     //   songWrapper = new SongWrapper();
 
+        sp = getSharedPreferences("continuation", MODE_PRIVATE);
 
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnCompletionListener(this);
@@ -143,18 +184,24 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
+        songs = SongFileHandler.readSongList(MusicService.this);
+
         String command = intent.getStringExtra("command");
         System.out.println(command + " COMMAND STRING");
         int position = intent.getIntExtra("position", 0);
-        songs = SongFileHandler.readSongList(MusicService.this);
 
         switch (command) {
             case "new_instance":
+
                 if (mediaPlayer.isPlaying()) {
                     mediaPlayer.stop();
                 }
                 currentPlaying = position;
                 mediaPlayer.reset();
+//                songWrapper.setSong(songs.get(currentPlaying));
+//                songWrapper.setPosition(currentPlaying);
+//                System.out.println(songWrapper.getPosition() + " markomarko");
+//                songWrapperMLD.setValue(songWrapper);
                 try {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
@@ -167,6 +214,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+
                 break;
             case "play_pause":
                 if (mediaPlayer.isPlaying()) {
@@ -174,20 +223,34 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
                     mediaPlayer.pause();
 
+                    /**
+                     * changed here
+                     */
+                    /*
                     if (listener != null) {
                         System.out.println("HELLOHELLOHELLO");
-                        listener.onPlayPauseClickFromService(false);
+
+                       listener.onPlayPauseClickFromService(false);
                     }
+                     */
+                    isMusicPlayingMLD.setValue(false);
                 }
                 else { //mediaPlayer is not playing
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
                     mediaPlayer.start();
 
+                    /**
+                     * changed here
+                     */
+                    /*
                     if (listener != null) {
                         System.out.println("HELLOHELLOHELLO");
+
                         listener.onPlayPauseClickFromService(true);
                     }
+                     */
+                    isMusicPlayingMLD.setValue(true);
                 }
 
                 break;
@@ -202,13 +265,24 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 remoteViews.setTextViewText(R.id.artist_title_notif, songs.get(currentPlaying).getArtistTitle());
                 manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
 
-                //TODO: this should probably be implemented with broadcasts.
-                //    PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
-                //    PlayerFragment.switchNumber = 1;
-
+                /**
+                 * changed here
+                 */
+                /*
                 if (listener != null) {
                     listener.onNextClickFromService(currentPlaying);
                 }
+
+                 */
+
+                sp.edit().putInt("last_song_played", currentPlaying).commit();
+                System.out.println(songs.get(currentPlaying).isFavorite()+ " MARKOMARKO");
+                songMutableMLD.setValue(songs.get(currentPlaying));
+//                setSongWrapperMLD();
+//                songWrapper.setSong(songs.get(currentPlaying));
+//                songWrapper.setPosition(currentPlaying);
+//                songWrapperMLD.setValue(songWrapper);
+
                 break;
             case "prev":
 
@@ -221,17 +295,30 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 remoteViews.setTextViewText(R.id.artist_title_notif, songs.get(currentPlaying).getArtistTitle());
                 manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
 
-                //TODO: this should probably be implemented with broadcasts.
-                // PlayerFragment.playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
-                // PlayerFragment.switchNumber = 1;
-
+                /**
+                 * changed here
+                 */
+                /*
                 if (listener != null) {
                     listener.onPrevClickFromService(currentPlaying);
                 }
+                 */
+                System.out.println(songs.get(currentPlaying).isFavorite()+ " MARKOMARKO");
+
+                sp.edit().putInt("last_song_played", currentPlaying).commit();
+                songMutableMLD.setValue(songs.get(currentPlaying));
+//                songWrapper.setSong(songs.get(currentPlaying));
+//                songWrapper.setPosition(currentPlaying);
+//                songWrapperMLD.setValue(songWrapper);
+
                 break;
             case "close":
 
                 System.out.println("SHOULD CLOSE NOW");
+
+                /**
+                 * changed here
+                 */
                 listener.onCloseClickFromService(mediaPlayer);
                 stopSelf();
                 mediaPlayer.reset();
@@ -240,6 +327,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         return super.onStartCommand(intent, flags, startId);
     }
+
+
 
 
     @Override
@@ -254,11 +343,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
+
     @Override
     public void onPrepared(MediaPlayer mp) {
         mediaPlayer.start();
     }
-
 
 
     @Override

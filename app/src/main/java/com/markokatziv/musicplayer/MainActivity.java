@@ -4,6 +4,7 @@ package com.markokatziv.musicplayer;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,13 +13,13 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created By marko katziv
@@ -35,12 +36,15 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     final String TAG_SONG_PAGE_FRAGMENT = "song_page_fragment";
     final int SPLASH_DELAY_MILISEC = 500;
     private final String LAST_SONG_KEY = "last_song_played";
+
+    private final String TAGTAG = "com.markokatziv";
+
     SharedPreferences sp;
 
     private boolean isPlaying = false;
 
 
-    SplashScreenFragment splashScreenFragment;
+    // SplashScreenFragment splashScreenFragment;
     SongRecyclerViewFragment songRecyclerViewFragment;
     FABButtonFragment fabButtonFragment;
     AddSongDialogFragment addSongDialogFragment;
@@ -50,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
 
     private MusicService musicService;
-    private boolean bound = false;
+    private boolean isServiceBounded = false;
 
 
     @Override
@@ -59,20 +63,16 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         setTheme(R.style.splashScreenTheme);
         setContentView(R.layout.activity_main);
 
-
-        Log.d("ON STATE", "onCreate: main activity");
-
         sp = getSharedPreferences("continuation", MODE_PRIVATE);
 
         // load songs
         songs = SongFileHandler.readSongList(this);
 
-
         if (songs == null || songs.size() == 0) {
             songs = new ArrayList<Song>();
         }
 
-        splashScreenFragment = new SplashScreenFragment();
+        //   splashScreenFragment = new SplashScreenFragment();
         songRecyclerViewFragment = SongRecyclerViewFragment.newInstance(songs);
         fabButtonFragment = new FABButtonFragment();
 
@@ -178,8 +178,15 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         Song song = songs.get(position);
 
-        Intent bindIntent = new Intent(this, MusicService.class);
-        bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        System.out.println(song + " HELLOHELLOHELLOHELLL");
+
+
+        if (!isServiceBounded) {
+            isServiceBounded = true;
+            Intent bindIntent = new Intent(this, MusicService.class);
+            bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
+
 
         // this is for making sure only one song page fragment and one player fragment are alive.
         if (songPageFragment != null) {
@@ -188,17 +195,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             }
         }
 
-        sp.edit().putInt(LAST_SONG_KEY, position);
-        isPlaying = !isPlaying;
-        if (songs.size() > 0) {
-            Intent intent = new Intent(MainActivity.this, MusicService.class);
-            intent.putExtra("command", "new_instance");
-            intent.putExtra("position", position);
-            startService(intent);
-        }
         songPageFragment = SongPageFragment.newInstance(song, position);
         playerFragment = PlayerFragment.newInstance(song, position, isPlaying, songs.size());
-
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -206,11 +204,21 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         fragmentTransaction.add(R.id.activity_main_layout, playerFragment, TAG_PLAYER_FRAGMENT).addToBackStack("player_frag");
         fragmentTransaction.add(R.id.activity_main_layout, songPageFragment, TAG_SONG_PAGE_FRAGMENT).addToBackStack("song_page_frag");
         fragmentTransaction.commit();
+
+        sp.edit().putInt(LAST_SONG_KEY, position).commit();
+        isPlaying = !isPlaying;
+        if (songs.size() > 0) {
+            Intent intent = new Intent(MainActivity.this, MusicService.class);
+            intent.putExtra("command", "new_instance");
+            intent.putExtra("position", position);
+            startService(intent);
+        }
     }
 
     @Override
     public void onFavoriteButtonClickSongPageFrag(int position) {
         SongFileHandler.saveSongList(this, songs);
+        System.out.println("MARKOMARKO" + position);
         songRecyclerViewFragment.notifyFavoriteButtonClick(position);
     }
 
@@ -221,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             Intent intent = new Intent(MainActivity.this, MusicService.class);
             intent.putExtra("command", "prev");
             getIntent().putExtra("song", songs.get(prevSongPosition));
-            songPageFragment.changeSongInfo(songs.get(prevSongPosition), prevSongPosition);
+            //    songPageFragment.changeSongInfo(songs.get(prevSongPosition), prevSongPosition);
             startService(intent);
         }
     }
@@ -234,8 +242,9 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             Intent intent = new Intent(MainActivity.this, MusicService.class);
             intent.putExtra("command", "next");
             getIntent().putExtra("song", songs.get(nextSongPosition));
-            songPageFragment.changeSongInfo(songs.get(nextSongPosition), nextSongPosition);
+            //    songPageFragment.changeSongInfo(songs.get(nextSongPosition), nextSongPosition);
             startService(intent);
+
         }
     }
 
@@ -246,8 +255,12 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         intent.putExtra("command", "play_pause");
 
         sp.edit().putInt(LAST_SONG_KEY, position).commit();
-        //  isPlaying = !isPlaying;
-        if (!bound){
+        isPlaying = !isPlaying;
+
+        /**
+         * changed here
+         */
+        if (!isServiceBounded) {
             intent.putExtra("command", "new_instance");
             Intent bindIntent = new Intent(this, MusicService.class);
             bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -255,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         }
 
 
-        Log.d("SONG", "onPlayPauseClickPlayerFrag: "+position);
+        Log.d("SONG", "onPlayPauseClickPlayerFrag: " + position);
 
         if (songs.size() > 0) {
             intent.putExtra("position", position);
@@ -266,22 +279,20 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     public void onPlayPauseClickFromService(boolean isPlay) {
         if (playerFragment != null) {
-            Log.d("PLAYERFRAGMENT", "onNextClick: IS IT REALLY WORKING");
             playerFragment.changeBtnResource(isPlay);
         }
     }
 
     @Override
     public void onPrevClickFromService(int position) {
-        //TODO: check for nulls
-        songPageFragment.changeSongInfo(songs.get(position), position);
+          songPageFragment.changeSong(songs.get(position), position);
     }
 
     @Override
     public void onNextClickFromService(int position) {
-        //TODO:
-        songPageFragment.changeSongInfo(songs.get(position), position);
+          songPageFragment.changeSong(songs.get(position), position);
     }
+
 
     @Override
     public void onCloseClickFromService(MediaPlayer mediaPlayer) {
@@ -289,11 +300,13 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         playerFragment.changeBtnResource(false);
 
-        if (bound) {
+        if (isServiceBounded) {
             musicService.setCallbacks(null); // unregister
             unbindService(serviceConnection);
-            bound = false;
+            isServiceBounded = false;
         }
+
+
     }
 
     @Override
@@ -302,6 +315,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 //        Intent intent = new Intent(this, MusicService.class);
 //        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
+
 
     @Override
     protected void onStop() {
@@ -312,31 +326,79 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
         // Unbind from service
-        if (bound) {
+        if (isServiceBounded) {
             musicService.setCallbacks(null); // unregister
             unbindService(serviceConnection);
-            bound = false;
+            isServiceBounded = false;
         }
+
     }
 
-    /**
-     * Callbacks for service binding, passed to bindService()
-     */
+    // TODO: BUG: SCENARIO - Service is active, app is dead, Recreating the activity
+    //   and rebinding the service creates a new observer that observes
+    //   the MutableLiveData instance that was created prior to killing the app.
+    //   The next observations and other scenarios work like magic.
+    //   UPDATE: resetting the MutableLiveData object and explicitly calling onChanged fixes the problem.
     private ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            // cast the IBinder and get MusicService instance
+            // Getting service instance with IBinder.
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
+            isServiceBounded = true;
             musicService = binder.getService();
-            bound = true;
-            musicService.setCallbacks(MainActivity.this); // register
+            musicService.setCallbacks(MainActivity.this); // Don't need this if using LiveData.
+
+            // Resetting the MutableLiveData object before observing.
+
+         //   musicService.setSongWrapperMLD();
+            musicService.setSongMLD();
+            musicService.setIsMusicPlayingMLD();
+            Observer<Song> songObserver = new Observer<Song>() {
+                @Override
+                public void onChanged(Song song) {
+                    int position = sp.getInt(LAST_SONG_KEY,0);
+                    Toast.makeText(MainActivity.this, "song position: " + position , Toast.LENGTH_SHORT).show();
+
+
+
+                    songs.remove(position);
+                    songs.add(position, song);
+                    SongFileHandler.saveSongList(MainActivity.this, songs);
+
+
+                    if (songPageFragment.isActive()){
+
+                        songPageFragment.changeSong(song, position);
+                    }
+
+                }
+            };
+
+            // explicit call to onChange after resetting the MutableLiveData object. Is called on first observation.
+            //  songObserver.onChanged(songs.get(sp.getInt(LAST_SONG_KEY, 0)));
+           // songObserver.onChanged(new SongWrapper(songs.get(sp.getInt(LAST_SONG_KEY, 0)), sp.getInt(LAST_SONG_KEY, 0)));
+
+            // Is called on the rest of the observations.
+            musicService.getSongMLD().observe(MainActivity.this, songObserver);
+
+            Observer<Boolean> isMusicPlayingObserver = new Observer<Boolean>() {
+                @Override
+                public void onChanged(Boolean aBoolean) {
+                    playerFragment.changeBtnResource(aBoolean);
+                }
+            };
+
+            musicService.getIsMusicPlayingMutableLiveData().observe(MainActivity.this, isMusicPlayingObserver);
+
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            bound = false;
+            isServiceBounded = false;
+
         }
     };
 }
