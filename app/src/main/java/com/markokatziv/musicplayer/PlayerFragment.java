@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -30,7 +32,8 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         void onPlayPauseClickPlayerFrag(int songPosition, View view);
     }
 
-    PlayerFragmentListener callback;
+    private PlayerFragmentListener callback;
+//    public MutableLiveData<Boolean> isMusicPlayingMLD;
 
     Handler handler;
     Button playPauseBtn;
@@ -112,6 +115,8 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     }
 
     public void changeBtnResource(boolean isPlay) {
+
+
         if (!isPlay) {
             playPauseBtn.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
         }
@@ -119,6 +124,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
         }
     }
+
 
     @Override
     public void onClick(View v) {

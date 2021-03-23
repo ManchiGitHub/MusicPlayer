@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,6 +39,10 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     private SongAdapter songAdapter;
     private List<Song> songs;
     private TextView addSongsText;
+
+    FABButtonFragment fabButtonFragment;
+
+
 
     public SongRecyclerViewFragment() {
         // Required empty public constructor
@@ -94,6 +99,19 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         recyclerView.setAdapter(songAdapter);
 
         return rootView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        fabButtonFragment = new FABButtonFragment();
+
+        /* Add main FAB button as a sub fragment. */
+        getChildFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.slide_up_fragment, R.anim.slide_down_fragment)
+                .add(R.id.recycler_view_container,fabButtonFragment)
+                .commit();
     }
 
     public void notifyItemInsert(Song song) {

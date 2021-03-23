@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -30,19 +32,16 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     final String TAG_SONG_PAGE_FRAGMENT = "song_page_fragment";
     private final String LAST_SONG_KEY = "last_song_played";
 
+    private AnimRotationViewModel animRotationViewModel;
 
     SharedPreferences sp; //TODO: not using this
     private boolean isPlaying = false;
 
-
-    // SplashScreenFragment splashScreenFragment;
     SongRecyclerViewFragment songRecyclerViewFragment;
-    FABButtonFragment fabButtonFragment;
     AddSongDialogFragment addSongDialogFragment;
     PlayerFragment playerFragment;
     ArrayList<Song> songs;
     SongPageFragment songPageFragment;
-
 
     private MusicService musicService;
     private boolean isServiceBounded = false;
@@ -64,10 +63,11 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         }
 
         songRecyclerViewFragment = SongRecyclerViewFragment.newInstance(songs);
-        fabButtonFragment = new FABButtonFragment();
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().add(R.id.activity_main_layout, songRecyclerViewFragment).add(R.id.activity_main_layout, fabButtonFragment).commit();
+        fragmentManager.beginTransaction().add(R.id.activity_main_layout, songRecyclerViewFragment).commit();
+
+        animRotationViewModel = new ViewModelProvider(this).get(AnimRotationViewModel.class);
     }
 
     @Override
@@ -113,6 +113,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     public void onCardClick(View view, int position) {
 
 
+        animRotationViewModel.setIsMusicPlayingMLD(true);
+        animRotationViewModel.setPlaying(true);
         Song song = songs.get(position);
 
 
@@ -206,6 +208,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         if (playerFragment != null) {
             playerFragment.changeBtnResource(isPlay);
         }
+
+
     }
 
     @Override
@@ -282,6 +286,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
                     if (songPageFragment.isActive()) {
                         songPageFragment.changeSong(songs.get(songPosition), songPosition);
+
                     }
                 }
             };
@@ -292,6 +297,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
                 @Override
                 public void onChanged(Boolean aBoolean) {
                     playerFragment.changeBtnResource(aBoolean);
+                    animRotationViewModel.setIsMusicPlayingMLD(aBoolean);
+                    animRotationViewModel.setPlaying(aBoolean);
                 }
             };
             musicService.getIsMusicPlayingMLD().observe(MainActivity.this, isMusicPlayingObserver);

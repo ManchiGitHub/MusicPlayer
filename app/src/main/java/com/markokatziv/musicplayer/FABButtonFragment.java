@@ -7,10 +7,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.LinearInterpolator;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -27,6 +32,7 @@ public class FABButtonFragment extends Fragment {
     }
 
     FABButtonFragmentListener callback;
+    private AnimRotationViewModel animRotationViewModel;
 
     /* Buttons */
     private FloatingActionButton fab;
@@ -40,6 +46,7 @@ public class FABButtonFragment extends Fragment {
     private Animation animLeft;
     private Animation rotateOpen;
     private Animation rotateClose;
+    private Animation rotateBtn;
 
     boolean isClicked = false;
 
@@ -54,6 +61,30 @@ public class FABButtonFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        animUp = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_up);
+        animDown = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_down);
+        animRight = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_down_play_btn);
+        animLeft = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_up_play_btn);
+        rotateOpen = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_open_anim);
+        rotateClose = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_close_anim);
+
+        rotateBtn = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_fab_btn_anim);
+
+    }
+
+    public void animateBtnRotation(boolean dance) {
+        if (dance) {
+            fab.startAnimation(rotateBtn);
+        }
+        else {
+            fab.clearAnimation();
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -65,6 +96,9 @@ public class FABButtonFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 onFABButtonClicked();
+                if (animRotationViewModel.isPlaying()){
+                    animateBtnRotation(true);
+                }
             }
         });
 
@@ -84,20 +118,16 @@ public class FABButtonFragment extends Fragment {
             }
         });
 
+        animRotationViewModel = new ViewModelProvider(requireActivity()).get(AnimRotationViewModel.class);
+        animRotationViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                animateBtnRotation(aBoolean);
+                Toast.makeText(getActivity(), "work please", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         return rootView;
-    }
-
-    @Nullable
-    @Override
-    public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
-        animUp = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_up);
-        animDown = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_down);
-        animRight = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_down_play_btn);
-        animLeft = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_up_play_btn);
-        rotateOpen = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_open_anim);
-        rotateClose = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_close_anim);
-
-        return super.onCreateAnimation(transit, enter, nextAnim);
     }
 
     private void onFABButtonClicked() {
