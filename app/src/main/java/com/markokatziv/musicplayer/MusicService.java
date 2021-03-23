@@ -59,7 +59,6 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
     public void setCallbacks(MusicServiceListener callbacks) {
         listener = callbacks;
     }
-
     private final int PLAY_PAUSE_REQUEST_CODE = 0;
     private final int NEXT_REQUEST_CODE = 1;
     private final int PREV_PAUSE_REQUEST_CODE = 2;
@@ -121,8 +120,6 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
     @Override
     public void onCreate() {
         super.onCreate();
-
-
 //        sp = getSharedPreferences("continuation", MODE_PRIVATE);
 
         mediaPlayer = new MediaPlayer();
@@ -207,7 +204,6 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
 
                 break;
             case "play_pause":
