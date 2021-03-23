@@ -48,7 +48,6 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
     // Registered callbacks
     private MusicServiceListener listener;
 
-
     // Class used for the client Binder.
     public class LocalBinder extends Binder {
         MusicService getService() {
@@ -57,17 +56,15 @@ public class MusicService extends LifecycleService implements MediaPlayer.OnPrep
         }
     }
 
-
     public void setCallbacks(MusicServiceListener callbacks) {
         listener = callbacks;
     }
-
 
     private final int PLAY_PAUSE_REQUEST_CODE = 0;
     private final int NEXT_REQUEST_CODE = 1;
     private final int PREV_PAUSE_REQUEST_CODE = 2;
     private final int CLOSE_REQUEST_CODE = 3;
-    private final int NOTIFICATION_IDENTIFIER_ID = 1;
+    private final int NOTIFICATION_IDENTIFIER_ID = 1000;
 
     MediaPlayer mediaPlayer;
     NotificationManager manager;
