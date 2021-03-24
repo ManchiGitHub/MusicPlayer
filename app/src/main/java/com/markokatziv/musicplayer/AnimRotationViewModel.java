@@ -11,8 +11,8 @@ public class AnimRotationViewModel extends ViewModel {
     private boolean isPlaying = false;
     private final MutableLiveData<Boolean> isMusicPlayingMLD = new MutableLiveData<Boolean>();
 
-    public void setIsMusicPlayingMLD(Boolean aBollean) {
-        isMusicPlayingMLD.setValue(aBollean);
+    public void setIsMusicPlayingMLD(Boolean aBoolean) {
+        isMusicPlayingMLD.setValue(aBoolean);
     }
 
     public LiveData<Boolean> getIsMusicPlayingMLD() {

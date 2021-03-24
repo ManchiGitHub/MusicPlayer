@@ -147,6 +147,7 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
             @Override
             public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
                 super.onSelectedChanged(viewHolder, actionState);
+
                 if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
                     scaleUpAnimation.setFillAfter(true);
                     viewHolder.itemView.startAnimation(scaleUpAnimation);
@@ -158,6 +159,8 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
                 MaterialAlertDialogBuilder builder = createSongDeleteDialog(viewHolder);
                 builder.show();
             }
+
+
         };
 
         return callback;

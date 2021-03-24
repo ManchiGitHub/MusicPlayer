@@ -41,7 +41,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     private List<Song> songsList;
     private Context context;
     private Bitmap defaultBitmap;
-    private Handler handler;
+
 
     public SongAdapter(List<Song> songsList, Context context) {
         this.songsList = songsList;

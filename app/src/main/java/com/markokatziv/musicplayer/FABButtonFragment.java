@@ -96,11 +96,16 @@ public class FABButtonFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 onFABButtonClicked();
-                if (animRotationViewModel.isPlaying()){
+                if (animRotationViewModel.isPlaying()) {
                     animateBtnRotation(true);
                 }
             }
         });
+
+        //TODO: if app is recreated from notification on click, need to fab btn handle rotatation animation
+        if (getActivity().getIntent().getBooleanExtra("restarted_from_notification", false)) {
+            animateBtnRotation(true);
+        }
 
         addSongfab = rootView.findViewById(R.id.add_song_fab_btn);
         addSongfab.setOnClickListener(new View.OnClickListener() {
@@ -123,7 +128,6 @@ public class FABButtonFragment extends Fragment {
             @Override
             public void onChanged(Boolean aBoolean) {
                 animateBtnRotation(aBoolean);
-                Toast.makeText(getActivity(), "work please", Toast.LENGTH_SHORT).show();
             }
         });
 

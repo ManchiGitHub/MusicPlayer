@@ -22,6 +22,7 @@
 
     <androidx.appcompat.widget.AppCompatSeekBar
         android:layout_width="350dp"
+        android:id="@+id/player_frag_seekBar"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:progressTint="#8C7460"

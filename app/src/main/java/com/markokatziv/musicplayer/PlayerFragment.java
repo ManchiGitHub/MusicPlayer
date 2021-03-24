@@ -1,12 +1,16 @@
 package com.markokatziv.musicplayer;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatSeekBar;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -14,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.SeekBar;
 
 /**
  * Created By marko katziv
@@ -30,15 +35,22 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         void onSkipNextClickPlayerFrag(int songPosition);
 
         void onPlayPauseClickPlayerFrag(int songPosition, View view);
+
+        void onRequestSongProgress();
     }
 
-    private PlayerFragmentListener callback;
-//    public MutableLiveData<Boolean> isMusicPlayingMLD;
+    private PlayerFragmentListener callbackToActivity;
+
+
+    private SongProgressViewModel songProgressViewModel;
+
 
     Handler handler;
     Button playPauseBtn;
+    AppCompatSeekBar seekBar;
 
     private int songPosition;
+    private int currentSongProgress = 0;
 
     public PlayerFragment() {
         // Required empty public constructor
@@ -60,7 +72,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         super.onAttach(context);
 
         try {
-            callback = (PlayerFragment.PlayerFragmentListener) context;
+            callbackToActivity = (PlayerFragment.PlayerFragmentListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException("The activity must implement PlayerFragmentListener interface");
         }
@@ -69,6 +81,9 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        handler = new Handler(Looper.getMainLooper());
+
         if (getArguments() != null) {
             this.songPosition = getArguments().getInt(SONG_POSITION_KEY);
         }
@@ -78,6 +93,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_player, container, false);
+
         Button skipPrev = rootView.findViewById(R.id.skip_prev);
         skipPrev.setOnClickListener(this);
 
@@ -101,12 +117,63 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         playPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.onPlayPauseClickPlayerFrag(songPosition, v);
+                callbackToActivity.onPlayPauseClickPlayerFrag(songPosition, v);
             }
         });
 
+        seekBar = rootView.findViewById(R.id.player_frag_seekBar);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // TODO: need mediaPlayer.seekTO
+                if (fromUser) {
+                    Intent intent = new Intent(getActivity(), MusicService.class);
+                    intent.putExtra("command", "seek_to");
+                    intent.putExtra("progress_from_user", progress * 1000);
+                    getActivity().startService(intent);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+
+        songProgressViewModel = new ViewModelProvider(requireActivity()).get(SongProgressViewModel.class);
+        songProgressViewModel.getSongProgressMLD().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                currentSongProgress = integer;
+            }
+        });
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                callbackToActivity.onRequestSongProgress();
+                seekBar.setProgress(currentSongProgress / 1000);
+                handler.postDelayed(this, 1000);
+
+            }
+        });
+
+
         return rootView;
     }
+
+    public void changeSongDuration(int duration) {
+        seekBar.setMax(duration / 1000);
+        System.out.println("DURATIONN: " + seekBar.getMax());
+    }
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -142,7 +209,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                     if (songPosition < 0) {
                         songPosition = listSize - 1;
                     }
-                    callback.onSkipPrevClickPlayerFrag(songPosition);
+                    callbackToActivity.onSkipPrevClickPlayerFrag(songPosition);
                 }
                 else if (ID == R.id.skip_next) {
                     MyAnimations.AnimateBackAndPrevBtns(v, (-1 * Y_TRANSITION_SKIP_PREV));
@@ -151,7 +218,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                     if (songPosition == listSize) {
                         songPosition = 0;
                     }
-                    callback.onSkipNextClickPlayerFrag(songPosition);
+                    callbackToActivity.onSkipNextClickPlayerFrag(songPosition);
                 }
             }
         });

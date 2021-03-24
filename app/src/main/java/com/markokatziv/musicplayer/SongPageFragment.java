@@ -88,8 +88,6 @@ public class SongPageFragment extends Fragment {
         fadeOutAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.fragment_fade_out);
     }
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -150,16 +148,14 @@ public class SongPageFragment extends Fragment {
         this.artistTitle.setText(song.getArtistTitle());
 
         if (song.isFavorite()) {
-            //  song.setFavorite(true);
             favoriteBtn.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.heart_solid));
         }
         else {
-            //    song.setFavorite(false);
             favoriteBtn.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.heart_empty));
         }
 
         if (song.getImagePath().equals("")) {
-            songImage.startAnimation(fadeOutAnimation);
+            songImage.startAnimation(fadeOutAnimation); // duration is 400ms
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
