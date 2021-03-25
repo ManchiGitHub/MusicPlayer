@@ -5,11 +5,11 @@ import android.os.LocaleList;
 import java.util.Locale;
 
 /**
- * Created By Marko Katziv
+ * Created By marko
  */
 public class LanguageUtils {
 
-    public static String EN_LANGUAGE = "en";
+    public static String ENGLISH = "en";
 
     /* This function returns a string representation of the current language.
        Need this to mirror buttons in player layout according to current locale.*/

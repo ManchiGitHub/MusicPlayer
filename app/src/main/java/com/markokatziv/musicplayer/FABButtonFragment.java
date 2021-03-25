@@ -7,9 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.AnticipateInterpolator;
-import android.view.animation.LinearInterpolator;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,12 +29,15 @@ public class FABButtonFragment extends Fragment {
     }
 
     FABButtonFragmentListener callback;
-    private AnimRotationViewModel animRotationViewModel;
+    private MusicStateViewModel musicStateViewModel;
 
     /* Buttons */
     private FloatingActionButton fab;
     private FloatingActionButton addSongfab;
     private FloatingActionButton playSongfab;
+
+
+    private boolean isPlaying = false;
 
     /* Animations */
     private Animation animUp;
@@ -96,7 +96,7 @@ public class FABButtonFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 onFABButtonClicked();
-                if (animRotationViewModel.isPlaying()) {
+                if (isPlaying) {
                     animateBtnRotation(true);
                 }
             }
@@ -123,11 +123,12 @@ public class FABButtonFragment extends Fragment {
             }
         });
 
-        animRotationViewModel = new ViewModelProvider(requireActivity()).get(AnimRotationViewModel.class);
-        animRotationViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
+        musicStateViewModel = new ViewModelProvider(requireActivity()).get(MusicStateViewModel.class);
+        musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 animateBtnRotation(aBoolean);
+                isPlaying = aBoolean;
             }
         });
 

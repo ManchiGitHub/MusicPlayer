@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 
 /**
@@ -43,14 +44,16 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
 
     private SongProgressViewModel songProgressViewModel;
-
+    private MusicStateViewModel musicStateViewModel;
 
     Handler handler;
     Button playPauseBtn;
     AppCompatSeekBar seekBar;
+    ProgressBar progressBar;
 
     private int songPosition;
     private int currentSongProgress = 0;
+    private boolean isPlaying = false;
 
     public PlayerFragment() {
         // Required empty public constructor
@@ -87,6 +90,8 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         if (getArguments() != null) {
             this.songPosition = getArguments().getInt(SONG_POSITION_KEY);
         }
+
+
     }
 
     @Override
@@ -94,20 +99,23 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
         View rootView = inflater.inflate(R.layout.fragment_player, container, false);
 
+        progressBar = rootView.findViewById(R.id.progress_circle);
+
+
         Button skipPrev = rootView.findViewById(R.id.skip_prev);
         skipPrev.setOnClickListener(this);
 
         Button skipNext = rootView.findViewById(R.id.skip_next);
         skipNext.setOnClickListener(this);
 
-        if (LanguageUtils.getCurrentLanguage() == LanguageUtils.EN_LANGUAGE) {
+        if (LanguageUtils.getCurrentLanguage() == LanguageUtils.ENGLISH) {
             skipPrev.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_skip_previous_24, null));
             skipNext.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_skip_next_24, null));
         }
 
-        /* Flip prev and next buttons according to current locale */
+        /* Flip prev and next buttons according to current language */
         String language = LanguageUtils.getCurrentLanguage();
-        if (!(language.equals(LanguageUtils.EN_LANGUAGE))) {
+        if (!(language.equals(LanguageUtils.ENGLISH))) {
             skipPrev.setScaleX(-1);
             skipNext.setScaleX(-1);
         }
@@ -125,7 +133,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // TODO: need mediaPlayer.seekTO
+
                 if (fromUser) {
                     Intent intent = new Intent(getActivity(), MusicService.class);
                     intent.putExtra("command", "seek_to");
@@ -145,6 +153,13 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             }
         });
 
+        musicStateViewModel = new ViewModelProvider(requireActivity()).get(MusicStateViewModel.class);
+        musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                isPlaying = aBoolean;
+            }
+        });
 
         songProgressViewModel = new ViewModelProvider(requireActivity()).get(SongProgressViewModel.class);
         songProgressViewModel.getSongProgressMLD().observe(this, new Observer<Integer>() {
@@ -161,10 +176,8 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                 callbackToActivity.onRequestSongProgress();
                 seekBar.setProgress(currentSongProgress / 1000);
                 handler.postDelayed(this, 1000);
-
             }
         });
-
 
         return rootView;
     }
@@ -172,6 +185,17 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     public void changeSongDuration(int duration) {
         seekBar.setMax(duration / 1000);
         System.out.println("DURATIONN: " + seekBar.getMax());
+    }
+
+    public void changeProgressBarToBtnIcon(boolean isSongReady) {
+        if (isSongReady) {
+            progressBar.setVisibility(View.GONE);
+            playPauseBtn.setVisibility(View.VISIBLE);
+        }
+        else {
+            progressBar.setVisibility(View.VISIBLE);
+            playPauseBtn.setVisibility(View.GONE);
+        }
     }
 
 

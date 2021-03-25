@@ -15,7 +15,6 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -33,20 +32,24 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     final String TAG_SONG_PAGE_FRAGMENT = "song_page_fragment";
     private final String LAST_SONG_KEY = "last_song_played";
 
-    private AnimRotationViewModel animRotationViewModel;
+    /* View Models */
+    private MusicStateViewModel musicStateViewModel;
     private SongProgressViewModel songProgressViewModel;
 
-    SharedPreferences sp; //TODO: not using this
-    private boolean isPlaying = false;
+    /* Observers for live data */
+    Observer<Integer> songPositionObserver;
+    Observer<Boolean> isMusicPlayingObserver;
 
-    SongRecyclerViewFragment songRecyclerViewFragment;
-    AddSongDialogFragment addSongDialogFragment;
-    PlayerFragment playerFragment;
-    ArrayList<Song> songs;
-    SongPageFragment songPageFragment;
+    private SharedPreferences sp; //TODO: not using this
+
+    private ArrayList<Song> songs;
+    private SongRecyclerViewFragment songRecyclerViewFragment;
+    private PlayerFragment playerFragment;
+    private SongPageFragment songPageFragment;
 
     private MusicService musicService;
     private boolean isServiceBounded = false;
+    private boolean isPlaying = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,14 +71,13 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().add(R.id.activity_main_layout, songRecyclerViewFragment).commit();
 
-        animRotationViewModel = new ViewModelProvider(this).get(AnimRotationViewModel.class);
+        musicStateViewModel = new ViewModelProvider(this).get(MusicStateViewModel.class);
         songProgressViewModel = new ViewModelProvider(this).get(SongProgressViewModel.class);
-
     }
 
     @Override
     public void onAddSongBtnClickFABFrag() {
-        addSongDialogFragment = new AddSongDialogFragment();
+        AddSongDialogFragment addSongDialogFragment = new AddSongDialogFragment();
         addSongDialogFragment.show(getSupportFragmentManager(), TAG_ADD_SONG_FRAGMENT);
     }
 
@@ -89,7 +91,6 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     public void onAddSongAddSongFrag(Song song) {
 
         songs.add(song);
-        Toast.makeText(this, "song added", Toast.LENGTH_SHORT).show();
         SongFileHandler.saveSongList(this, songs);
         songRecyclerViewFragment.notifyItemInsert(song);
     }
@@ -99,8 +100,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         Song song = songs.get(position);
 
-        animRotationViewModel.setIsMusicPlayingMLD(true);
-        animRotationViewModel.setPlaying(true);
+        musicStateViewModel.setIsMusicPlayingMLD(true);
 
         if (!isServiceBounded) {
             isServiceBounded = true;
@@ -109,10 +109,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         }
 
         /* Simple solution for making sure only one instance of playerFragment and SongPageFragment can exist. */
-        if (songPageFragment != null) {
-            if (songPageFragment.isActive()) {
-                return;
-            }
+        if (songPageFragment != null && songPageFragment.isActive()) {
+            return;
         }
 
         songPageFragment = SongPageFragment.newInstance(song, position);
@@ -191,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     public void onCloseClickFromService(MediaPlayer mediaPlayer) {
 
-        mediaPlayer.stop();
+        //  mediaPlayer.stop(); //TODO: check if needed, probably not.
         playerFragment.changeBtnResource(false);
 
         if (isServiceBounded) {
@@ -213,17 +211,6 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         }
     }
 
-    /* changes here!!! */
-    Observer<Integer> songPositionObserver;
-    Observer<Boolean> isMusicPlayingObserver;
-
-    // TODO: BUG: SCENARIO - Service is active, app is dead, Recreating the activity
-    //   and rebinding the service creates a new observer that observes
-    //   the MutableLiveData instance that was created prior to killing the app.
-    //   The next observations and other scenarios work like magic.
-    //   UPDATE: resetting the MutableLiveData object and explicitly calling onChanged fixes the problem.
-    //   UPDATE 2: everything works here. LiveData is LIFE.
-
     private final ServiceConnection serviceConnection = new ServiceConnection() {
 
         @Override
@@ -233,18 +220,16 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             isServiceBounded = true;
             musicService = binder.getService();
-            musicService.setCallbacks(MainActivity.this); // Don't need this if using LiveData.
+            musicService.setCallbacks(MainActivity.this);
 
             /* Rebinding to the service requires resetting the MutableLiveData objects. */
             musicService.setIsMusicPlayingMLD();
             musicService.setSongPositionMLD();
 
-
             /* Observer for the song position. */
             songPositionObserver = new Observer<Integer>() {
                 @Override
                 public void onChanged(Integer songPosition) {
-                    Toast.makeText(MainActivity.this, "position: " + songPosition, Toast.LENGTH_SHORT).show();
 
                     if (songPageFragment.isActive()) {
                         songPageFragment.changeSong(songs.get(songPosition), songPosition);
@@ -253,13 +238,12 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             };
             musicService.getSongPositionMLD().observe(MainActivity.this, songPositionObserver);
 
-            /* Observer for play / pause. */
+            /* Observer for play/pause. */
             isMusicPlayingObserver = new Observer<Boolean>() {
                 @Override
                 public void onChanged(Boolean aBoolean) {
                     playerFragment.changeBtnResource(aBoolean);
-                    animRotationViewModel.setIsMusicPlayingMLD(aBoolean);
-                    animRotationViewModel.setPlaying(aBoolean);
+                    musicStateViewModel.setIsMusicPlayingMLD(aBoolean);
                 }
             };
             musicService.getIsMusicPlayingMLD().observe(MainActivity.this, isMusicPlayingObserver);
@@ -274,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     public int getSongProgressFromService() {
 
         int progressFromService = 0;
-        if (musicService != null) {
+        if (musicService != null && isServiceBounded) {
             progressFromService = musicService.getSongProgress();
         }
 
@@ -283,13 +267,19 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
     @Override
     public void onRequestSongProgress() {
-        int progress = getSongProgressFromService();
 
+        int progress = getSongProgressFromService();
         songProgressViewModel.setSongProgressMLD(progress);
     }
 
     @Override
-    public void onGetSongDuration(int duration) {
+    public void onPreparedListener(int duration) {
         playerFragment.changeSongDuration(duration);
+        playerFragment.changeProgressBarToBtnIcon(true);
+    }
+
+    @Override
+    public void onSongReady(boolean isSongReady) {
+        playerFragment.changeProgressBarToBtnIcon(false);
     }
 }

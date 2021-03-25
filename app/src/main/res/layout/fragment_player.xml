@@ -6,23 +6,23 @@
     android:layout_alignParentBottom="true"
     android:background="@drawable/player_background"
     android:clickable="true"
-    android:outlineProvider="paddedBounds"
     android:elevation="10dp"
     android:focusable="true"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:outlineProvider="paddedBounds">
 
     <View
         android:layout_width="match_parent"
+        android:layout_height="2dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
-        android:background="#5A554B"
         android:alpha="0.7"
-        android:layout_height="2dp"/>
+        android:background="#5A554B" />
 
     <androidx.appcompat.widget.AppCompatSeekBar
-        android:layout_width="350dp"
         android:id="@+id/player_frag_seekBar"
+        android:layout_width="350dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:progressTint="#8C7460"
@@ -44,6 +44,17 @@
             android:backgroundTint="#9D9480"
             app:backgroundTint="@null" />
 
+        <ProgressBar
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:indeterminate="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_gravity="center"
+            android:visibility="visible"
+            android:id="@+id/progress_circle"
+            android:indeterminateTint="#9D9480" />
+
         <Button
             android:id="@+id/play_pause_button"
             android:layout_width="80dp"
@@ -51,6 +62,7 @@
             android:layout_gravity="center"
             android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp"
+            android:visibility="gone"
             android:layout_toEndOf="@id/play_pause_button"
             android:background="@drawable/ic_outline_play_circle_24"
             android:backgroundTint="#9D9480"

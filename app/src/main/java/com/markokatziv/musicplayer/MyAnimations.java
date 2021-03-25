@@ -6,7 +6,6 @@ import android.animation.ObjectAnimator;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.ScaleAnimation;
 
 /**
@@ -51,7 +50,7 @@ public class MyAnimations {
         AccelerateInterpolator accelerateInterpolator = new AccelerateInterpolator();
 
         /* If current language is not english, flip animation transition to fit current language. */
-        if (LanguageUtils.getCurrentLanguage() != LanguageUtils.EN_LANGUAGE) {
+        if (LanguageUtils.getCurrentLanguage() != LanguageUtils.ENGLISH) {
             value *= -1;
         }
 

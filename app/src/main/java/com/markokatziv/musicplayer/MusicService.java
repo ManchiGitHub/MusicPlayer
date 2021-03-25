@@ -62,7 +62,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     interface MusicServiceListener {
         void onCloseClickFromService(MediaPlayer mediaPlayer);
 
-        void onGetSongDuration(int duration);
+        void onPreparedListener(int duration);
+
+        void onSongReady(boolean isSongReady);
     }
 
     /* Registered callbacks. */
@@ -129,19 +131,19 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void onDestroy() {
         super.onDestroy();
         if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
+//            if (mediaPlayer.isPlaying()) {
+//                mediaPlayer.stop();
+//            }
 
-            mediaPlayer.release();
+            //           mediaPlayer.release();
         }
     }
 
     @Override
     public void onPrepared(MediaPlayer mp) {
         mediaPlayer.start();
-        if (listener!=null){
-            listener.onGetSongDuration(mediaPlayer.getDuration());
+        if (listener != null) {
+            listener.onPreparedListener(mediaPlayer.getDuration());
         }
     }
 
@@ -153,6 +155,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onCompletion(MediaPlayer mp) {
         playSong(true);
+        listener.onSongReady(false);
     }
 
     private void switchReceiveCommand(String command, int position) {
@@ -227,10 +230,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 break;
             case COMMAND_CLOSE:
 
-                if (listener!=null){
+                if (listener != null) {
                     listener.onCloseClickFromService(mediaPlayer);
                 }
-
+                mediaPlayer.release();
                 stopSelf();
 
                 break;
@@ -255,6 +258,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             }
         }
 
+        if (listener != null) {
+            listener.onSongReady(false);
+        }
         songPositionMLD.setValue(currentPlaying);
 
         mediaPlayer.reset();
