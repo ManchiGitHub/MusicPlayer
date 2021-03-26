@@ -15,7 +15,6 @@ import java.util.List;
  */
 public class SongFileHandler {
 
-    public static ArrayList<Song> songsList;
 
     public static void saveSongList(Context context, List<Song> songs) {
         new Thread(new Runnable() {
@@ -43,18 +42,6 @@ public class SongFileHandler {
         }
 
         return favoriteSongs;
-    }
-
-    public static void staticReadSongList(Context context) {
-
-        try {
-            FileInputStream fis = context.openFileInput("songs_list");
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            songsList = (ArrayList<Song>) ois.readObject(); //stupid warning is stupid.
-            fis.close();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 
     public static ArrayList<Song> readSongList(Context context) {
