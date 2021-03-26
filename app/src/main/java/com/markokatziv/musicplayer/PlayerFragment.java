@@ -90,8 +90,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         if (getArguments() != null) {
             this.songPosition = getArguments().getInt(SONG_POSITION_KEY);
         }
-
-
     }
 
     @Override

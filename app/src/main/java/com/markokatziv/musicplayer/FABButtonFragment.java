@@ -25,7 +25,8 @@ public class FABButtonFragment extends Fragment {
     interface FABButtonFragmentListener {
         void onAddSongBtnClickFABFrag();
 
-        void onPlaySongBtnClickFABFrag(View view);
+        void onShowFavoriteSongsClickFABFrag();
+
     }
 
     FABButtonFragmentListener callback;
@@ -33,11 +34,12 @@ public class FABButtonFragment extends Fragment {
 
     /* Buttons */
     private FloatingActionButton fab;
-    private FloatingActionButton addSongfab;
-    private FloatingActionButton playSongfab;
+    private FloatingActionButton addSongFab;
+    private FloatingActionButton showFavoriteSongsFab;
 
 
     private boolean isPlaying = false;
+    private boolean showFavorites = false;
 
     /* Animations */
     private Animation animUp;
@@ -107,19 +109,20 @@ public class FABButtonFragment extends Fragment {
             animateBtnRotation(true);
         }
 
-        addSongfab = rootView.findViewById(R.id.add_song_fab_btn);
-        addSongfab.setOnClickListener(new View.OnClickListener() {
+        addSongFab = rootView.findViewById(R.id.add_song_fab_btn);
+        addSongFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 callback.onAddSongBtnClickFABFrag();
             }
         });
 
-        playSongfab = rootView.findViewById(R.id.play_song_fab_btn);
-        playSongfab.setOnClickListener(new View.OnClickListener() {
+        showFavoriteSongsFab = rootView.findViewById(R.id.favorite_songs_fab_btn);
+        showFavoriteSongsFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.onPlaySongBtnClickFABFrag(v);
+                showFavorites = !showFavorites;
+                callback.onShowFavoriteSongsClickFABFrag();
             }
         });
 
@@ -144,32 +147,32 @@ public class FABButtonFragment extends Fragment {
     private void setVisibilityAndClickability(boolean clicked) {
         if (!clicked) {
 
-            addSongfab.setVisibility(View.VISIBLE);
-            addSongfab.setClickable(true);
-            playSongfab.setVisibility(View.VISIBLE);
-            playSongfab.setClickable(true);
+            addSongFab.setVisibility(View.VISIBLE);
+            addSongFab.setClickable(true);
+            showFavoriteSongsFab.setVisibility(View.VISIBLE);
+            showFavoriteSongsFab.setClickable(true);
         }
         else {
 
-            addSongfab.setVisibility(View.INVISIBLE);
-            addSongfab.setClickable(false);
-            playSongfab.setVisibility(View.INVISIBLE);
-            playSongfab.setClickable(false);
+            addSongFab.setVisibility(View.INVISIBLE);
+            addSongFab.setClickable(false);
+            showFavoriteSongsFab.setVisibility(View.INVISIBLE);
+            showFavoriteSongsFab.setClickable(false);
         }
     }
 
     private void setAnimation(boolean clicked) {
         if (!clicked) {
 
-            addSongfab.startAnimation(animUp);
-            playSongfab.startAnimation(animRight);
+            addSongFab.startAnimation(animUp);
+            showFavoriteSongsFab.startAnimation(animRight);
             fab.startAnimation(rotateOpen);
         }
         else {
 
             fab.startAnimation(rotateClose);
-            addSongfab.startAnimation(animDown);
-            playSongfab.startAnimation(animLeft);
+            addSongFab.startAnimation(animDown);
+            showFavoriteSongsFab.startAnimation(animLeft);
         }
     }
 }

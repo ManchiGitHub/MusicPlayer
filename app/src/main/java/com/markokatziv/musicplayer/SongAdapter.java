@@ -4,8 +4,6 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,12 +22,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created By marko katziv
  */
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
+
+    public void insertNewList(ArrayList<Song> songs) {
+        this.songsList = songs;
+        notifyDataSetChanged();
+    }
 
     interface SongListenerInterface {
         void onSongCardClicked(int position, View view);
@@ -41,7 +45,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     private List<Song> songsList;
     private Context context;
     private Bitmap defaultBitmap;
-
 
     public SongAdapter(List<Song> songsList, Context context) {
         this.songsList = songsList;

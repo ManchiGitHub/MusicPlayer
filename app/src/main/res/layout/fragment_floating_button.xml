@@ -21,7 +21,7 @@
         app:fabCustomSize="80dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/play_song_fab_btn"
+        android:id="@+id/favorite_songs_fab_btn"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_gravity="center"
@@ -43,7 +43,7 @@
         android:layout_height="80dp"
         android:layout_gravity="center"
         android:layout_marginStart="25dp"
-        android:layout_above="@+id/play_song_fab_btn"
+        android:layout_above="@+id/favorite_songs_fab_btn"
         android:backgroundTint="#8C7460"
         android:elevation="20dp"
         android:src="@drawable/ic_baseline_music_note_24"

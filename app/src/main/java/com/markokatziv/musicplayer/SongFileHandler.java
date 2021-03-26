@@ -1,6 +1,7 @@
 package com.markokatziv.musicplayer;
 
 import android.content.Context;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -13,6 +14,8 @@ import java.util.List;
  * Created By marko katziv
  */
 public class SongFileHandler {
+
+    public static ArrayList<Song> songsList;
 
     public static void saveSongList(Context context, List<Song> songs) {
         new Thread(new Runnable() {
@@ -28,6 +31,30 @@ public class SongFileHandler {
                 }
             }
         }).start();
+    }
+
+    public static ArrayList<Song> getFavoriteSongs(ArrayList<Song> songs) {
+        ArrayList<Song> favoriteSongs = new ArrayList<>();
+
+        for (Song song : songs) {
+            if (song.isFavorite()) {
+                favoriteSongs.add(song);
+            }
+        }
+
+        return favoriteSongs;
+    }
+
+    public static void staticReadSongList(Context context) {
+
+        try {
+            FileInputStream fis = context.openFileInput("songs_list");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            songsList = (ArrayList<Song>) ois.readObject(); //stupid warning is stupid.
+            fis.close();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public static ArrayList<Song> readSongList(Context context) {

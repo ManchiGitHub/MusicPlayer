@@ -6,10 +6,11 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +38,7 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
 
     private RecyclerView recyclerView;
     private SongAdapter songAdapter;
-    private List<Song> songs;
+    private ArrayList<Song> songs;
     private TextView addSongsText;
 
     FABButtonFragment fabButtonFragment;
@@ -71,7 +72,7 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            songs = (List<Song>) getArguments().getSerializable("songs_list");
+            songs = (ArrayList<Song>) getArguments().getSerializable("songs_list");
         }
     }
 
@@ -85,7 +86,7 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         addSongsText = rootView.findViewById(R.id.add_songs_text);
-        changeInitialTextOnScreen(addSongsText);
+        checkChangeInitialTextOnScreen(addSongsText);
 
         RecyclerView recyclerView = rootView.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -93,6 +94,7 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         ItemTouchHelper.SimpleCallback callback = createSongTouchHelper();
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
+
 
         songAdapter = new SongAdapter(songs, getActivity());
         songAdapter.setListener(this);
@@ -115,8 +117,15 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     }
 
     public void notifyItemInsert(Song song) {
+        if (songs==null){
+        }
         songAdapter.notifyItemInserted(songs.size());
-        changeInitialTextOnScreen(addSongsText);
+        checkChangeInitialTextOnScreen(addSongsText);
+    }
+
+
+    public void setSongList(ArrayList<Song> songs){
+        songAdapter.insertNewList(songs);
     }
 
     public void notifyFavoriteButtonClick(int position) {
@@ -182,8 +191,9 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
             public void onClick(DialogInterface dialog, int which) {
                 songs.remove(viewHolder.getAdapterPosition());
                 songAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-                changeInitialTextOnScreen(addSongsText);
+                checkChangeInitialTextOnScreen(addSongsText);
                 SongFileHandler.saveSongList(getActivity(), songs);
+
             }
         });
 
@@ -197,7 +207,7 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         return builder;
     }
 
-    private void changeInitialTextOnScreen(TextView addSongsText) {
+    private void checkChangeInitialTextOnScreen(TextView addSongsText) {
         if (songs.size() > 0) {
             addSongsText.setVisibility(View.GONE);
         }
