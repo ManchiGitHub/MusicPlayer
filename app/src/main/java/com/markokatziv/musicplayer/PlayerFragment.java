@@ -2,6 +2,7 @@ package com.markokatziv.musicplayer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,9 +53,12 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     AppCompatSeekBar seekBar;
     ProgressBar progressBar;
 
+    private SharedPreferences sharedPreferences;
+
     private int songPosition;
     private int currentSongProgress = 0;
     private boolean isPlaying = false;
+    private int lastSongDuration = 0;
 
     public PlayerFragment() {
         // Required empty public constructor
@@ -86,7 +91,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         super.onCreate(savedInstanceState);
 
         handler = new Handler(Looper.getMainLooper());
-
         if (getArguments() != null) {
             this.songPosition = getArguments().getInt(SONG_POSITION_KEY);
         }
@@ -98,7 +102,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         View rootView = inflater.inflate(R.layout.fragment_player, container, false);
 
         progressBar = rootView.findViewById(R.id.progress_circle);
-
 
         Button skipPrev = rootView.findViewById(R.id.skip_prev);
         skipPrev.setOnClickListener(this);
@@ -151,6 +154,8 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             }
         });
 
+        seekBar.setMax(PreferenceHandler.getInt(PreferenceHandler.TAG_SONG_DURATION, getActivity()));
+
         musicStateViewModel = new ViewModelProvider(requireActivity()).get(MusicStateViewModel.class);
         musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
             @Override
@@ -167,22 +172,26 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-        getActivity().runOnUiThread(new Runnable() {
+        r = new Runnable() {
             @Override
             public void run() {
-
                 callbackToActivity.onRequestSongProgress();
                 seekBar.setProgress(currentSongProgress / 1000);
                 handler.postDelayed(this, 1000);
             }
-        });
+        };
+
+        getActivity().runOnUiThread(r);
 
         return rootView;
     }
 
+    Runnable r;
+
     public void changeSongDuration(int duration) {
         seekBar.setMax(duration / 1000);
-        System.out.println("DURATIONN: " + seekBar.getMax());
+        Log.d("markomarko", "current duration: " + duration / 1000);
+        PreferenceHandler.putInt(PreferenceHandler.TAG_SONG_DURATION, (duration / 1000), getActivity());
     }
 
     public void changeProgressBarToBtnIcon(boolean isSongReady) {
@@ -198,13 +207,19 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //   sharedPreferences.edit().putInt("duration", (lastSongDuration/1000)).commit();
+      //  handler.removeCallbacks(r);
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         handler = new Handler(Looper.getMainLooper());
     }
 
     public void changeBtnResource(boolean isPlay) {
-
 
         if (!isPlay) {
             playPauseBtn.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
@@ -213,7 +228,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
         }
     }
-
 
     @Override
     public void onClick(View v) {

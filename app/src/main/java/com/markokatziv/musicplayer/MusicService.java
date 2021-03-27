@@ -12,16 +12,12 @@ import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
-
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.MutableLiveData;
-
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created By marko katziv
@@ -86,17 +82,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private int currentPlaying = -1;
     private int progressToSeekTo = 0;
 
-    public void setCallbacks(MusicServiceListener callbacks) {
-        listener = callbacks;
+    public void setCallbacks(MusicServiceListener listener) {
+        this.listener = listener;
     }
-
-
-    Timer timer;
 
     @Override
     public void onCreate() {
         super.onCreate();
-
 
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setOnCompletionListener(this);
@@ -110,9 +102,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             manager.createNotificationChannel(channel);
         }
 
-        // changes here
-        timer = new Timer();
-
         remoteViews = new RemoteViews(getPackageName(), R.layout.music_player_notification);
         initializeCommandIntents();
         notification = buildNotification(remoteViews);
@@ -120,49 +109,16 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     }
 
-    // changes here
-    public void startTimerForProgress(){
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (mediaPlayer.isPlaying()) {
-
-                }
-                /* else do nothing */
-            }
-        },0, 1000);
-    }
-
-    public void stopTimerForProgress(){
-        timer.cancel();
-    }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         songs = SongFileHandler.readSongList(MusicService.this);
-
         int position = intent.getIntExtra("position", 0);
         String command = intent.getStringExtra("command");
-
-
         progressToSeekTo = intent.getIntExtra("progress_from_user", 0);
-
-
         switchReceiveCommand(command, position);
+
         return super.onStartCommand(intent, flags, startId);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mediaPlayer != null) {
-//            if (mediaPlayer.isPlaying()) {
-//                mediaPlayer.stop();
-//            }
-
-            //           mediaPlayer.release();
-        }
     }
 
     @Override
@@ -177,11 +133,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         return mediaPlayer.getCurrentPosition();
     }
 
-
     @Override
     public void onCompletion(MediaPlayer mp) {
         playSong(true);
         listener.onSongReady(false);
+        Log.d("markomarko", "onCompletion: music service");
     }
 
     private void switchReceiveCommand(String command, int position) {
@@ -260,7 +216,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 mediaPlayer.seekTo(progressToSeekTo);
         }
     }
-
 
     private void playSong(boolean isNext) {
 
@@ -341,5 +296,4 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void setSongPositionMLD() {
         songPositionMLD = new MutableLiveData<>();
     }
-
 }

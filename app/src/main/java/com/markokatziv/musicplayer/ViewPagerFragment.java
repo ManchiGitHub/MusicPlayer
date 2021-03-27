@@ -78,15 +78,14 @@ public class ViewPagerFragment extends Fragment {
         viewPager2.setUserInputEnabled(false);
         viewPager2.setAdapter(viewPagerAdapter);
 
-
         new TabLayoutMediator(tabLayout, viewPager2, new TabLayoutMediator.TabConfigurationStrategy() {
             @Override
             public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
                 if (position == 0) {
-                    tab.setIcon(R.drawable.ic__favorite);
+                    tab.setIcon(R.drawable.ic_baseline_music_note_24);
                 }
                 if (position == 1) {
-                    tab.setIcon(R.drawable.ic_baseline_music_note_24);
+                    tab.setIcon(R.drawable.ic__favorite);
                 }
             }
         }).attach();
@@ -100,6 +99,6 @@ public class ViewPagerFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         callback.onViewPagerCreated();
      //   viewPager2.setCurrentItem(1, false);
-        viewPagerAdapter.printFragmentArray();
+//        viewPagerAdapter.printFragmentArray();
     }
 }

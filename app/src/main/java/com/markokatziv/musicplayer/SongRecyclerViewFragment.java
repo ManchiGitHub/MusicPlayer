@@ -43,8 +43,6 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
 
     FABButtonFragment fabButtonFragment;
 
-
-
     public SongRecyclerViewFragment() {
         // Required empty public constructor
     }
@@ -95,7 +93,6 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
-
         songAdapter = new SongAdapter(songs, getActivity());
         songAdapter.setListener(this);
         recyclerView.setAdapter(songAdapter);
@@ -117,8 +114,6 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     }
 
     public void notifyItemInsert(Song song) {
-        if (songs==null){
-        }
         songAdapter.notifyItemInserted(songs.size());
         checkChangeInitialTextOnScreen(addSongsText);
     }
@@ -216,8 +211,17 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         }
     }
 
+
+
     @Override
     public void onSongCardClicked(int position, View view) {
         callback.onCardClick(view, position);
+    }
+
+    @Override
+    public void onFavoriteClicked(int position, boolean isFavorite) {
+        songs.get(position).setFavorite(isFavorite);
+        songAdapter.notifyItemChanged(position);
+        SongFileHandler.saveSongList(getActivity(), songs);
     }
 }

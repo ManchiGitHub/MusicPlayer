@@ -29,7 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="400dp"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/information_background">
+        android:background="#181410">
 
         <TextView
             android:id="@+id/song_page_frag_artist"
@@ -59,7 +59,7 @@
             android:layout_below="@id/song_page_frag_song_title"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
-            android:background="@drawable/ic_heart"
+            android:background="@drawable/ic_favorite_holo"
             android:backgroundTint="#9A8F7B"
             android:clickable="true"
             android:focusable="true"

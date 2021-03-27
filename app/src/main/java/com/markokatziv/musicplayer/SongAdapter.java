@@ -4,6 +4,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     interface SongListenerInterface {
         void onSongCardClicked(int position, View view);
 
+        void onFavoriteClicked(int position, boolean isFavorite);
+
     }
 
     private SongListenerInterface listener;
@@ -57,13 +60,16 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         private boolean isCardExpanded = false;
         private LinearLayout songCellDrawer;
 
-        ImageView songThumbNailIV;
-        TextView songTitle;
-        TextView artistTitle;
-        TextView albumTitle;
-        ImageView heartIV;
-        LinearLayout topLayout;
-        ImageButton infoImageBtn;
+        private ImageView songThumbNailIV;
+        private TextView songTitle;
+        private TextView artistTitle;
+        private TextView albumTitle;
+        private ImageView heartIV;
+        private LinearLayout topLayout;
+        private ImageButton infoImageBtn;
+
+        // CHANGES HERE
+        private ImageButton heartExpandedLayout;
 
         RotateAnimation rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 
@@ -85,6 +91,24 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             topLayout = v.findViewById(R.id.top_layout);
             infoImageBtn = v.findViewById(R.id.info);
             infoImageBtn.setOnClickListener(this);
+
+            // CHANGES HERE
+            heartExpandedLayout = v.findViewById(R.id.heart_expanded_layout);
+            heartExpandedLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    boolean isFavorite = false;
+                    if (songsList.get(getAdapterPosition()).isFavorite()) {
+                        heartExpandedLayout.setImageResource(R.drawable.ic_favorite_holo);
+                    }
+                    else {
+                        heartExpandedLayout.setImageResource(R.drawable.ic__favorite);
+                        isFavorite = true;
+
+                    }
+                    listener.onFavoriteClicked(getAdapterPosition(), isFavorite);
+                }
+            });
 
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -173,9 +197,11 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         if (song.isFavorite()) {
             holder.heartIV.setVisibility(View.VISIBLE);
+            holder.heartExpandedLayout.setImageResource(R.drawable.ic__favorite);
         }
         else {
             holder.heartIV.setVisibility(View.INVISIBLE);
+            holder.heartExpandedLayout.setImageResource(R.drawable.ic_favorite_holo);
         }
 
         if (song.getImagePath().equals("")) {

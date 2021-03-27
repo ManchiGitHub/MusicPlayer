@@ -1,4 +1,5 @@
 package com.markokatziv.musicplayer;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -11,8 +12,11 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.view.View;
+
 import java.util.ArrayList;
 
 //TODO: 1. Create option for view favorite songs only - tab created.
@@ -45,14 +49,15 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     Observer<Integer> songPositionObserver;
     Observer<Boolean> isMusicPlayingObserver;
 
-    private SharedPreferences sp; //TODO: not using this
+    private SharedPreferences sharedPreferences; //TODO: not using this
     private ArrayList<Song> fullSongsList;
 
     private SongRecyclerViewFragment songRecyclerViewFragment;
     private PlayerFragment playerFragment;
     private SongPageFragment songPageFragment;
-    private FavoriteSongsFragment favoriteSongsFragment;
     private ViewPagerFragment viewPagerFragment;
+
+    private FavoriteSongsFragment favoriteSongsFragment;
 
     private boolean isServiceBounded = false;
     private boolean isPlaying = false;
@@ -78,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().add(R.id.activity_main_layout, viewPagerFragment).commit();
 
-        sp = getSharedPreferences("continuation", MODE_PRIVATE); //TODO: not using this
+        sharedPreferences = getSharedPreferences("continuation", MODE_PRIVATE); //TODO: not using this
 
         //TODO: Integrate Navigation component.
         //    FragmentManager fragmentManager = getSupportFragmentManager();
@@ -113,41 +118,65 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         songRecyclerViewFragment.notifyItemInsert(song);
     }
 
+    private int lastPosition = -1;
+
     @Override
     public void onCardClick(View view, int position) {
 
         Song song = fullSongsList.get(position);
 
-        musicStateViewModel.setIsMusicPlayingMLD(true);
+        if (lastPosition == position) {
+            songPageFragment = SongPageFragment.newInstance(song, position);
+            playerFragment = PlayerFragment.newInstance(song, position, isPlaying, fullSongsList.size());
 
-        if (!isServiceBounded) {
-            isServiceBounded = true;
-            Intent bindIntent = new Intent(this, MusicService.class);
-            bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_down, R.anim.animate_up, R.anim.slide_down_add_song);
+            fragmentTransaction.add(R.id.activity_main_layout, playerFragment, TAG_PLAYER_FRAGMENT).addToBackStack("player_frag");
+            fragmentTransaction.add(R.id.activity_main_layout, songPageFragment, TAG_SONG_PAGE_FRAGMENT).addToBackStack("song_page_frag");
+            fragmentTransaction.commit();
+
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    playerFragment.changeProgressBarToBtnIcon(true);
+                }
+            }, 200);
         }
+        else {
+            lastPosition = position;
+            musicStateViewModel.setIsMusicPlayingMLD(true);
 
-        /* Simple solution for making sure only one instance of playerFragment and SongPageFragment can exist. */
-        if (songPageFragment != null && songPageFragment.isActive()) {
-            return;
-        }
+            if (!isServiceBounded) {
+                isServiceBounded = true;
+                Intent bindIntent = new Intent(this, MusicService.class);
+                bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+            }
 
-        songPageFragment = SongPageFragment.newInstance(song, position);
-        playerFragment = PlayerFragment.newInstance(song, position, isPlaying, fullSongsList.size());
+            /* Simple solution for making sure only one instance of playerFragment and SongPageFragment can exist. */
+            if (songPageFragment != null && songPageFragment.isActive()) {
+                return;
+            }
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_down, R.anim.animate_up, R.anim.slide_down_add_song);
-        fragmentTransaction.add(R.id.activity_main_layout, playerFragment, TAG_PLAYER_FRAGMENT).addToBackStack("player_frag");
-        fragmentTransaction.add(R.id.activity_main_layout, songPageFragment, TAG_SONG_PAGE_FRAGMENT).addToBackStack("song_page_frag");
-        fragmentTransaction.commit();
+            songPageFragment = SongPageFragment.newInstance(song, position);
+            playerFragment = PlayerFragment.newInstance(song, position, isPlaying, fullSongsList.size());
 
-        sp.edit().putInt(LAST_SONG_KEY, position).commit(); //TODO: not using this
-        isPlaying = !isPlaying;
-        if (fullSongsList.size() > 0) {
-            Intent intent = new Intent(MainActivity.this, MusicService.class);
-            intent.putExtra("command", "new_instance");
-            intent.putExtra("position", position);
-            startService(intent);
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_down, R.anim.animate_up, R.anim.slide_down_add_song);
+            fragmentTransaction.add(R.id.activity_main_layout, playerFragment, TAG_PLAYER_FRAGMENT).addToBackStack("player_frag");
+            fragmentTransaction.add(R.id.activity_main_layout, songPageFragment, TAG_SONG_PAGE_FRAGMENT).addToBackStack("song_page_frag");
+            fragmentTransaction.commit();
+
+            sharedPreferences.edit().putInt(LAST_SONG_KEY, position).commit(); //TODO: not using this
+
+            isPlaying = !isPlaying;
+            if (fullSongsList.size() > 0) {
+                Intent intent = new Intent(MainActivity.this, MusicService.class);
+                intent.putExtra("command", "new_instance");
+                intent.putExtra("position", position);
+                startService(intent);
+            }
         }
     }
 
@@ -159,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
     @Override
     public void onSkipPrevClickPlayerFrag(int prevSongPosition) {
-
+        lastPosition = prevSongPosition;
         if (fullSongsList.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
             intent.putExtra("command", "prev");
@@ -171,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     public void onSkipNextClickPlayerFrag(int nextSongPosition) {
 
+        lastPosition = nextSongPosition;
         if (fullSongsList.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
             intent.putExtra("command", "next");
@@ -182,12 +212,11 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
     @Override
     public void onPlayPauseClickPlayerFrag(int position, View view) {
-        //TODO: play / pause song
 
         Intent intent = new Intent(MainActivity.this, MusicService.class);
         intent.putExtra("command", "play_pause");
 
-        sp.edit().putInt(LAST_SONG_KEY, position).commit(); //TODO: not using this
+        sharedPreferences.edit().putInt(LAST_SONG_KEY, position).commit(); //TODO: not using this
         isPlaying = !isPlaying;
 
         if (!isServiceBounded) {
@@ -233,14 +262,13 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-
             /* Getting service instance with IBinder. */
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             isServiceBounded = true;
             musicService = binder.getService();
             musicService.setCallbacks(MainActivity.this);
 
-            /* Rebinding to the service requires resetting the MutableLiveData objects. */
+            /* Rebinding the service requires resetting the MutableLiveData objects. */
             musicService.setIsMusicPlayingMLD();
             musicService.setSongPositionMLD();
 
@@ -249,9 +277,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
                 @Override
                 public void onChanged(Integer songPosition) {
                     if (songPageFragment.isActive()) {
-
                         songPageFragment.changeSong(fullSongsList.get(songPosition), songPosition);
-
                     }
                 }
             };

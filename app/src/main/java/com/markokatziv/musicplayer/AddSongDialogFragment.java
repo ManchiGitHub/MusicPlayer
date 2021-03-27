@@ -48,10 +48,10 @@ public class AddSongDialogFragment extends DialogFragment {
     private final int GALLERY_REQUEST = 2;
     final int CAMERA_REQUEST = 1;
 
-    File photoFile;
-    Uri imageUri;
-    SharedPreferences sp;
-    ImageView imgThumbnail;
+    private File photoFile;
+    private Uri imageUri;
+    private SharedPreferences sp;
+    private ImageView imgThumbnail;
 
     boolean isUserPic = false;
     boolean isFromGallery = false;
@@ -94,6 +94,7 @@ public class AddSongDialogFragment extends DialogFragment {
         final EditText artistNameEt = dialogView.findViewById(R.id.artist_name_input);
         final EditText songTitleEt = dialogView.findViewById(R.id.song_title_input);
         final CheckBox favoriteCheckBox = dialogView.findViewById(R.id.favorite_checkbox);
+        final EditText songLinkEt = dialogView.findViewById(R.id.song_link);
 
         sp = getActivity().getSharedPreferences("details", Context.MODE_PRIVATE);
 
@@ -129,11 +130,13 @@ public class AddSongDialogFragment extends DialogFragment {
                 String artistName = artistNameEt.getText().toString();
                 String songTitle = songTitleEt.getText().toString();
 
+                String songLink = songLinkEt.getText().toString();
+
                 Song song = new Song();
                 song.setFavorite(favoriteCheckBox.isChecked());
                 song.setSongTitle(songTitle);
                 song.setArtistTitle(artistName);
-                song.setLinkToSong("https://www.mboxdrive.com/Circles.mp3");
+                song.setLinkToSong(songLink);
 
                 if (isUserPic) {
                     song.setImagePath(photoFile.getAbsolutePath());

@@ -22,12 +22,6 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         titleList = new ArrayList<>();
     }
 
-    public void printFragmentArray() {
-        for (Fragment frag : fragmentList) {
-            Log.d("markomarko", "printFragmentArray: " + frag);
-        }
-    }
-
     @NonNull
     @Override
     public Fragment createFragment(int position) {
@@ -46,7 +40,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        Log.d("markomarko", "getItemCount: " + fragmentList.size());
+      //  Log.d("markomarko", "getItemCount: " + fragmentList.size());
         return 2;
     }
 

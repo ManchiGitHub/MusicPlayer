@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link FavoriteSongsFragment#newInstance} factory method to
@@ -24,6 +26,10 @@ public class FavoriteSongsFragment extends Fragment {
 
     // TODO: Rename and change types of parameters
     private String mParam1;
+
+
+    private ArrayList<Song> favoriteSongs;
+
 
     public FavoriteSongsFragment() {
         // Required empty public constructor

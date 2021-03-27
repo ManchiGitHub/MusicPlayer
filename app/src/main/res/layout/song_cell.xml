@@ -4,11 +4,11 @@
     android:id="@+id/card_main_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:outlineProvider="paddedBounds"
     android:layout_marginStart="3dp"
-    android:layout_marginEnd="3dp"
     android:layout_marginTop="1dp"
+    android:layout_marginEnd="3dp"
     android:layout_marginBottom="1dp"
+    android:outlineProvider="paddedBounds"
     android:outlineSpotShadowColor="@color/dark_blue"
     app:cardCornerRadius="10dp">
 
@@ -34,17 +34,42 @@
                 android:background="@drawable/thumbnail_stroke"
                 android:scaleType="centerCrop" />
 
-
-            <TextView
-                android:id="@+id/song_title"
+            <LinearLayout
                 android:layout_width="0dp"
-                android:textColor="#5E5E5E"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="10dp"
                 android:layout_weight="6"
-                android:gravity="center"
-                android:text="Never gonna give you up"
-                android:textSize="20dp" />
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/song_title"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="2dp"
+                    android:text="Never gonna give you up"
+                    android:textColor="#5E5E5E"
+                    android:textStyle="bold"
+                    android:textSize="15dp" />
+
+                <TextView
+                    android:id="@+id/artist_title"
+                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:alpha="0.7"
+                    android:layout_gravity="bottom"
+                  android:layout_marginStart="10dp"
+                    android:text="Never gonna give you up"
+                    android:textColor="#5E5E5E"
+                    android:textSize="15dp" />
+
+
+
+            </LinearLayout>
+
+
+
 
 
             <ImageView
@@ -56,7 +81,7 @@
                 android:layout_weight="1"
                 android:alpha="0.8"
                 android:outlineProvider="bounds"
-                android:src="@drawable/heart_solid"
+                android:src="@drawable/ic__favorite"
                 app:tint="#9D9480" />
 
 
@@ -67,12 +92,12 @@
                 android:layout_gravity="center"
                 android:layout_margin="15dp"
                 android:layout_weight="1.3"
-                android:alpha="0.7"
+                android:alpha="0.5"
                 android:background="@android:color/transparent"
-                android:tint="#5E5E5E"
                 android:outlineProvider="paddedBounds"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_outline_info_24"
+                android:tint="#9D9480"
                 app:backgroundTint="@null" />
 
 
@@ -85,23 +110,44 @@
             android:layout_height="match_parent"
             android:layout_below="@+id/top_layout"
             android:orientation="vertical"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/artist_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:gravity="center"
-                android:text="Lorem Ipsum" />
+            android:visibility="visible">
 
             <TextView
                 android:id="@+id/album_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Lorem Ipsum" />
+                android:textColor="#9D9480"
+                android:text="Album: n/a" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:layout_width="35dp"
+                    android:background="@drawable/notification_btn_ripple_background"
+                    android:src="@drawable/ic_baseline_edit_24"
+                    android:layout_height="35dp"
+                    app:tint="#9D9480"
+                    android:alpha="0.5"
+                    android:layout_margin="15dp" />
+
+                <ImageButton
+                    android:id="@+id/heart_expanded_layout"
+                    android:layout_width="35dp"
+                    android:background="@drawable/notification_btn_ripple_background"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="10dp"
+                    android:alpha="0.8"
+                    android:outlineProvider="bounds"
+                    android:src="@drawable/ic__favorite"
+                    app:tint="#9D9480" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

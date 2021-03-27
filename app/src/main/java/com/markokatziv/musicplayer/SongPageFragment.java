@@ -119,11 +119,11 @@ public class SongPageFragment extends Fragment {
                 // if song is not favorite
                 if (!song.isFavorite()) {
                     song.setFavorite(true);
-                    v.setBackground(getActivity().getDrawable(R.drawable.heart_full));
+                    v.setBackground(getActivity().getDrawable(R.drawable.ic__favorite));
                 }
                 else { //song is favorite
                     song.setFavorite(false);
-                    v.setBackground(getActivity().getDrawable(R.drawable.heart_empty));
+                    v.setBackground(getActivity().getDrawable(R.drawable.ic__favorite));
                 }
 
                 callback.onFavoriteButtonClickSongPageFrag(songPosition);
@@ -148,10 +148,10 @@ public class SongPageFragment extends Fragment {
         this.artistTitle.setText(song.getArtistTitle());
 
         if (song.isFavorite()) {
-            favoriteBtn.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.heart_solid));
+            favoriteBtn.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.ic__favorite));
         }
         else {
-            favoriteBtn.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.heart_empty));
+            favoriteBtn.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.ic_favorite_holo));
         }
 
         if (song.getImagePath().equals("")) {
