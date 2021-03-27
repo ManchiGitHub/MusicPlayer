@@ -50,7 +50,7 @@ public class AddSongDialogFragment extends DialogFragment {
 
     private File photoFile;
     private Uri imageUri;
-    private SharedPreferences sp;
+ //   private SharedPreferences sp;
     private ImageView imgThumbnail;
 
     boolean isUserPic = false;
@@ -96,16 +96,18 @@ public class AddSongDialogFragment extends DialogFragment {
         final CheckBox favoriteCheckBox = dialogView.findViewById(R.id.favorite_checkbox);
         final EditText songLinkEt = dialogView.findViewById(R.id.song_link);
 
-        sp = getActivity().getSharedPreferences("details", Context.MODE_PRIVATE);
+//        sp = getActivity().getSharedPreferences("details", Context.MODE_PRIVATE);
 
         final Button takePicBtn = dialogView.findViewById(R.id.take_pic_btn);
         takePicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                int imageIndex = sp.getInt("image_index", 0);
+           //     int imageIndex = sp.getInt("image_index", 0);
+                int imageIndex = PreferenceHandler.getInt("image_index",getActivity());
                 photoFile = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "pic.jpg" + imageIndex);
-                sp.edit().putInt("image_index", ++imageIndex).commit();
+           //     sp.edit().putInt("image_index", ++imageIndex).commit();
+                PreferenceHandler.putInt("image_index", ++imageIndex, getActivity());
                 imageUri = FileProvider.getUriForFile(getActivity(), "com.markokatziv.musicplayer.provider", photoFile);
 
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);

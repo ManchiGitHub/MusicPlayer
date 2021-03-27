@@ -27,9 +27,11 @@ import java.util.List;
  */
 public class SongRecyclerViewFragment extends Fragment implements SongAdapter.SongListenerInterface {
 
+
+
     interface SongRecyclerViewListener {
         void onCardClick(View view, int position);
-
+        void onEditSongClick(int position);
     }
 
     SongRecyclerViewListener callback;
@@ -116,6 +118,10 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     public void notifyItemInsert(Song song) {
         songAdapter.notifyItemInserted(songs.size());
         checkChangeInitialTextOnScreen(addSongsText);
+    }
+
+    public void notifyItemChange(int position) {
+        songAdapter.notifyItemChanged(position);
     }
 
 
@@ -212,6 +218,10 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     }
 
 
+    @Override
+    public void onEditBtnClicked(int position) {
+        callback.onEditSongClick(position);
+    }
 
     @Override
     public void onSongCardClicked(int position, View view) {

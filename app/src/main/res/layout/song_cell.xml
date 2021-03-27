@@ -36,40 +36,36 @@
 
             <LinearLayout
                 android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="6"
-                android:orientation="vertical"
-                android:layout_height="wrap_content">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/song_title"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="10dp"
                     android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="bottom"
+                    android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
                     android:layout_marginBottom="2dp"
                     android:text="Never gonna give you up"
                     android:textColor="#5E5E5E"
-                    android:textStyle="bold"
-                    android:textSize="15dp" />
+                    android:textSize="15dp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/artist_title"
-                    android:layout_height="match_parent"
                     android:layout_width="wrap_content"
-                    android:alpha="0.7"
+                    android:layout_height="match_parent"
                     android:layout_gravity="bottom"
-                  android:layout_marginStart="10dp"
-                    android:text="Never gonna give you up"
+                    android:layout_marginStart="10dp"
+                    android:alpha="0.7"
+                    android:text="Rick Ashely"
                     android:textColor="#5E5E5E"
                     android:textSize="15dp" />
 
 
-
             </LinearLayout>
-
-
-
 
 
             <ImageView
@@ -107,45 +103,41 @@
         <LinearLayout
             android:id="@+id/expanded_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@+id/top_layout"
             android:orientation="vertical"
             android:visibility="visible">
 
-            <TextView
-                android:id="@+id/album_title"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:textColor="#9D9480"
-                android:text="Album: n/a" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_height="wrap_content">
-
-                <ImageButton
-                    android:layout_width="35dp"
-                    android:background="@drawable/notification_btn_ripple_background"
-                    android:src="@drawable/ic_baseline_edit_24"
-                    android:layout_height="35dp"
-                    app:tint="#9D9480"
-                    android:alpha="0.5"
-                    android:layout_margin="15dp" />
+                android:orientation="horizontal">
 
                 <ImageButton
                     android:id="@+id/heart_expanded_layout"
-                    android:layout_width="35dp"
-                    android:background="@drawable/notification_btn_ripple_background"
-                    android:layout_height="35dp"
+                    android:scaleType="fitXY"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
                     android:layout_gravity="center"
-                    android:layout_marginEnd="10dp"
+                    android:layout_margin="15dp"
                     android:alpha="0.8"
+                    android:background="@drawable/notification_btn_ripple_background"
                     android:outlineProvider="bounds"
                     android:src="@drawable/ic__favorite"
                     app:tint="#9D9480" />
+
+                <ImageButton
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:scaleType="fitXY"
+                    android:id="@+id/edit_song_image_btn"
+                    android:layout_margin="15dp"
+                    android:alpha="0.5"
+                    android:background="@drawable/notification_btn_ripple_background"
+                    android:src="@drawable/ic_baseline_edit_24"
+                    app:tint="#9D9480" />
+
 
             </LinearLayout>
 

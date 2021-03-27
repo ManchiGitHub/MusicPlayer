@@ -41,6 +41,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         void onFavoriteClicked(int position, boolean isFavorite);
 
+        void onEditBtnClicked(int position);
     }
 
     private SongListenerInterface listener;
@@ -61,15 +62,19 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         private LinearLayout songCellDrawer;
 
         private ImageView songThumbNailIV;
-        private TextView songTitle;
-        private TextView artistTitle;
-        private TextView albumTitle;
+        private TextView songTitleTV;
+        private TextView artistTitleTV;
+        private TextView albumTitleTV;
         private ImageView heartIV;
         private LinearLayout topLayout;
-        private ImageButton infoImageBtn;
+        private ImageButton infoImageIB;
 
         // CHANGES HERE
-        private ImageButton heartExpandedLayout;
+        private int customHeight;
+
+        // CHANGES HERE
+        private ImageButton heartExpandedLayoutIB;
+        private ImageButton editSongIB;
 
         RotateAnimation rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 
@@ -79,30 +84,40 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             super(v);
 
             /* nice info icon rotation animation on click */
-            rotate.setDuration(300);
+            rotate.setDuration(400);
             rotate.setInterpolator(overshootInterpolator);
 
-            albumTitle = v.findViewById(R.id.album_title);
-            artistTitle = v.findViewById(R.id.artist_title);
+            artistTitleTV = v.findViewById(R.id.artist_title);
             songThumbNailIV = v.findViewById(R.id.song_image);
-            songTitle = v.findViewById(R.id.song_title);
+            songTitleTV = v.findViewById(R.id.song_title);
             heartIV = v.findViewById(R.id.heart_img);
             songCellDrawer = v.findViewById(R.id.expanded_layout);
             topLayout = v.findViewById(R.id.top_layout);
-            infoImageBtn = v.findViewById(R.id.info);
-            infoImageBtn.setOnClickListener(this);
+            infoImageIB = v.findViewById(R.id.info);
+            infoImageIB.setOnClickListener(this);
+            heartExpandedLayoutIB = v.findViewById(R.id.heart_expanded_layout);
+            editSongIB = v.findViewById(R.id.edit_song_image_btn);
 
             // CHANGES HERE
-            heartExpandedLayout = v.findViewById(R.id.heart_expanded_layout);
-            heartExpandedLayout.setOnClickListener(new View.OnClickListener() {
+            customHeight = 50 + heartExpandedLayoutIB.getLayoutParams().height + artistTitleTV.getLayoutParams().height;
+
+            editSongIB.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onEditBtnClicked(getAdapterPosition());
+                }
+            });
+
+            // CHANGES HERE
+            heartExpandedLayoutIB.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     boolean isFavorite = false;
                     if (songsList.get(getAdapterPosition()).isFavorite()) {
-                        heartExpandedLayout.setImageResource(R.drawable.ic_favorite_holo);
+                        heartExpandedLayoutIB.setImageResource(R.drawable.ic_favorite_holo);
                     }
                     else {
-                        heartExpandedLayout.setImageResource(R.drawable.ic__favorite);
+                        heartExpandedLayoutIB.setImageResource(R.drawable.ic__favorite);
                         isFavorite = true;
 
                     }
@@ -113,7 +128,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     if (listener != null) {
                         listener.onSongCardClicked(getAdapterPosition(), v);
                     }
@@ -126,9 +140,10 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             }
         }
 
+
         @Override
         public void onClick(final View view) {
-
+            Log.d("markomarko", "onClick: " + customHeight);
             int originalHeight = songCellDrawer.getHeight();
             ValueAnimator valueAnimator;
             view.startAnimation(rotate);
@@ -137,11 +152,11 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 songCellDrawer.setVisibility(View.VISIBLE);
                 songCellDrawer.setEnabled(true);
                 isCardExpanded = true;
-                valueAnimator = ValueAnimator.ofInt(originalHeight, originalHeight + 200); //TODO: set variable to static final int
+                valueAnimator = ValueAnimator.ofInt(originalHeight, originalHeight + customHeight); //TODO: set variable to static final int
             }
             else {
                 isCardExpanded = false;
-                valueAnimator = ValueAnimator.ofInt(originalHeight, originalHeight - 200); //TODO: set veriable to static final int
+                valueAnimator = ValueAnimator.ofInt(originalHeight, originalHeight - customHeight); //TODO: set veriable to static final int
                 Animation alphaAnimation = new AlphaAnimation(1.00f, 0.00f); // fade out
                 alphaAnimation.setDuration(200);
                 alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
@@ -191,17 +206,17 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
 
         Song song = songsList.get(position);
-        holder.songTitle.setText(song.getSongTitle());
-        holder.artistTitle.setText(song.getArtistTitle());
-        holder.albumTitle.setText(song.getAlbumTitle());
+        holder.songTitleTV.setText(song.getSongTitle());
+        holder.artistTitleTV.setText(song.getArtistTitle());
+//        holder.albumTitle.setText(song.getAlbumTitle());
 
         if (song.isFavorite()) {
             holder.heartIV.setVisibility(View.VISIBLE);
-            holder.heartExpandedLayout.setImageResource(R.drawable.ic__favorite);
+            holder.heartExpandedLayoutIB.setImageResource(R.drawable.ic__favorite);
         }
         else {
             holder.heartIV.setVisibility(View.INVISIBLE);
-            holder.heartExpandedLayout.setImageResource(R.drawable.ic_favorite_holo);
+            holder.heartExpandedLayoutIB.setImageResource(R.drawable.ic_favorite_holo);
         }
 
         if (song.getImagePath().equals("")) {

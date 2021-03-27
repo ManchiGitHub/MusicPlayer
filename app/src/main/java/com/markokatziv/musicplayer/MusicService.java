@@ -37,9 +37,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private MutableLiveData<Boolean> isMusicPlayingMLD;
     private MutableLiveData<Integer> songPositionMLD;
 
-    // changes here
-    private MutableLiveData<Integer> songCurrentPositionMLD;
-
     /* Binder given to clients. */
     private final IBinder binder = new LocalBinder();
 
@@ -172,7 +169,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
                     isMusicPlayingMLD.setValue(false);
                 }
-                else { //mediaPlayer is not playing
+                else { // mediaPlayer is not playing
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
                     mediaPlayer.start();
@@ -236,7 +233,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             listener.onSongReady(false);
         }
 
+        /* Set new position (Integer) */
         songPositionMLD.setValue(currentPlaying);
+
         mediaPlayer.reset();
         try {
             mediaPlayer.setDataSource(songs.get(currentPlaying).getLinkToSong());
@@ -281,19 +280,17 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         remoteViews.setOnClickPendingIntent(R.id.close_notification_btn_notif, closePendingIntent);
     }
 
+    public void setMutableLiveData(){
+        isMusicPlayingMLD = new MutableLiveData<>();
+        songPositionMLD = new MutableLiveData<>();
+
+    }
+
     public MutableLiveData<Boolean> getIsMusicPlayingMLD() {
         return isMusicPlayingMLD;
     }
 
-    public void setIsMusicPlayingMLD() {
-        isMusicPlayingMLD = new MutableLiveData<>();
-    }
-
     public MutableLiveData<Integer> getSongPositionMLD() {
         return songPositionMLD;
-    }
-
-    public void setSongPositionMLD() {
-        songPositionMLD = new MutableLiveData<>();
     }
 }

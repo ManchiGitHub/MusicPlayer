@@ -2,7 +2,6 @@ package com.markokatziv.musicplayer;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -52,8 +51,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     Button playPauseBtn;
     AppCompatSeekBar seekBar;
     ProgressBar progressBar;
-
-    private SharedPreferences sharedPreferences;
 
     private int songPosition;
     private int currentSongProgress = 0;
