@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         setTheme(R.style.splashScreenTheme);
         setContentView(R.layout.activity_main);
 
+        lastPosition = PreferenceHandler.getInt("last_position", this);
 
         /* load songs */
         fullSongsList = SongFileHandler.readSongList(this);
@@ -142,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 //               .add(R.id.activity_main_layout, editSongFragment, TAG_EDIT_SONG_FRAGMENT).commit();
 
 
-      //  songRecyclerViewFragment.notifyItemChange(position);
+        //  songRecyclerViewFragment.notifyItemChange(position);
     }
 
     @Override
@@ -154,10 +155,18 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     public void onCardClick(View view, int position) {
 
+        if (!isServiceBounded) {
+            isServiceBounded = true;
+            Intent bindIntent = new Intent(this, MusicService.class);
+            bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
+
         Song song = fullSongsList.get(position);
 
-        if (lastPosition == position ) {
-            if (isServiceBounded){
+        if (lastPosition == position) {
+            if (isServiceBounded) {
+
+
                 musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
                     @Override
                     public void onChanged(Boolean aBoolean) {
@@ -187,13 +196,9 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         }
         else {
             lastPosition = position;
-         //   musicStateViewModel.setIsMusicPlayingMLD(true);
+            PreferenceHandler.putInt("last_position", lastPosition, this);
+            //   musicStateViewModel.setIsMusicPlayingMLD(true);
 
-            if (!isServiceBounded) {
-                isServiceBounded = true;
-                Intent bindIntent = new Intent(this, MusicService.class);
-                bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE);
-            }
 
             /* Simple solution for making sure only one instance of playerFragment and SongPageFragment can exist. */
             if (songPageFragment != null && songPageFragment.isActive()) {
@@ -230,6 +235,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     public void onSkipPrevClickPlayerFrag(int prevSongPosition) {
         lastPosition = prevSongPosition;
+        PreferenceHandler.putInt("last_position", lastPosition, this);
+
         if (fullSongsList.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
             intent.putExtra("command", "prev");
@@ -242,6 +249,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     public void onSkipNextClickPlayerFrag(int nextSongPosition) {
 
         lastPosition = nextSongPosition;
+        PreferenceHandler.putInt("last_position", lastPosition, this);
+
         if (fullSongsList.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
             intent.putExtra("command", "next");
@@ -265,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             Intent bindIntent = new Intent(this, MusicService.class);
             bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE); // CHANGES HERE
 
-        //    playerFragment.changeBtnResource(true);
+            //    playerFragment.changeBtnResource(true);
         }
 
         if (fullSongsList.size() > 0) {
@@ -278,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     public void onCloseClickFromService(MediaPlayer mediaPlayer) {
 
         //  mediaPlayer.stop(); //TODO: check if needed, probably not.
-        if (playerFragment!=null){
+        if (playerFragment != null) {
             playerFragment.changeBtnResource(false);
         }
 
@@ -307,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         public void onServiceConnected(ComponentName className, IBinder service) {
             /* Getting service instance with IBinder. */
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
-            isServiceBounded = true; 
+            isServiceBounded = true;
             musicService = binder.getService();
             musicService.setCallbacks(MainActivity.this);
 
@@ -329,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             isMusicPlayingObserver = new Observer<Boolean>() {
                 @Override
                 public void onChanged(Boolean aBoolean) {
-               //     playerFragment.changeBtnResource(aBoolean);
+                    //     playerFragment.changeBtnResource(aBoolean);
                     musicStateViewModel.setIsMusicPlayingMLD(aBoolean);
                 }
             };

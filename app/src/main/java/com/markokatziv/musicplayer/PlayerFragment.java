@@ -233,7 +233,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             playPauseBtn.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
 
         }
-        Log.d("markomarko", "changeBtnResource: isPlaying = " + isPlay);
     }
 
     @Override
