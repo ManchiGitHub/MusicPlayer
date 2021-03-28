@@ -156,9 +156,19 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         Song song = fullSongsList.get(position);
 
-        if (lastPosition == position) {
+        if (lastPosition == position ) {
+            if (isServiceBounded){
+                musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
+                    @Override
+                    public void onChanged(Boolean aBoolean) {
+                        playerFragment.changeBtnResource(aBoolean);
+                    }
+                });
+            }
+
+
             songPageFragment = SongPageFragment.newInstance(song, position);
-            playerFragment = PlayerFragment.newInstance(song, position, isPlaying, fullSongsList.size());
+            playerFragment = PlayerFragment.newInstance(song, position, fullSongsList.size());
 
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -167,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             fragmentTransaction.add(R.id.activity_main_layout, songPageFragment, TAG_SONG_PAGE_FRAGMENT).addToBackStack("song_page_frag");
             fragmentTransaction.commit();
 
+            // TODO: this is temporary. replace this
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -176,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         }
         else {
             lastPosition = position;
-            musicStateViewModel.setIsMusicPlayingMLD(true);
+         //   musicStateViewModel.setIsMusicPlayingMLD(true);
 
             if (!isServiceBounded) {
                 isServiceBounded = true;
@@ -190,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             }
 
             songPageFragment = SongPageFragment.newInstance(song, position);
-            playerFragment = PlayerFragment.newInstance(song, position, isPlaying, fullSongsList.size());
+            playerFragment = PlayerFragment.newInstance(song, position, fullSongsList.size());
 
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -201,7 +212,6 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
             sharedPreferences.edit().putInt(LAST_SONG_KEY, position).commit(); //TODO: not using this
 
-            isPlaying = !isPlaying;
             if (fullSongsList.size() > 0) {
                 Intent intent = new Intent(MainActivity.this, MusicService.class);
                 intent.putExtra("command", "new_instance");
@@ -255,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             Intent bindIntent = new Intent(this, MusicService.class);
             bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE); // CHANGES HERE
 
-            playerFragment.changeBtnResource(true);
+        //    playerFragment.changeBtnResource(true);
         }
 
         if (fullSongsList.size() > 0) {
@@ -319,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             isMusicPlayingObserver = new Observer<Boolean>() {
                 @Override
                 public void onChanged(Boolean aBoolean) {
-                    playerFragment.changeBtnResource(aBoolean);
+               //     playerFragment.changeBtnResource(aBoolean);
                     musicStateViewModel.setIsMusicPlayingMLD(aBoolean);
                 }
             };

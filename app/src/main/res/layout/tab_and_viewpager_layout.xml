@@ -10,9 +10,10 @@
         android:layout_height="wrap_content"
         android:background="@color/dark_blue"
         app:tabMode="fixed"
-        app:tabTextColor="@color/pink"
+        android:backgroundTint="#000000"
         app:tabGravity="fill"
-        app:tabIndicatorColor="@color/pink"
+        app:tabIconTint="#C6C6C6"
+        app:tabIndicatorColor="#5A5A5A"
         android:id="@+id/tab_layout"/>
 
     <androidx.viewpager2.widget.ViewPager2

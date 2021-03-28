@@ -61,12 +61,11 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         // Required empty public constructor
     }
 
-    public static PlayerFragment newInstance(Song song, int position, boolean isPlaying, int listSize) {
+    public static PlayerFragment newInstance(Song song, int position, int listSize) {
         PlayerFragment fragment = new PlayerFragment();
         Bundle args = new Bundle();
         args.putInt(SONG_POSITION_KEY, position);
         args.putInt("list_size", listSize);
-        args.putBoolean("is_playing", isPlaying);
         args.putSerializable(SONG_KEY, song);
         fragment.setArguments(args);
         return fragment;
@@ -91,6 +90,14 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         if (getArguments() != null) {
             this.songPosition = getArguments().getInt(SONG_POSITION_KEY);
         }
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        //   changeBtnResource(musicStateViewModel.isPlaying());
+
     }
 
     @Override
@@ -119,13 +126,14 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         }
 
         playPauseBtn = rootView.findViewById(R.id.play_pause_button);
-        playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
+        //    playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
         playPauseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 callbackToActivity.onPlayPauseClickPlayerFrag(songPosition, v);
             }
         });
+
 
         seekBar = rootView.findViewById(R.id.player_frag_seekBar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -157,7 +165,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
-                isPlaying = aBoolean;
+                changeBtnResource(aBoolean);
             }
         });
 
@@ -174,7 +182,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             public void run() {
                 callbackToActivity.onRequestSongProgress();
                 seekBar.setProgress(currentSongProgress / 1000);
-                handler.postDelayed(this, 1000);
+                handler.postDelayed(this, 500);
             }
         };
 
@@ -187,7 +195,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
     public void changeSongDuration(int duration) {
         seekBar.setMax(duration / 1000);
-        Log.d("markomarko", "current duration: " + duration / 1000);
         PreferenceHandler.putInt(PreferenceHandler.TAG_SONG_DURATION, (duration / 1000), getActivity());
     }
 
@@ -207,7 +214,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     public void onDestroy() {
         super.onDestroy();
         //   sharedPreferences.edit().putInt("duration", (lastSongDuration/1000)).commit();
-      //  handler.removeCallbacks(r);
+        //  handler.removeCallbacks(r);
     }
 
     @Override
@@ -218,12 +225,15 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
     public void changeBtnResource(boolean isPlay) {
 
-        if (!isPlay) {
-            playPauseBtn.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
-        }
-        else {
+        if (isPlay) {
             playPauseBtn.setBackgroundResource(R.drawable.ic_outline_pause_circle_24);
+
         }
+        else { // not playing
+            playPauseBtn.setBackgroundResource(R.drawable.ic_outline_play_circle_24);
+
+        }
+        Log.d("markomarko", "changeBtnResource: isPlaying = " + isPlay);
     }
 
     @Override

@@ -101,6 +101,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             // CHANGES HERE
             customHeight = 50 + heartExpandedLayoutIB.getLayoutParams().height + artistTitleTV.getLayoutParams().height;
 
+            songThumbNailIV.setClipToOutline(true);
+
             editSongIB.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -220,14 +222,14 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         }
 
         if (song.getImagePath().equals("")) {
-            Glide.with(this.context).load(defaultBitmap).thumbnail(0.25f).into(holder.songThumbNailIV);
+            Glide.with(this.context).load(defaultBitmap).circleCrop().thumbnail(0.10f).into(holder.songThumbNailIV);
         }
         else {
 
 //            if (song.getImagePath().contains("content")){
 //      //          Uri uri = Uri.parse(song.getImagePath());
 //            }
-            Glide.with(this.context).load(song.getImagePath()).thumbnail(0.15f).into(holder.songThumbNailIV);
+            Glide.with(this.context).load(song.getImagePath()).circleCrop().thumbnail(0.15f).into(holder.songThumbNailIV);
         }
     }
 
