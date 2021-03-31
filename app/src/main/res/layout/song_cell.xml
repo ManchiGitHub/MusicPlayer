@@ -50,7 +50,7 @@
                     android:layout_marginBottom="2dp"
                     android:text="Never gonna give you up"
                     android:textColor="#5E5E5E"
-                    android:textSize="15dp"
+                    android:textSize="18dp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -62,7 +62,7 @@
                     android:alpha="0.7"
                     android:text="Rick Ashely"
                     android:textColor="#5E5E5E"
-                    android:textSize="15dp" />
+                    android:textSize="13dp" />
 
 
             </LinearLayout>

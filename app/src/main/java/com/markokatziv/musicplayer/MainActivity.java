@@ -20,6 +20,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     private boolean isServiceBounded = false;
     private boolean isPlaying = false;
     private int lastPosition = -1;
-
+    private boolean isSongPrepared = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         setTheme(R.style.splashScreenTheme);
         setContentView(R.layout.activity_main);
 
-        lastPosition = PreferenceHandler.getInt("last_position", this);
 
         /* load songs */
         fullSongsList = SongFileHandler.readSongList(this);
@@ -163,9 +163,14 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         Song song = fullSongsList.get(position);
 
+
+        /* Simple solution for making sure only one instance of playerFragment and SongPageFragment can exist. */
+        if (songPageFragment != null && songPageFragment.isActive()) {
+            return;
+        }
+
         if (lastPosition == position) {
             if (isServiceBounded) {
-
 
                 musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
                     @Override
@@ -196,14 +201,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         }
         else {
             lastPosition = position;
-            PreferenceHandler.putInt("last_position", lastPosition, this);
             //   musicStateViewModel.setIsMusicPlayingMLD(true);
 
-
-            /* Simple solution for making sure only one instance of playerFragment and SongPageFragment can exist. */
-            if (songPageFragment != null && songPageFragment.isActive()) {
-                return;
-            }
 
             songPageFragment = SongPageFragment.newInstance(song, position);
             playerFragment = PlayerFragment.newInstance(song, position, fullSongsList.size());
@@ -215,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             fragmentTransaction.add(R.id.activity_main_layout, songPageFragment, TAG_SONG_PAGE_FRAGMENT).addToBackStack("song_page_frag");
             fragmentTransaction.commit();
 
-            sharedPreferences.edit().putInt(LAST_SONG_KEY, position).commit(); //TODO: not using this
+          //  sharedPreferences.edit().putInt(LAST_SONG_KEY, position).commit(); //TODO: not using this
 
             if (fullSongsList.size() > 0) {
                 Intent intent = new Intent(MainActivity.this, MusicService.class);
@@ -234,8 +233,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
     @Override
     public void onSkipPrevClickPlayerFrag(int prevSongPosition) {
+        isSongPrepared = false;
         lastPosition = prevSongPosition;
-        PreferenceHandler.putInt("last_position", lastPosition, this);
 
         if (fullSongsList.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
@@ -247,9 +246,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
     @Override
     public void onSkipNextClickPlayerFrag(int nextSongPosition) {
-
+        isSongPrepared = false;
         lastPosition = nextSongPosition;
-        PreferenceHandler.putInt("last_position", lastPosition, this);
 
         if (fullSongsList.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
@@ -285,6 +283,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
     @Override
     public void onCloseClickFromService(MediaPlayer mediaPlayer) {
+        isSongPrepared = false;
+        lastPosition = -1;
 
         //  mediaPlayer.stop(); //TODO: check if needed, probably not.
         if (playerFragment != null) {
@@ -296,6 +296,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             unbindService(serviceConnection);
             isServiceBounded = false;
         }
+
     }
 
     @Override
@@ -329,6 +330,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
                 public void onChanged(Integer songPosition) {
                     if (songPageFragment.isActive()) {
                         songPageFragment.changeSong(fullSongsList.get(songPosition), songPosition);
+                        lastPosition = songPosition;
                     }
                 }
             };
@@ -364,15 +366,26 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     public void onRequestSongProgress() {
 
-        int progress = getSongProgressFromService();
-        songProgressViewModel.setSongProgressMLD(progress);
+        if (isSongPrepared) {
+            int progress = getSongProgressFromService();
+            songProgressViewModel.setSongProgressMLD(progress);
+        }
     }
+
 
     @Override
     public void onPreparedListener(int duration) {
-        if (playerFragment != null) {
+        isSongPrepared = true;
+
+        if (duration==-1){
+            Toast.makeText(MainActivity.this, "Link is invalid", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!playerFragment.isDetached()) {
             playerFragment.changeSongDuration(duration);
             playerFragment.changeProgressBarToBtnIcon(true);
+            PreferenceHandler.putInt(PreferenceHandler.TAG_SONG_DURATION, (duration / 1000), MainActivity.this);
         }
     }
 

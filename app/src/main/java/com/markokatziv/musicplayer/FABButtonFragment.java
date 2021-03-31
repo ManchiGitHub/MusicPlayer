@@ -2,6 +2,7 @@ package com.markokatziv.musicplayer;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -130,6 +131,7 @@ public class FABButtonFragment extends Fragment {
         musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
+                Log.d("markomarko", "onChanged: ");
                 animateBtnRotation(aBoolean);
                 isPlaying = aBoolean;
             }

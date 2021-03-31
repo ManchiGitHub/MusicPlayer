@@ -12,9 +12,11 @@ import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
+
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.MutableLiveData;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Timer;
@@ -121,6 +123,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onPrepared(MediaPlayer mp) {
         mediaPlayer.start();
+        isMusicPlayingMLD.setValue(true);
+
         if (listener != null) {
             listener.onPreparedListener(mediaPlayer.getDuration());
         }
@@ -136,6 +140,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         listener.onSongReady(false);
         Log.d("markomarko", "onCompletion: music service");
     }
+
 
     private void switchReceiveCommand(String command, int position) {
 
@@ -280,10 +285,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         remoteViews.setOnClickPendingIntent(R.id.close_notification_btn_notif, closePendingIntent);
     }
 
-    public void setMutableLiveData(){
+    public void setMutableLiveData() {
         isMusicPlayingMLD = new MutableLiveData<>();
         songPositionMLD = new MutableLiveData<>();
-
     }
 
     public MutableLiveData<Boolean> getIsMusicPlayingMLD() {

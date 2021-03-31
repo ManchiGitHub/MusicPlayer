@@ -123,7 +123,7 @@ public class SongPageFragment extends Fragment {
                 }
                 else { //song is favorite
                     song.setFavorite(false);
-                    v.setBackground(getActivity().getDrawable(R.drawable.ic__favorite));
+                    v.setBackground(getActivity().getDrawable(R.drawable.ic_favorite_holo));
                 }
 
                 callback.onFavoriteButtonClickSongPageFrag(songPosition);

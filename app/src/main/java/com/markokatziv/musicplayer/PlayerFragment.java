@@ -195,7 +195,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
     public void changeSongDuration(int duration) {
         seekBar.setMax(duration / 1000);
-        PreferenceHandler.putInt(PreferenceHandler.TAG_SONG_DURATION, (duration / 1000), getActivity());
+//        PreferenceHandler.putInt(PreferenceHandler.TAG_SONG_DURATION, (duration / 1000), getActivity());
     }
 
     public void changeProgressBarToBtnIcon(boolean isSongReady) {

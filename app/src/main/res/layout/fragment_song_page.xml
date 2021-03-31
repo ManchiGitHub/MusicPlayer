@@ -24,41 +24,20 @@
         android:scaleType="centerCrop"
         android:src="@drawable/thumbnail_stroke" />
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/song_information_sub_layout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="400dp"
+        android:orientation="vertical"
         android:layout_alignParentBottom="true"
         android:background="#181410">
 
-        <TextView
-            android:id="@+id/song_page_frag_artist"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            android:textColor="#9A8F7B"
-            android:gravity="center"
-            android:text="Artist"
-            android:textSize="25sp" />
-
-        <TextView
-            android:id="@+id/song_page_frag_song_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/song_page_frag_artist"
-            android:layout_marginTop="10dp"
-            android:textColor="#9A8F7B"
-            android:gravity="center"
-            android:text="Song title"
-            android:textSize="25sp" />
-
         <Button
             android:id="@+id/song_page_frag_favorite_btn"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_below="@id/song_page_frag_song_title"
-            android:layout_centerHorizontal="true"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_marginTop="20dp"
+            android:layout_marginStart="20dp"
             android:background="@drawable/ic_favorite_holo"
             android:backgroundTint="#9A8F7B"
             android:clickable="true"
@@ -67,8 +46,32 @@
             android:scaleType="fitXY"
             app:backgroundTint="@null" />
 
+        <TextView
+            android:id="@+id/song_page_frag_artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textColor="#9A8F7B"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:text="Artist"
+            android:textSize="25sp" />
 
-    </RelativeLayout>
+        <TextView
+            android:id="@+id/song_page_frag_song_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textColor="#9A8F7B"
+            android:gravity="center"
+            android:alpha="0.6"
+            android:text="Song title"
+            android:textSize="20sp" />
+
+
+
+
+    </LinearLayout>
 
 
 </RelativeLayout>
