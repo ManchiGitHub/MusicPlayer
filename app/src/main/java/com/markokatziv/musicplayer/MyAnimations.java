@@ -3,9 +3,14 @@ package com.markokatziv.musicplayer;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.ScaleAnimation;
 
 /**
@@ -13,50 +18,22 @@ import android.view.animation.ScaleAnimation;
  */
 public class MyAnimations {
 
-    //TODO: Do I really need this?
-    public static void AnimateFavoriteButton(View v) {
+    ObjectAnimator animation;
+    int value;
 
-        ScaleAnimation scaleUpAnimation = new ScaleAnimation(1f, 1.1f, 1f, 1.1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 1f);
-        ScaleAnimation scaleDownAnimation = new ScaleAnimation(1.1f, 1f, 1.1f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 1f);
-
-        scaleUpAnimation.setDuration(200);
-        scaleDownAnimation.setDuration(200);
-
-        scaleUpAnimation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                v.startAnimation(scaleDownAnimation);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
-        v.startAnimation(scaleUpAnimation);
-
+    public MyAnimations() {
 
     }
 
-    public static void AnimateBackAndPrevBtns(View v, float value) {
-
-        ObjectAnimator animation;
-        AccelerateInterpolator accelerateInterpolator = new AccelerateInterpolator();
+    public void startMyAnimation(View v, float value) {
 
         /* If current language is not english, flip animation transition to fit current language. */
-        if (LanguageUtils.getCurrentLanguage() != LanguageUtils.ENGLISH) {
+        if (!LanguageUtils.getCurrentLanguage().equals(LanguageUtils.ENGLISH)) {
             value *= -1;
         }
 
         animation = ObjectAnimator.ofFloat(v, "translationX", value);
-        animation.setDuration(70);
-        animation.setInterpolator(accelerateInterpolator);
+        animation.setDuration(200);
         animation.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -68,5 +45,4 @@ public class MyAnimations {
 
         animation.start();
     }
-
 }

@@ -17,8 +17,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 
@@ -26,7 +29,7 @@ import java.util.Objects;
 
 
 /**
- * Created By marko katziv
+ * Created By marko
  */
 public class SongPageFragment extends Fragment {
 
@@ -38,7 +41,6 @@ public class SongPageFragment extends Fragment {
 
     final static private String SONG_POSITION_KEY = "song_position";
     final static private String SONG_KEY = "song";
-    private static final String MYTAG = "my tag";
 
     private Song song;
     private int songPosition;
@@ -99,19 +101,16 @@ public class SongPageFragment extends Fragment {
         artistTitle = rootView.findViewById(R.id.song_page_frag_artist);
         favoriteBtn = rootView.findViewById(R.id.song_page_frag_favorite_btn);
 
-        songTitle.setText(song.getSongTitle());
-        artistTitle.setText(song.getArtistTitle());
+        setSongInfo(song);
 
-        if (song.isFavorite()) {
-            favoriteBtn.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.heart_solid));
-        }
+        MusicStateViewModel musicStateViewModel = new ViewModelProvider(requireActivity()).get(MusicStateViewModel.class);
+        musicStateViewModel.getCurrentSong().observe(this, new Observer<Song>() {
+            @Override
+            public void onChanged(Song song) {
+                setSongInfo(song);
+            }
+        });
 
-        if (song.getImagePath().equals("")) {
-            Glide.with(getActivity()).load(defaultBitmap).into(songImage);
-        }
-        else {
-            Glide.with(getActivity()).load(song.getImagePath()).into(songImage);
-        }
 
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,6 +130,23 @@ public class SongPageFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    private void setSongInfo(Song song){
+
+        songTitle.setText(song.getSongTitle());
+        artistTitle.setText(song.getArtistTitle());
+
+        if (song.isFavorite()) {
+            favoriteBtn.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.heart_solid));
+        }
+
+        if (song.getImagePath().equals("")) {
+            Glide.with(getActivity()).load(defaultBitmap).into(songImage);
+        }
+        else {
+            Glide.with(getActivity()).load(song.getImagePath()).into(songImage);
+        }
     }
 
     @Override

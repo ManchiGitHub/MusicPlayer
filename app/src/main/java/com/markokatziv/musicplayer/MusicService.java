@@ -15,11 +15,11 @@ import android.widget.RemoteViews;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Timer;
 
 /**
  * Created By marko katziv
@@ -37,7 +37,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     /* LiveData */
     private MutableLiveData<Boolean> isMusicPlayingMLD;
-    private MutableLiveData<Integer> songPositionMLD;
+    private MutableLiveData<Integer> songIndexMLD;
+    private MutableLiveData<Boolean> isSongReadyMLD;
 
     /* Binder given to clients. */
     private final IBinder binder = new LocalBinder();
@@ -53,15 +54,19 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        initLiveData(); //CHANGES HERE
+
         return binder;
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        super.onRebind(intent);
+        initLiveData(); //CHANGES HERE
     }
 
     interface MusicServiceListener {
         void onCloseClickFromService(MediaPlayer mediaPlayer);
-
-        void onPreparedListener(int duration);
-
-        void onSongReady(boolean isSongReady);
     }
 
     /* Registered callbacks. */
@@ -102,20 +107,21 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }
 
         remoteViews = new RemoteViews(getPackageName(), R.layout.music_player_notification);
-        initializeCommandIntents();
+        buildCommandIntents();
         notification = buildNotification(remoteViews);
         startForeground(NOTIFICATION_IDENTIFIER_ID, notification);
-
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         songs = SongFileHandler.readSongList(MusicService.this);
-        int position = intent.getIntExtra("position", 0);
+        int currentPosition = intent.getIntExtra("position", 0);
+        songIndexMLD.setValue(currentPosition); // set song index in LiveData
+
         String command = intent.getStringExtra("command");
         progressToSeekTo = intent.getIntExtra("progress_from_user", 0);
-        switchReceiveCommand(command, position);
+        switchReceiveCommand(command, currentPosition);
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -123,11 +129,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onPrepared(MediaPlayer mp) {
         mediaPlayer.start();
-        isMusicPlayingMLD.setValue(true);
 
-        if (listener != null) {
-            listener.onPreparedListener(mediaPlayer.getDuration());
-        }
+        // Ready to play the song. set values to true.
+        isSongReadyMLD.setValue(true);
+        isMusicPlayingMLD.setValue(true);
     }
 
     public int getSongProgress() {
@@ -137,8 +142,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onCompletion(MediaPlayer mp) {
         playSong(true);
-        listener.onSongReady(false);
-        Log.d("markomarko", "onCompletion: music service");
     }
 
 
@@ -152,6 +155,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 }
 
                 mediaPlayer.reset();
+
+                // A new song has been selected.
+                // The song is not ready yet, and needs to be prepared.
+                isSongReadyMLD.setValue(false);
+
                 try {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
@@ -167,6 +175,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
                 break;
             case COMMAND_PLAY_PAUSE:
+                songIndexMLD.setValue(currentPlaying);
                 if (mediaPlayer.isPlaying()) {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_play_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
@@ -178,7 +187,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
                     mediaPlayer.start();
-
                     isMusicPlayingMLD.setValue(true);
                 }
 
@@ -195,6 +203,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 remoteViews.setTextViewText(R.id.artist_title_notif, songs.get(currentPlaying).getArtistTitle());
                 manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
                 break;
+
             case COMMAND_PREVIOUS:
                 if (!mediaPlayer.isPlaying()) {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
@@ -206,13 +215,14 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 remoteViews.setTextViewText(R.id.artist_title_notif, songs.get(currentPlaying).getArtistTitle());
                 manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
                 break;
+
             case COMMAND_CLOSE:
                 if (listener != null) {
                     listener.onCloseClickFromService(mediaPlayer);
                 }
-
                 mediaPlayer.release();
                 stopSelf();
+
                 break;
             case COMMAND_SEEK_TO:
                 mediaPlayer.seekTo(progressToSeekTo);
@@ -220,6 +230,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     private void playSong(boolean isNext) {
+
+        isSongReadyMLD.setValue(false);
 
         if (isNext) {
             currentPlaying++;
@@ -234,12 +246,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             }
         }
 
-        if (listener != null) {
-            listener.onSongReady(false);
-        }
-
         /* Set new position (Integer) */
-        songPositionMLD.setValue(currentPlaying);
+        songIndexMLD.setValue(currentPlaying);
 
         mediaPlayer.reset();
         try {
@@ -258,7 +266,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         return builder.build();
     }
 
-    private void initializeCommandIntents() {
+    private void buildCommandIntents() {
         Intent openAppIntent = new Intent(this, MainActivity.class);
         openAppIntent.putExtra("restarted_from_notification", true);
         PendingIntent openAppPendingIntent = PendingIntent.getActivity(this, 10, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -285,16 +293,21 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         remoteViews.setOnClickPendingIntent(R.id.close_notification_btn_notif, closePendingIntent);
     }
 
-    public void setMutableLiveData() {
-        isMusicPlayingMLD = new MutableLiveData<>();
-        songPositionMLD = new MutableLiveData<>();
-    }
-
-    public MutableLiveData<Boolean> getIsMusicPlayingMLD() {
+    public LiveData<Boolean> getIsMusicPlaying() {
         return isMusicPlayingMLD;
     }
 
-    public MutableLiveData<Integer> getSongPositionMLD() {
-        return songPositionMLD;
+    public LiveData<Integer> getSongIndex() {
+        return songIndexMLD;
+    }
+
+    public LiveData<Boolean> getIsSongReady() {
+        return isSongReadyMLD;
+    }
+
+    private void initLiveData(){
+        this.isMusicPlayingMLD = new MutableLiveData<>(); //CHANGES HERE
+        this.songIndexMLD = new MutableLiveData<>();
+        this.isSongReadyMLD = new MutableLiveData<>();
     }
 }

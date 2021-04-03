@@ -39,7 +39,6 @@ public class FABButtonFragment extends Fragment {
     private FloatingActionButton showFavoriteSongsFab;
 
 
-    private boolean isPlaying = false;
     private boolean showFavorites = false;
 
     /* Animations */
@@ -52,6 +51,7 @@ public class FABButtonFragment extends Fragment {
     private Animation rotateBtn;
 
     boolean isClicked = false;
+    private boolean isPlaying = false;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -79,7 +79,7 @@ public class FABButtonFragment extends Fragment {
 
     }
 
-    public void animateBtnRotation(boolean dance) {
+    private void animateBtnRotation(boolean dance) {
         if (dance) {
             fab.startAnimation(rotateBtn);
         }
@@ -94,6 +94,15 @@ public class FABButtonFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_floating_button, container, false);
 
+        MusicStateViewModel musicStateViewModel = new ViewModelProvider(requireActivity()).get(MusicStateViewModel.class);
+        musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                isPlaying = aBoolean;
+                animateBtnRotation(aBoolean);
+            }
+        });
+
         fab = rootView.findViewById(R.id.main_fab_btn);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,10 +114,10 @@ public class FABButtonFragment extends Fragment {
             }
         });
 
-        //TODO: if app is recreated from notification on click, need to fab btn handle rotatation animation
-        if (getActivity().getIntent().getBooleanExtra("restarted_from_notification", false)) {
-            animateBtnRotation(true);
-        }
+//        //TODO: if app is recreated from notification on click, need to fab btn handle rotatation animation
+//        if (getActivity().getIntent().getBooleanExtra("restarted_from_notification", false)) {
+//            animateBtnRotation(true);
+//        }
 
         addSongFab = rootView.findViewById(R.id.add_song_fab_btn);
         addSongFab.setOnClickListener(new View.OnClickListener() {
@@ -124,16 +133,6 @@ public class FABButtonFragment extends Fragment {
             public void onClick(View v) {
                 showFavorites = !showFavorites;
                 callback.onShowFavoriteSongsClickFABFrag();
-            }
-        });
-
-        musicStateViewModel = new ViewModelProvider(requireActivity()).get(MusicStateViewModel.class);
-        musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                Log.d("markomarko", "onChanged: ");
-                animateBtnRotation(aBoolean);
-                isPlaying = aBoolean;
             }
         });
 

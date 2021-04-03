@@ -210,7 +210,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         Song song = songsList.get(position);
         holder.songTitleTV.setText(song.getSongTitle());
         holder.artistTitleTV.setText(song.getArtistTitle());
-//        holder.albumTitle.setText(song.getAlbumTitle());
 
         if (song.isFavorite()) {
             holder.heartIV.setVisibility(View.VISIBLE);
@@ -226,9 +225,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         }
         else {
 
-//            if (song.getImagePath().contains("content")){
-//      //          Uri uri = Uri.parse(song.getImagePath());
-//            }
             Glide.with(this.context).load(song.getImagePath()).circleCrop().thumbnail(0.15f).into(holder.songThumbNailIV);
         }
     }
