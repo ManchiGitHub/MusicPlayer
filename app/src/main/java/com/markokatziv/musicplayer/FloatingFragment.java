@@ -9,16 +9,14 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 /**
- * Created By marko katziv
+ * Created By marko
  */
 public class FloatingFragment extends Fragment {
 
