@@ -40,8 +40,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         void onSongCardClicked(int position, View view);
 
         void onFavoriteClicked(int position, boolean isFavorite);
-
-        void onEditBtnClicked(int position);
     }
 
     private SongListenerInterface listener;
@@ -64,7 +62,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
         private ImageView songThumbNailIV;
         private TextView songTitleTV;
         private TextView artistTitleTV;
-        private TextView albumTitleTV;
         private ImageView heartIV;
         private LinearLayout topLayout;
         private ImageButton infoImageIB;
@@ -74,8 +71,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         // CHANGES HERE
         private ImageButton heartExpandedLayoutIB;
-        private ImageButton editSongIB;
-
         RotateAnimation rotate = new RotateAnimation(0, 360, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 
         OvershootInterpolator overshootInterpolator = new OvershootInterpolator();
@@ -96,19 +91,11 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             infoImageIB = v.findViewById(R.id.info);
             infoImageIB.setOnClickListener(this);
             heartExpandedLayoutIB = v.findViewById(R.id.heart_expanded_layout);
-            editSongIB = v.findViewById(R.id.edit_song_image_btn);
 
             // CHANGES HERE
             customHeight = 50 + heartExpandedLayoutIB.getLayoutParams().height + artistTitleTV.getLayoutParams().height;
 
             songThumbNailIV.setClipToOutline(true);
-
-            editSongIB.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.onEditBtnClicked(getAdapterPosition());
-                }
-            });
 
             // CHANGES HERE
             heartExpandedLayoutIB.setOnClickListener(new View.OnClickListener() {

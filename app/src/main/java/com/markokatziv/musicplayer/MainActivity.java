@@ -21,9 +21,8 @@ import java.util.ArrayList;
 
 
 //TODO:
-// 1. persist last song index and music state and change animations and icons accordingly.
 // 2. better ui colors.
-// 3. EDIT SONG FRAGMENT
+
 
 /**
  * Created By marko
@@ -32,14 +31,12 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
         AddSongDialogFragment.AddSongListener,
         SongRecyclerViewFragment.SongRecyclerViewListener,
         SongPageFragment.SongPageListener,
-        PlayerFragment.PlayerFragmentListener, MusicService.MusicServiceListener, EditSongFragment.EditSongFragmentListener {
+        PlayerFragment.PlayerFragmentListener, MusicService.MusicServiceListener {
 
     private final String TAG_ADD_SONG_FRAGMENT = "add_song_fragment";
     private final String TAG_PLAYER_FRAGMENT = "player_fragment";
     private final String TAG_SONG_PAGE_FRAGMENT = "song_page_fragment";
-    private final String TAG_EDIT_SONG_FRAGMENT = "edit_song_fragment";
-    private static final int TIME_INTERVAL_BACK_PRESS = 2000;
-    private long backPressed;
+
 
     /* Service */
     private MusicService musicService;
@@ -52,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
     private SongRecyclerViewFragment songRecyclerViewFragment;
     private PlayerFragment playerFragment;
     private SongPageFragment songPageFragment;
-    private EditSongFragment editSongFragment;
     private boolean isServiceBounded = false;
     private boolean isPlaying;
     private int lastSongIndex = 0;
@@ -155,24 +151,6 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
     }
 
     @Override
-    public void onEditSongClick(int position) {
-        Song song = songsList.get(position);
-
-        editSongFragment = EditSongFragment.newInstance(song, position);
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_fade_out, R.anim.animate_fade_in, R.anim.slide_down_add_song);
-        fragmentTransaction.add(R.id.activity_main_layout, editSongFragment, TAG_EDIT_SONG_FRAGMENT).addToBackStack("edit_song_frag").commit();
-    }
-
-    @Override
-    public void onEditComplete(int position) {
-        SongFileHandler.saveSongList(this, songsList);
-        songRecyclerViewFragment.notifyItemChange(position);
-    }
-
-    @Override
     public void onCardClick(View view, int position) {
 
         if (!isServiceBounded) {
@@ -244,7 +222,6 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
 
     @Override
     public void onSkipPrevClickPlayerFrag(int prevSongPosition) {
-        //    lastPosition = prevSongPosition;
 
         if (songsList.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
@@ -256,7 +233,6 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
 
     @Override
     public void onSkipNextClickPlayerFrag(int nextSongPosition) {
-        //    lastPosition = nextSongPosition;
 
         if (songsList.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
@@ -344,7 +320,6 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
             };
             musicService.getIsMusicPlaying().observe(MainActivity.this, isMusicPlayingObserver);
 
-
             /* Observer for song ready/not. */
             Observer<Boolean> isSongReadyObserver = new Observer<Boolean>() {
                 @Override
@@ -361,7 +336,6 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
                 }
             };
             musicService.getSongDuration().observe(MainActivity.this, songDurationObserver);
-
         }
 
         @Override

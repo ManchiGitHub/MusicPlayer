@@ -15,7 +15,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/card_background">
+        android:background="#092767">
 
 
         <LinearLayout
@@ -49,7 +49,7 @@
                     android:layout_marginEnd="10dp"
                     android:layout_marginBottom="2dp"
                     android:text="Never gonna give you up"
-                    android:textColor="#5E5E5E"
+                    android:textColor="#A5A3A3"
                     android:textSize="18dp"
                     android:textStyle="bold" />
 
@@ -61,7 +61,7 @@
                     android:layout_marginStart="10dp"
                     android:alpha="0.7"
                     android:text="Rick Ashely"
-                    android:textColor="#5E5E5E"
+                    android:textColor="#A5A3A3"
                     android:textSize="13dp" />
 
 
@@ -78,7 +78,7 @@
                 android:alpha="0.8"
                 android:outlineProvider="bounds"
                 android:src="@drawable/ic__favorite"
-                app:tint="#9D9480" />
+                app:tint="#A5A3A3" />
 
 
             <ImageButton
@@ -93,7 +93,7 @@
                 android:outlineProvider="paddedBounds"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_outline_info_24"
-                android:tint="#9D9480"
+                android:tint="#A5A3A3"
                 app:backgroundTint="@null" />
 
 
@@ -125,19 +125,7 @@
                     android:background="@drawable/notification_btn_ripple_background"
                     android:outlineProvider="bounds"
                     android:src="@drawable/ic__favorite"
-                    app:tint="#9D9480" />
-
-                <ImageButton
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:scaleType="fitXY"
-                    android:id="@+id/edit_song_image_btn"
-                    android:layout_margin="15dp"
-                    android:alpha="0.5"
-                    android:background="@drawable/notification_btn_ripple_background"
-                    android:src="@drawable/ic_baseline_edit_24"
-                    app:tint="#9D9480" />
-
+                    app:tint="#A5A3A3" />
 
             </LinearLayout>
 

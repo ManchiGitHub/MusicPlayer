@@ -30,7 +30,6 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
 
     interface SongRecyclerViewListener {
         void onCardClick(View view, int position);
-        void onEditSongClick(int position);
     }
 
     SongRecyclerViewListener callback;
@@ -218,12 +217,6 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         else {
             addSongsText.setVisibility(View.VISIBLE);
         }
-    }
-
-
-    @Override
-    public void onEditBtnClicked(int position) {
-        callback.onEditSongClick(position);
     }
 
     @Override
