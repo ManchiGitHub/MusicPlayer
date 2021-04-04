@@ -145,7 +145,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         @Override
         public void onClick(final View view) {
-            Log.d("markomarko", "onClick: " + customHeight);
             int originalHeight = songCellDrawer.getHeight();
             ValueAnimator valueAnimator;
             view.startAnimation(rotate);
@@ -224,7 +223,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             Glide.with(this.context).load(defaultBitmap).circleCrop().thumbnail(0.10f).into(holder.songThumbNailIV);
         }
         else {
-
             Glide.with(this.context).load(song.getImagePath()).circleCrop().thumbnail(0.15f).into(holder.songThumbNailIV);
         }
     }

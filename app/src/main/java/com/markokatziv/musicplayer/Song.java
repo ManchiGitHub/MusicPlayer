@@ -8,20 +8,10 @@ import java.io.Serializable;
 public class Song implements Serializable {
 
     private String artistTitle;
-    private String albumTitle;
     private String songTitle;
     private String linkToSong;
     private String ImagePath = "";
     private boolean isFavorite = false;
-
-    public String getAlbumTitle() {
-        return albumTitle;
-    }
-
-    public void setAlbumTitle(String albumTitle) {
-        this.albumTitle = albumTitle;
-    }
-
 
     public String getArtistTitle() {
         return artistTitle;

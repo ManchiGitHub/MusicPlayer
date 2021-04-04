@@ -32,18 +32,6 @@ public class SongFileHandler {
         }).start();
     }
 
-    public static ArrayList<Song> getFavoriteSongs(ArrayList<Song> songs) {
-        ArrayList<Song> favoriteSongs = new ArrayList<>();
-
-        for (Song song : songs) {
-            if (song.isFavorite()) {
-                favoriteSongs.add(song);
-            }
-        }
-
-        return favoriteSongs;
-    }
-
     public static ArrayList<Song> readSongList(Context context) {
 
         ArrayList<Song> songs = null;

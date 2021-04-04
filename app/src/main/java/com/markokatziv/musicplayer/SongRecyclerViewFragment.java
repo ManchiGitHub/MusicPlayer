@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,10 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     private SongAdapter songAdapter;
     private ArrayList<Song> songs;
     private TextView addSongsText;
+
+
+
+
 
     FloatingFragment fabButtonFragment;
 

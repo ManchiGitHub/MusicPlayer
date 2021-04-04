@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,8 +48,11 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     AppCompatSeekBar seekBar;
     ProgressBar progressBar;
 
+    Runnable progressLoop;
+
     private int songIndex = 0;
     private int currentSongProgress = 0;
+    private boolean isPlaying = false;
 
     public PlayerFragment() {
         // Required empty public constructor
@@ -79,12 +83,15 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        MusicStateViewModel musicStateViewModel = new ViewModelProvider(requireActivity()).get(MusicStateViewModel.class);
+
         View rootView = inflater.inflate(R.layout.fragment_player, container, false);
 
         progressBar = rootView.findViewById(R.id.progress_circle);
 
         seekBar = rootView.findViewById(R.id.player_frag_seekBar);
-        seekBar.setMax(PreferenceHandler.getInt(PreferenceHandler.TAG_SONG_DURATION, getActivity()));
+
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -97,7 +104,9 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
                 }
             }
 
+
             @Override
+
             public void onStartTrackingTouch(SeekBar seekBar) {
 
             }
@@ -105,6 +114,13 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
 
+            }
+        });
+
+        musicStateViewModel.getSongDuration().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                seekBar.setMax(integer / 1000);
             }
         });
 
@@ -136,7 +152,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-        MusicStateViewModel musicStateViewModel = new ViewModelProvider(requireActivity()).get(MusicStateViewModel.class);
         musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
@@ -155,20 +170,22 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         musicStateViewModel.getIsSongReady().observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean songReady) {
-                changeProgressBarToBtnIcon(songReady);
+                changeIcons(songReady);
             }
         });
 
-        Runnable r = new Runnable() {
+        progressLoop = new Runnable() {
             @Override
             public void run() {
                 callbackToActivity.onRequestSongProgress();
                 seekBar.setProgress(currentSongProgress / 1000);
-                handler.postDelayed(this, 500);
+                Log.d("markomarko", "run: " + seekBar.getProgress());
+                handler.postDelayed(this, 1000);
             }
         };
 
-        getActivity().runOnUiThread(r);
+        progressLoop.run();
+//        getActivity().runOnUiThread(progressLoop);
 
         return rootView;
     }
@@ -185,7 +202,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         seekBar.setMax(duration / 1000);
     }
 
-    public void changeProgressBarToBtnIcon(boolean isSongReady) {
+    private void changeIcons(boolean isSongReady) {
         if (isSongReady) {
             progressBar.setVisibility(View.GONE);
             playPauseBtn.setVisibility(View.VISIBLE);
@@ -196,10 +213,11 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        handler.removeCallbacks(progressLoop);
     }
 
     @Override

@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Created By marko katziv
+ * Created By marko
  */
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
@@ -39,6 +39,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private MutableLiveData<Boolean> isMusicPlayingMLD;
     private MutableLiveData<Integer> songIndexMLD;
     private MutableLiveData<Boolean> isSongReadyMLD;
+    private MutableLiveData<Integer> songDurationMLD;
 
     /* Binder given to clients. */
     private final IBinder binder = new LocalBinder();
@@ -55,6 +56,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public IBinder onBind(Intent intent) {
         initLiveData(); //CHANGES HERE
+        songs = SongFileHandler.readSongList(MusicService.this);
 
         return binder;
     }
@@ -63,6 +65,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void onRebind(Intent intent) {
         super.onRebind(intent);
         initLiveData(); //CHANGES HERE
+        songs = SongFileHandler.readSongList(MusicService.this);
     }
 
     interface MusicServiceListener {
@@ -129,14 +132,19 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onPrepared(MediaPlayer mp) {
         mediaPlayer.start();
-
         // Ready to play the song. set values to true.
         isSongReadyMLD.setValue(true);
         isMusicPlayingMLD.setValue(true);
+        songDurationMLD.setValue(mediaPlayer.getDuration());
+
     }
 
     public int getSongProgress() {
-        return mediaPlayer.getCurrentPosition();
+        if (mediaPlayer != null) {
+            return mediaPlayer.getCurrentPosition();
+        }
+
+        return 0;
     }
 
     @Override
@@ -222,8 +230,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 }
                 mediaPlayer.release();
                 stopSelf();
-
                 break;
+
             case COMMAND_SEEK_TO:
                 mediaPlayer.seekTo(progressToSeekTo);
         }
@@ -305,9 +313,14 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         return isSongReadyMLD;
     }
 
-    private void initLiveData(){
+    public LiveData<Integer> getSongDuration() {
+        return songDurationMLD;
+    }
+
+    private void initLiveData() {
         this.isMusicPlayingMLD = new MutableLiveData<>(); //CHANGES HERE
         this.songIndexMLD = new MutableLiveData<>();
         this.isSongReadyMLD = new MutableLiveData<>();
+        this.songDurationMLD = new MutableLiveData<>();
     }
 }

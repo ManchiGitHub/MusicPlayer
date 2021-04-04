@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -12,8 +13,10 @@ import android.content.ServiceConnection;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
 import java.util.ArrayList;
 
 
@@ -52,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
     private EditSongFragment editSongFragment;
     private boolean isServiceBounded = false;
     private boolean isPlaying;
-    private int lastSongIndex = -1;
+    private int lastSongIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,12 +63,27 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /* load songs */
-        songsList = SongFileHandler.readSongList(this);
+        boolean notFirstTime = PreferenceHandler.getBoolean(PreferenceHandler.TAG_FIRST_TIME, this);
 
-        /* no songs in array list */
-        if (songsList == null || songsList.size() == 0) {
+        lastSongIndex = PreferenceHandler.getInt(PreferenceHandler.TAG_LAST_SONG_INDEX, this);
+        isPlaying = PreferenceHandler.getBoolean(PreferenceHandler.TAG_WAS_PLAYING, this);
+
+        if (!notFirstTime){
             songsList = new ArrayList<>();
+            for (int i=0;i<5;i++){
+                insertMySongs();
+            }
+            SongFileHandler.saveSongList(this, songsList);
+            PreferenceHandler.putBoolean(PreferenceHandler.TAG_FIRST_TIME, true, this);
+        }
+        else{
+            /* load songs */
+            songsList = SongFileHandler.readSongList(this);
+
+            /* no songs in array list */
+            if (songsList == null || songsList.size() == 0) {
+                songsList = new ArrayList<>();
+            }
         }
 
         songRecyclerViewFragment = SongRecyclerViewFragment.newInstance(songsList);
@@ -74,6 +92,31 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
 
         musicStateViewModel = new ViewModelProvider(this).get(MusicStateViewModel.class);
         songProgressViewModel = new ViewModelProvider(this).get(SongProgressViewModel.class);
+    }
+
+    private void insertMySongs() {
+
+        Song song1 = new Song();
+        song1.setFavorite(true);
+        song1.setSongTitle("One More Cup of Coffee");
+        song1.setArtistTitle("Bob Dylan");
+        song1.setLinkToSong("https://www.syntax.org.il/xtra/bob.m4a");
+
+        Song song2 = new Song();
+        song2.setFavorite(false);
+        song2.setSongTitle("The Main In me");
+        song2.setArtistTitle("Bob Dylan");
+        song2.setLinkToSong("https://www.syntax.org.il/xtra/bob2.mp3");
+
+        Song song3 = new Song();
+        song3.setFavorite(true);
+        song3.setSongTitle("Sara");
+        song3.setArtistTitle("Bob Dylan");
+        song3.setLinkToSong("https://www.syntax.org.il/xtra/bob1.m4a");
+
+        songsList.add(song1);
+        songsList.add(song2);
+        songsList.add(song3);
     }
 
     @Override
@@ -93,13 +136,11 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
             intent.putExtra("command", "new_instance");
             Intent bindIntent = new Intent(this, MusicService.class);
             bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE); // CHANGES HERE
-
         }
 
 
-
         if (songsList.size() > 0) {
-            intent.putExtra("position", 0);
+            intent.putExtra("position", lastSongIndex);
             startService(intent);
         }
         //TODO: Decide functionality
@@ -154,7 +195,9 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
                     @Override
                     public void onChanged(Boolean aBoolean) {
                         if (playerFragment != null) {
-                            playerFragment.changePlayPauseIcon(aBoolean);
+                            if (playerFragment.isResumed()) {
+                                playerFragment.changePlayPauseIcon(aBoolean);
+                            }
                         }
                     }
                 });
@@ -172,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
 
         }
         else {
-            //  lastPosition = position;
+            lastSongIndex = position;
 
             songPageFragment = SongPageFragment.newInstance(song, position);
             playerFragment = PlayerFragment.newInstance();
@@ -301,6 +344,7 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
             };
             musicService.getIsMusicPlaying().observe(MainActivity.this, isMusicPlayingObserver);
 
+
             /* Observer for song ready/not. */
             Observer<Boolean> isSongReadyObserver = new Observer<Boolean>() {
                 @Override
@@ -309,6 +353,15 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
                 }
             };
             musicService.getIsSongReady().observe(MainActivity.this, isSongReadyObserver);
+
+            Observer<Integer> songDurationObserver = new Observer<Integer>() {
+                @Override
+                public void onChanged(Integer integer) {
+                    musicStateViewModel.setSongDuration(integer);
+                }
+            };
+            musicService.getSongDuration().observe(MainActivity.this, songDurationObserver);
+
         }
 
         @Override
@@ -328,6 +381,7 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
         return progressFromService;
     }
 
+
     @Override
     public void onRequestSongProgress() {
         int progress = getSongProgressFromService();
@@ -335,16 +389,23 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
     }
 
     @Override
-    public void onBackPressed() {
-        if (backPressed + TIME_INTERVAL_BACK_PRESS > System.currentTimeMillis() || songPageFragment.isActive()) {
-            super.onBackPressed();
-            return;
-        }
-        else {
-            Toast.makeText(this, "Tap back button in order to exit", Toast.LENGTH_SHORT).show();
-        }
+    protected void onPause() {
+        super.onPause();
 
-        backPressed = System.currentTimeMillis();
+        String songTitle = songsList.get(lastSongIndex).getSongTitle();
+        String artistTitle = songsList.get(lastSongIndex).getArtistTitle();
+
+        PreferenceHandler.saveState(
+                lastSongIndex,
+                isPlaying,
+                songTitle,
+                artistTitle,
+                this);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }
 

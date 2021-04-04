@@ -13,6 +13,7 @@ public class MusicStateViewModel extends ViewModel {
     private final MutableLiveData<Boolean> isMusicPlayingMLD = new MutableLiveData<Boolean>();
     private final MutableLiveData<Boolean> isSongReadyMLD = new MutableLiveData<Boolean>();
     private final MutableLiveData<Song> currentSongMLD = new MutableLiveData<Song>();
+    private final MutableLiveData<Integer> songDurationMLD = new MutableLiveData<Integer>();
 
     public void setIsMusicPlayingMLD(Boolean aBoolean) {
         isMusicPlayingMLD.setValue(aBoolean);
@@ -41,15 +42,13 @@ public class MusicStateViewModel extends ViewModel {
         return isSongReadyMLD;
     }
 
+    public void setSongDuration(int integer) {
+        songDurationMLD.setValue(integer);
+    }
 
-
-
-
-
-
-
-
-
+    public LiveData<Integer> getSongDuration(){
+        return songDurationMLD;
+    }
 
 
     //    public boolean isPlaying() {
