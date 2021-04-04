@@ -21,13 +21,13 @@
         app:fabCustomSize="80dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/favorite_songs_fab_btn"
+        android:id="@+id/play_fab_btn"
         android:layout_width="80dp"
         android:layout_height="80dp"
+        android:layout_alignParentBottom="true"
         android:layout_gravity="center"
         android:layout_marginStart="25dp"
         android:layout_marginBottom="20dp"
-        android:layout_alignParentBottom="true"
         android:backgroundTint="#8C7460"
         android:clipToPadding="true"
         android:elevation="20dp"
@@ -39,17 +39,60 @@
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/main_fab_btn"
         android:layout_width="80dp"
-        android:layout_marginBottom="20dp"
         android:layout_height="80dp"
+        android:layout_above="@+id/play_fab_btn"
         android:layout_gravity="center"
         android:layout_marginStart="25dp"
-        android:layout_above="@+id/favorite_songs_fab_btn"
+        android:layout_marginBottom="20dp"
         android:backgroundTint="#8C7460"
         android:elevation="20dp"
         android:src="@drawable/ic_baseline_music_note_24"
         app:borderWidth="0dp"
         app:fabCustomSize="80dp" />
 
+    <LinearLayout
+        android:id="@+id/song_info_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/main_fab_btn"
+        android:layout_marginStart="30dp"
+        android:layout_toEndOf="@id/main_fab_btn"
+        android:background="@color/white"
+        android:backgroundTint="#1B1817"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:visibility="invisible">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Playing Now:"
+            android:layout_marginBottom="3dp"
+            android:textColor="#473D35"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/song_title_floating_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#FF8C7460"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/artist_title_floating_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0.8"
+            android:textColor="#FF8C7460"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+
+    </LinearLayout>
 
 
 </RelativeLayout>

@@ -2,10 +2,10 @@
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:fillAfter="true">
 
-    <translate
-        android:duration="150"
-        android:fromYDelta="0"
-        android:toYDelta="100%" />
+<!--    <translate-->
+<!--        android:duration="200"-->
+<!--        android:fromYDelta="0"-->
+<!--        android:toYDelta="100%" />-->
 
     <scale
         android:pivotX="50%"
@@ -16,8 +16,8 @@
         android:toYScale="0.8" />
 
     <alpha
-        android:duration="150"
-        android:fromAlpha="100"
+        android:duration="120"
+        android:fromAlpha="1.0"
         android:toAlpha="0"/>
 
 </set>

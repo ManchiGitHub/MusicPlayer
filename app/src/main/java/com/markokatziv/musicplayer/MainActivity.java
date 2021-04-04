@@ -5,61 +5,54 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.View;
-
+import android.widget.Toast;
 import java.util.ArrayList;
 
-//TODO: 1. Create option for view favorite songs only - tab created.
-//      2. Create Edit song button in songPageFragment and maybe in expanded song cell - fragment created
-//      3. Create Go Back button in playerFragment.
-//      4. Add song progress timestamp in SongPageFragment.
-//      5.
+
+//TODO:
+// 1. persist last song index and music state and change animations and icons accordingly.
+// 2. better ui colors.
+// 3. EDIT SONG FRAGMENT
 
 /**
  * Created By marko
  */
-public class MainActivity extends AppCompatActivity implements FABButtonFragment.FABButtonFragmentListener,
+public class MainActivity extends AppCompatActivity implements FloatingFragment.FloatingFragmentListener,
         AddSongDialogFragment.AddSongListener,
         SongRecyclerViewFragment.SongRecyclerViewListener,
         SongPageFragment.SongPageListener,
-        PlayerFragment.PlayerFragmentListener, MusicService.MusicServiceListener, ViewPagerFragment.ViewPagerFragmentListener, EditSongFragment.EditSongFragmentListener {
+        PlayerFragment.PlayerFragmentListener, MusicService.MusicServiceListener, EditSongFragment.EditSongFragmentListener {
 
     private final String TAG_ADD_SONG_FRAGMENT = "add_song_fragment";
     private final String TAG_PLAYER_FRAGMENT = "player_fragment";
     private final String TAG_SONG_PAGE_FRAGMENT = "song_page_fragment";
-    private final String LAST_SONG_KEY = "last_song_played";
     private final String TAG_EDIT_SONG_FRAGMENT = "edit_song_fragment";
+    private static final int TIME_INTERVAL_BACK_PRESS = 2000;
+    private long backPressed;
 
+    /* Service */
     private MusicService musicService;
 
     /* View Models */
     private MusicStateViewModel musicStateViewModel;
     private SongProgressViewModel songProgressViewModel;
 
-    private SharedPreferences sharedPreferences; //TODO: not using this
     private ArrayList<Song> songsList;
-
     private SongRecyclerViewFragment songRecyclerViewFragment;
     private PlayerFragment playerFragment;
     private SongPageFragment songPageFragment;
-    private ViewPagerFragment viewPagerFragment;
     private EditSongFragment editSongFragment;
-
-    private FavoriteSongsFragment favoriteSongsFragment;
-
     private boolean isServiceBounded = false;
-    private boolean isPlaying = false;
-    private int lastPosition = -1;
+    private boolean isPlaying;
+    private int lastSongIndex = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,37 +68,40 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             songsList = new ArrayList<>();
         }
 
-        viewPagerFragment = ViewPagerFragment.newInstance();
         songRecyclerViewFragment = SongRecyclerViewFragment.newInstance(songsList);
-        favoriteSongsFragment = FavoriteSongsFragment.newInstance("yes");
-
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().add(R.id.activity_main_layout, viewPagerFragment).commit();
+        fragmentManager.beginTransaction().add(R.id.activity_main_layout, songRecyclerViewFragment).commit();
 
-        sharedPreferences = getSharedPreferences("continuation", MODE_PRIVATE); //TODO: not using this
-
-        //TODO: Integrate Navigation component.
-        //    FragmentManager fragmentManager = getSupportFragmentManager();
-        //   fragmentManager.beginTransaction().add(R.id.activity_main_layout, songRecyclerViewFragment).commit();
         musicStateViewModel = new ViewModelProvider(this).get(MusicStateViewModel.class);
         songProgressViewModel = new ViewModelProvider(this).get(SongProgressViewModel.class);
     }
 
     @Override
-    public void onViewPagerCreated() {
-        viewPagerFragment.addFragmentToViewPager(songRecyclerViewFragment, "");
-        viewPagerFragment.addFragmentToViewPager(favoriteSongsFragment, "");
-    }
-
-    @Override
-    public void onAddSongBtnClickFABFrag() {
+    public void onAddSongBtnClickFloatFrag() {
         AddSongDialogFragment addSongDialogFragment = new AddSongDialogFragment();
         addSongDialogFragment.show(getSupportFragmentManager(), TAG_ADD_SONG_FRAGMENT);
     }
 
+
     @Override
-    public void onShowFavoriteSongsClickFABFrag() {
-        Log.d("markomarko", "onShowFavoriteSongsClickFABFrag: ");
+    public void onPlaySongsClickFloatFrag() {
+
+        Intent intent = new Intent(MainActivity.this, MusicService.class);
+        intent.putExtra("command", "play_pause");
+
+        if (!isServiceBounded) {
+            intent.putExtra("command", "new_instance");
+            Intent bindIntent = new Intent(this, MusicService.class);
+            bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE); // CHANGES HERE
+
+        }
+
+
+
+        if (songsList.size() > 0) {
+            intent.putExtra("position", 0);
+            startService(intent);
+        }
         //TODO: Decide functionality
     }
 
@@ -125,14 +121,8 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_down, R.anim.animate_up, R.anim.slide_down_add_song);
+        fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_fade_out, R.anim.animate_fade_in, R.anim.slide_down_add_song);
         fragmentTransaction.add(R.id.activity_main_layout, editSongFragment, TAG_EDIT_SONG_FRAGMENT).addToBackStack("edit_song_frag").commit();
-//       fragmentManager.beginTransaction().
-//               setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_down, R.anim.animate_up, R.anim.slide_down_add_song)
-//               .add(R.id.activity_main_layout, editSongFragment, TAG_EDIT_SONG_FRAGMENT).commit();
-
-
-        //  songRecyclerViewFragment.notifyItemChange(position);
     }
 
     @Override
@@ -152,58 +142,47 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
         Song song = songsList.get(position);
 
-
         /* Simple solution for making sure only one instance of playerFragment and SongPageFragment can exist. */
         if (songPageFragment != null && songPageFragment.isActive()) {
             return;
         }
 
-        if (lastPosition == position) {
+        if (lastSongIndex == position) {
             if (isServiceBounded) {
 
                 musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
                     @Override
                     public void onChanged(Boolean aBoolean) {
-                        playerFragment.changePlayPauseIcon(aBoolean);
+                        if (playerFragment != null) {
+                            playerFragment.changePlayPauseIcon(aBoolean);
+                        }
                     }
                 });
             }
 
-
             songPageFragment = SongPageFragment.newInstance(song, position);
             playerFragment = PlayerFragment.newInstance();
 
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_down, R.anim.animate_up, R.anim.slide_down_add_song);
+            fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_fade_out, R.anim.animate_fade_in, R.anim.slide_down_add_song);
             fragmentTransaction.add(R.id.activity_main_layout, playerFragment, TAG_PLAYER_FRAGMENT).addToBackStack("player_frag");
             fragmentTransaction.add(R.id.activity_main_layout, songPageFragment, TAG_SONG_PAGE_FRAGMENT).addToBackStack("song_page_frag");
             fragmentTransaction.commit();
 
-//            // TODO: this is temporary. replace this
-//            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    playerFragment.changeProgressBarToBtnIcon(true);
-//                }
-//            }, 200);
         }
         else {
-            lastPosition = position;
-            //   musicStateViewModel.setIsMusicPlayingMLD(true);
-
+            //  lastPosition = position;
 
             songPageFragment = SongPageFragment.newInstance(song, position);
             playerFragment = PlayerFragment.newInstance();
 
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_down, R.anim.animate_up, R.anim.slide_down_add_song);
+            fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_fade_out, R.anim.animate_fade_in, R.anim.slide_down_add_song);
             fragmentTransaction.add(R.id.activity_main_layout, playerFragment, TAG_PLAYER_FRAGMENT).addToBackStack("player_frag");
             fragmentTransaction.add(R.id.activity_main_layout, songPageFragment, TAG_SONG_PAGE_FRAGMENT).addToBackStack("song_page_frag");
             fragmentTransaction.commit();
-
-            //  sharedPreferences.edit().putInt(LAST_SONG_KEY, position).commit(); //TODO: not using this
 
             if (songsList.size() > 0) {
                 Intent intent = new Intent(MainActivity.this, MusicService.class);
@@ -222,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
     @Override
     public void onSkipPrevClickPlayerFrag(int prevSongPosition) {
-        lastPosition = prevSongPosition;
+        //    lastPosition = prevSongPosition;
 
         if (songsList.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
@@ -234,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
 
     @Override
     public void onSkipNextClickPlayerFrag(int nextSongPosition) {
-        lastPosition = nextSongPosition;
+        //    lastPosition = nextSongPosition;
 
         if (songsList.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
@@ -251,15 +230,11 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         Intent intent = new Intent(MainActivity.this, MusicService.class);
         intent.putExtra("command", "play_pause");
 
-        sharedPreferences.edit().putInt(LAST_SONG_KEY, position).commit(); //TODO: not using this
-  //      isPlaying = !isPlaying;
-
         if (!isServiceBounded) {
             intent.putExtra("command", "new_instance");
             Intent bindIntent = new Intent(this, MusicService.class);
             bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE); // CHANGES HERE
 
-            //    playerFragment.changeBtnResource(true);
         }
 
         if (songsList.size() > 0) {
@@ -271,8 +246,6 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
     @Override
     public void onCloseClickFromService(MediaPlayer mediaPlayer) {
 
-
-        //  mediaPlayer.stop(); //TODO: check if needed, probably not.
         if (playerFragment != null) {
             playerFragment.changePlayPauseIcon(false);
         }
@@ -282,7 +255,6 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             unbindService(serviceConnection);
             isServiceBounded = false;
         }
-
     }
 
     @Override
@@ -312,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
             Observer<Integer> songIndexObserver = new Observer<Integer>() {
                 @Override
                 public void onChanged(Integer songIndex) {
-                    lastPosition = songIndex;
+                    lastSongIndex = songIndex;
                     musicStateViewModel.setCurrentSong(songsList.get(songIndex));
                 }
             };
@@ -324,6 +296,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
                 public void onChanged(Boolean aBoolean) {
                     /*  playerFragment.changeBtnResource(aBoolean); */
                     musicStateViewModel.setIsMusicPlayingMLD(aBoolean);
+                    isPlaying = aBoolean;
                 }
             };
             musicService.getIsMusicPlaying().observe(MainActivity.this, isMusicPlayingObserver);
@@ -344,6 +317,7 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         }
     };
 
+
     public int getSongProgressFromService() {
 
         int progressFromService = 0;
@@ -359,4 +333,18 @@ public class MainActivity extends AppCompatActivity implements FABButtonFragment
         int progress = getSongProgressFromService();
         songProgressViewModel.setSongProgressMLD(progress);
     }
+
+    @Override
+    public void onBackPressed() {
+        if (backPressed + TIME_INTERVAL_BACK_PRESS > System.currentTimeMillis() || songPageFragment.isActive()) {
+            super.onBackPressed();
+            return;
+        }
+        else {
+            Toast.makeText(this, "Tap back button in order to exit", Toast.LENGTH_SHORT).show();
+        }
+
+        backPressed = System.currentTimeMillis();
+    }
 }
+

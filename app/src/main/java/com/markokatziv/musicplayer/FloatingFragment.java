@@ -2,17 +2,17 @@ package com.markokatziv.musicplayer;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -20,35 +20,34 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 /**
  * Created By marko katziv
  */
-public class FABButtonFragment extends Fragment {
+public class FloatingFragment extends Fragment {
 
     /* Interface for callbacks. */
-    interface FABButtonFragmentListener {
-        void onAddSongBtnClickFABFrag();
+    interface FloatingFragmentListener {
+        void onAddSongBtnClickFloatFrag();
 
-        void onShowFavoriteSongsClickFABFrag();
+        void onPlaySongsClickFloatFrag();
 
     }
 
-    FABButtonFragmentListener callback;
-    private MusicStateViewModel musicStateViewModel;
+    FloatingFragmentListener callback;
 
     /* Buttons */
     private FloatingActionButton fab;
     private FloatingActionButton addSongFab;
-    private FloatingActionButton showFavoriteSongsFab;
-
-
-    private boolean showFavorites = false;
+    private FloatingActionButton playSongFab;
+    private LinearLayout songInfoLayout;
+    private TextView songTitle;
+    private TextView artistTitle;
 
     /* Animations */
-    private Animation animUp;
-    private Animation animDown;
-    private Animation animRight;
-    private Animation animLeft;
+    private Animation animFadeIn;
+    private Animation animFadeOut;
     private Animation rotateOpen;
     private Animation rotateClose;
     private Animation rotateBtn;
+    private Animation animateInfoSolid;
+    private Animation animateInfoTransparent;
 
     boolean isClicked = false;
     private boolean isPlaying = false;
@@ -58,7 +57,7 @@ public class FABButtonFragment extends Fragment {
         super.onAttach(context);
 
         try {
-            callback = (FABButtonFragment.FABButtonFragmentListener) context;
+            callback = (FloatingFragmentListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException("The activity must implement FABButtonFragmentListener interface");
         }
@@ -68,14 +67,14 @@ public class FABButtonFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        animUp = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_up);
-        animDown = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_down);
-        animRight = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_down_play_btn);
-        animLeft = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_up_play_btn);
+        animFadeIn = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_fade_in);
+        animFadeOut = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_fade_out);
+
         rotateOpen = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_open_anim);
         rotateClose = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_close_anim);
-
         rotateBtn = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_fab_btn_anim);
+        animateInfoSolid = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_info_fade_in_from_right);
+        animateInfoTransparent = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_info_fade_out);
 
     }
 
@@ -92,16 +91,7 @@ public class FABButtonFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.fragment_floating_button, container, false);
-
-        MusicStateViewModel musicStateViewModel = new ViewModelProvider(requireActivity()).get(MusicStateViewModel.class);
-        musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                isPlaying = aBoolean;
-                animateBtnRotation(aBoolean);
-            }
-        });
+        View rootView = inflater.inflate(R.layout.fragment_floating_layout, container, false);
 
         fab = rootView.findViewById(R.id.main_fab_btn);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -120,20 +110,42 @@ public class FABButtonFragment extends Fragment {
 //        }
 
         addSongFab = rootView.findViewById(R.id.add_song_fab_btn);
+        playSongFab = rootView.findViewById(R.id.play_fab_btn);
+        songInfoLayout = rootView.findViewById(R.id.song_info_layout);
+        songTitle = rootView.findViewById(R.id.song_title_floating_info);
+        artistTitle = rootView.findViewById(R.id.artist_title_floating_info);
+
         addSongFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callback.onAddSongBtnClickFABFrag();
+                callback.onAddSongBtnClickFloatFrag();
             }
         });
 
-        showFavoriteSongsFab = rootView.findViewById(R.id.favorite_songs_fab_btn);
-        showFavoriteSongsFab.setOnClickListener(new View.OnClickListener() {
+        playSongFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showFavorites = !showFavorites;
-                callback.onShowFavoriteSongsClickFABFrag();
+                callback.onPlaySongsClickFloatFrag();
             }
+        });
+
+        MusicStateViewModel musicStateViewModel = new ViewModelProvider(requireActivity()).get(MusicStateViewModel.class);
+
+        musicStateViewModel.getIsMusicPlayingMLD().observe(this, isPlaying -> {
+            this.isPlaying = isPlaying;
+            animateBtnRotation(isPlaying);
+
+            if(isPlaying){
+                playSongFab.setImageResource(R.drawable.ic_baseline_pause_24);
+            }
+            else{
+                playSongFab.setImageResource(R.drawable.ic_baseline_play_arrow_24);
+            }
+        });
+
+        musicStateViewModel.getCurrentSong().observe(this, song -> {
+            songTitle.setText(song.getSongTitle());
+            artistTitle.setText(song.getArtistTitle());
         });
 
         return rootView;
@@ -150,30 +162,36 @@ public class FABButtonFragment extends Fragment {
 
             addSongFab.setVisibility(View.VISIBLE);
             addSongFab.setClickable(true);
-            showFavoriteSongsFab.setVisibility(View.VISIBLE);
-            showFavoriteSongsFab.setClickable(true);
+            playSongFab.setVisibility(View.VISIBLE);
+            playSongFab.setClickable(true);
+            songInfoLayout.setVisibility(View.VISIBLE);
+            songInfoLayout.setClickable(true);
         }
         else {
 
             addSongFab.setVisibility(View.INVISIBLE);
             addSongFab.setClickable(false);
-            showFavoriteSongsFab.setVisibility(View.INVISIBLE);
-            showFavoriteSongsFab.setClickable(false);
+            playSongFab.setVisibility(View.INVISIBLE);
+            playSongFab.setClickable(false);
+            songInfoLayout.setVisibility(View.INVISIBLE);
+            songInfoLayout.setClickable(false);
         }
     }
 
     private void setAnimation(boolean clicked) {
         if (!clicked) {
 
-            addSongFab.startAnimation(animUp);
-            showFavoriteSongsFab.startAnimation(animRight);
+            songInfoLayout.startAnimation(animateInfoSolid);
+            addSongFab.startAnimation(animFadeIn);
+            playSongFab.startAnimation(animFadeIn);
             fab.startAnimation(rotateOpen);
         }
         else {
-
+            songInfoLayout.startAnimation(animateInfoTransparent);
             fab.startAnimation(rotateClose);
-            addSongFab.startAnimation(animDown);
-            showFavoriteSongsFab.startAnimation(animLeft);
+            addSongFab.startAnimation(animFadeOut);
+            playSongFab.startAnimation(animFadeOut);
+
         }
     }
 }

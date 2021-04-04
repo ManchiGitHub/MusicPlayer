@@ -1,11 +1,11 @@
 package com.markokatziv.musicplayer;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -50,7 +50,6 @@ public class AddSongDialogFragment extends DialogFragment {
 
     private File photoFile;
     private Uri imageUri;
- //   private SharedPreferences sp;
     private ImageView imgThumbnail;
 
     boolean isUserPic = false;
@@ -96,18 +95,15 @@ public class AddSongDialogFragment extends DialogFragment {
         final CheckBox favoriteCheckBox = dialogView.findViewById(R.id.favorite_checkbox);
         final EditText songLinkEt = dialogView.findViewById(R.id.song_link);
 
-//        sp = getActivity().getSharedPreferences("details", Context.MODE_PRIVATE);
 
         final Button takePicBtn = dialogView.findViewById(R.id.take_pic_btn);
         takePicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-           //     int imageIndex = sp.getInt("image_index", 0);
-                int imageIndex = PreferenceHandler.getInt("image_index",getActivity());
+                int imageIndex = PreferenceHandler.getInt(PreferenceHandler.TAG_IMAGE_INDEX,getActivity());
                 photoFile = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES), "pic.jpg" + imageIndex);
-           //     sp.edit().putInt("image_index", ++imageIndex).commit();
-                PreferenceHandler.putInt("image_index", ++imageIndex, getActivity());
+                PreferenceHandler.putInt(PreferenceHandler.TAG_IMAGE_INDEX, ++imageIndex, getActivity());
                 imageUri = FileProvider.getUriForFile(getActivity(), "com.markokatziv.musicplayer.provider", photoFile);
 
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -145,6 +141,7 @@ public class AddSongDialogFragment extends DialogFragment {
                     isUserPic = false;
                 }
                 if (isFromGallery) {
+                    System.out.println("imageUri: " + imageUri.toString());
                     song.setImagePath(imageUri.toString());
                     isFromGallery = false;
                 }
@@ -164,20 +161,23 @@ public class AddSongDialogFragment extends DialogFragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == CAMERA_REQUEST && resultCode == getActivity().RESULT_OK) {
-            if (data == null) {
-            }
+        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
 
             isUserPic = true;
-            imgThumbnail.setVisibility(View.VISIBLE);
-            Glide.with(getActivity()).load(photoFile.getAbsoluteFile()).into(imgThumbnail);
+            imgThumbnail.setVisibility(View.VISIBLE); // image preview
+            Glide.with(this).load(photoFile.getAbsoluteFile()).into(imgThumbnail);
         }
 
-        if (requestCode == GALLERY_REQUEST && resultCode == getActivity().RESULT_OK) {
+        if (requestCode == GALLERY_REQUEST && resultCode == Activity.RESULT_OK) {
+
+            if (data!=null){
+                imageUri = data.getData();
+            }
+
             isFromGallery = true;
-            imgThumbnail.setVisibility(View.VISIBLE);
-            imageUri = data.getData();
-            Glide.with(getActivity()).load(imageUri).into(imgThumbnail);
+            imgThumbnail.setVisibility(View.VISIBLE); // image preview
+
+            Glide.with(this).load(imageUri).into(imgThumbnail);
         }
     }
 

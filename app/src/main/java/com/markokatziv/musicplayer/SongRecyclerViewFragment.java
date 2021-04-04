@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,6 @@ import android.widget.TextView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Created By marko katziv
@@ -43,7 +41,7 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     private ArrayList<Song> songs;
     private TextView addSongsText;
 
-    FABButtonFragment fabButtonFragment;
+    FloatingFragment fabButtonFragment;
 
     public SongRecyclerViewFragment() {
         // Required empty public constructor
@@ -106,7 +104,7 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        fabButtonFragment = new FABButtonFragment();
+        fabButtonFragment = new FloatingFragment();
 
         /* Add main FAB button as a sub fragment. */
         getChildFragmentManager().beginTransaction()

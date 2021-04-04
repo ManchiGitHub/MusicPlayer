@@ -5,8 +5,10 @@ import android.content.SharedPreferences;
 
 public class PreferenceHandler {
 
-    public static final String DEFAULT_STRING_VALUE = "default_value";
+    public static final String DEFAULT_PREF_NAME = "Continuity";
     public static final String TAG_SONG_DURATION = "song_duration";
+    public static final String TAG_IMAGE_INDEX = "image_index";
+    public static final String TAG_LAST_SONG = "image_index";
 
     private static SharedPreferences.Editor getEditor(Context context) {
         return getPreferences(context).edit();
@@ -18,7 +20,7 @@ public class PreferenceHandler {
      * @return shared preferences instance
      */
     private static SharedPreferences getPreferences(Context context) {
-        String name = "Continuity";
+        String name = DEFAULT_PREF_NAME;
         return context.getSharedPreferences(name, Context.MODE_PRIVATE);
     }
 
