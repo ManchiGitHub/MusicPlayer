@@ -42,13 +42,14 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
 
     MyAnimations myAnimations;
 
+    private Handler handler;
+    private Button playPauseBtn;
+    private AppCompatSeekBar seekBar;
+    private ProgressBar progressBar;
+    private Button skipPrev;
+    private Button skipNext;
 
-    Handler handler;
-    Button playPauseBtn;
-    AppCompatSeekBar seekBar;
-    ProgressBar progressBar;
-
-    Runnable progressLoop;
+    private Runnable progressLoop;
 
     private int songIndex = 0;
     private int currentSongProgress = 0;
@@ -77,115 +78,17 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         handler = new Handler(Looper.getMainLooper());
-
-
+        myAnimations = new MyAnimations();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        MusicStateViewModel musicStateViewModel = new ViewModelProvider(requireActivity()).get(MusicStateViewModel.class);
-
         View rootView = inflater.inflate(R.layout.fragment_player, container, false);
-
-        progressBar = rootView.findViewById(R.id.progress_circle);
-
-        seekBar = rootView.findViewById(R.id.player_frag_seekBar);
-
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
-                if (fromUser) {
-                    Intent intent = new Intent(getActivity(), MusicService.class);
-                    intent.putExtra("command", "seek_to");
-                    intent.putExtra("progress_from_user", progress * 1000);
-                    getActivity().startService(intent);
-                }
-            }
-
-
-            @Override
-
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        musicStateViewModel.getSongDuration().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer integer) {
-                seekBar.setMax(integer / 1000);
-            }
-        });
-
-        Button skipPrev = rootView.findViewById(R.id.skip_prev);
-        skipPrev.setOnClickListener(this);
-
-        Button skipNext = rootView.findViewById(R.id.skip_next);
-        skipNext.setOnClickListener(this);
-
-        myAnimations = new MyAnimations();
-
-//        if (LanguageUtils.getCurrentLanguage() == LanguageUtils.ENGLISH) {
-//            skipPrev.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_skip_previous_24, null));
-//            skipNext.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_skip_next_24, null));
-//        }
-//
-        /* Flip prev and next buttons according to current language */
-        String language = LanguageUtils.getCurrentLanguage();
-        if (!(language.equals(LanguageUtils.ENGLISH))) {
-            skipPrev.setScaleX(-1);
-            skipNext.setScaleX(-1);
-        }
-
-        playPauseBtn = rootView.findViewById(R.id.play_pause_button);
-        playPauseBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callbackToActivity.onPlayPauseClickPlayerFrag(songIndex, v);
-            }
-        });
-
-        musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                changePlayPauseIcon(aBoolean);
-            }
-        });
-
-        SongProgressViewModel songProgressViewModel = new ViewModelProvider(requireActivity()).get(SongProgressViewModel.class);
-        songProgressViewModel.getSongProgressMLD().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer integer) {
-                currentSongProgress = integer;
-            }
-        });
-
-        musicStateViewModel.getIsSongReady().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean songReady) {
-                changeIcons(songReady);
-            }
-        });
-
-        progressLoop = new Runnable() {
-            @Override
-            public void run() {
-                callbackToActivity.onRequestSongProgress();
-                seekBar.setProgress(currentSongProgress / 1000);
-                Log.d("markomarko", "run: " + seekBar.getProgress());
-                handler.postDelayed(this, 1000);
-            }
-        };
-
-        progressLoop.run();
-//        getActivity().runOnUiThread(progressLoop);
+        initViewsAndListeners(rootView);
+        initObservers();
+        checkLocaleAndSetIcons();
+        initProgressLoop();
 
         return rootView;
     }
@@ -193,13 +96,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        //   changeBtnResource(musicStateViewModel.isPlaying());
-
-    }
-
-    public void changeSongDuration(int duration) {
-        seekBar.setMax(duration / 1000);
     }
 
     private void changeIcons(boolean isSongReady) {
@@ -224,6 +120,112 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         handler = new Handler(Looper.getMainLooper());
+    }
+
+    private void initProgressLoop() {
+
+        progressLoop = new Runnable() {
+            @Override
+            public void run() {
+                callbackToActivity.onRequestSongProgress();
+                seekBar.setProgress(currentSongProgress / 1000);
+                Log.d("markomarko", "run: " + seekBar.getProgress());
+                handler.postDelayed(this, 1000);
+            }
+        };
+
+        progressLoop.run();
+    }
+
+    private void checkLocaleAndSetIcons() {
+
+        /* Flip prev and next buttons according to current language */
+        String language = LanguageUtils.getCurrentLanguage();
+        if (!(language.equals(LanguageUtils.ENGLISH))) {
+            skipPrev.setScaleX(-1);
+            skipNext.setScaleX(-1);
+        }
+    }
+
+    private void initObservers() {
+
+        initMusicStateObservers();
+        initSongProgressObserver();
+    }
+
+    private void initSongProgressObserver() {
+        SongProgressViewModel songProgressViewModel = new ViewModelProvider(requireActivity()).get(SongProgressViewModel.class);
+
+        songProgressViewModel.getSongProgressMLD().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                currentSongProgress = integer;
+            }
+        });
+    }
+
+    private void initMusicStateObservers() {
+
+        MusicStateViewModel musicStateViewModel = new ViewModelProvider(requireActivity()).get(MusicStateViewModel.class);
+
+        musicStateViewModel.getSongDuration().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                seekBar.setMax(integer / 1000);
+            }
+        });
+
+        musicStateViewModel.getIsMusicPlayingMLD().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                changePlayPauseIcon(aBoolean);
+            }
+        });
+
+        musicStateViewModel.getIsSongReady().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean songReady) {
+                changeIcons(songReady);
+            }
+        });
+    }
+
+    private void initViewsAndListeners(View rootView) {
+
+        playPauseBtn = rootView.findViewById(R.id.play_pause_button);
+        playPauseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callbackToActivity.onPlayPauseClickPlayerFrag(songIndex, v);
+            }
+        });
+
+        skipPrev = rootView.findViewById(R.id.skip_prev);
+        skipPrev.setOnClickListener(this);
+        skipNext = rootView.findViewById(R.id.skip_next);
+        skipNext.setOnClickListener(this);
+        progressBar = rootView.findViewById(R.id.progress_circle);
+
+        seekBar = rootView.findViewById(R.id.player_frag_seekBar);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+                if (fromUser) {
+                    Intent intent = new Intent(getActivity(), MusicService.class);
+                    intent.putExtra("command", "seek_to");
+                    intent.putExtra("progress_from_user", progress * 1000);
+                    getActivity().startService(intent);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
     }
 
     public void changePlayPauseIcon(boolean isPlay) {

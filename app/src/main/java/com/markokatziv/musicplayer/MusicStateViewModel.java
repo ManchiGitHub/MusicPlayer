@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel;
  */
 public class MusicStateViewModel extends ViewModel {
 
-//    private boolean isPlaying = false;
     private final MutableLiveData<Boolean> isMusicPlayingMLD = new MutableLiveData<Boolean>();
     private final MutableLiveData<Boolean> isSongReadyMLD = new MutableLiveData<Boolean>();
     private final MutableLiveData<Song> currentSongMLD = new MutableLiveData<Song>();
@@ -17,9 +16,7 @@ public class MusicStateViewModel extends ViewModel {
 
     public void setIsMusicPlayingMLD(Boolean aBoolean) {
         isMusicPlayingMLD.setValue(aBoolean);
-      //  setPlaying(aBoolean);
     }
-
 
     public LiveData<Boolean> getIsMusicPlayingMLD() {
         return isMusicPlayingMLD;
@@ -49,13 +46,4 @@ public class MusicStateViewModel extends ViewModel {
     public LiveData<Integer> getSongDuration(){
         return songDurationMLD;
     }
-
-
-    //    public boolean isPlaying() {
-//        return isPlaying;
-//    }
-//
-//    private void setPlaying(boolean playing) {
-//        isPlaying = playing;
-//    }
 }

@@ -22,7 +22,6 @@ public class PreferenceHandler {
     public static final String TAG_WAS_PLAYING = "was_playing";
     public static final String TAG_FIRST_TIME = "first_time";
 
-
     private static SharedPreferences getPreferences(Context context) {
         String name = DEFAULT_PREF_NAME; // Change name here
         return context.getSharedPreferences(name, Context.MODE_PRIVATE);
@@ -55,9 +54,6 @@ public class PreferenceHandler {
     public static String getSongInfo(String tag, Context context){
         return getPreferences(context).getString(TAG_LAST_SONG_INFO, "");
     }
-
-
-
 
     public static void saveState(int lastSongIndex, boolean isPlaying, String songTitle, String artistTitle, Context context){
 

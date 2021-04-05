@@ -22,11 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * Created By marko katziv
+ * Created By marko
  */
 public class SongRecyclerViewFragment extends Fragment implements SongAdapter.SongListenerInterface {
-
-
 
     interface SongRecyclerViewListener {
         void onCardClick(View view, int position);
@@ -40,10 +38,6 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     private SongAdapter songAdapter;
     private ArrayList<Song> songs;
     private TextView addSongsText;
-
-
-
-
 
     FloatingFragment fabButtonFragment;
 
@@ -122,15 +116,6 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
         checkChangeInitialTextOnScreen(addSongsText);
     }
 
-    public void notifyItemChange(int position) {
-        songAdapter.notifyItemChanged(position);
-    }
-
-
-    public void setSongList(ArrayList<Song> songs){
-        songAdapter.insertNewList(songs);
-    }
-
     public void notifyFavoriteButtonClick(int position) {
         songAdapter.notifyItemChanged(position);
     }
@@ -138,8 +123,8 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
     private ItemTouchHelper.SimpleCallback createSongTouchHelper() {
         ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.START | ItemTouchHelper.END) {
 
-            Animation scaleDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_scale_down);
-            Animation scaleUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_scale_up);
+            final Animation scaleDownAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_scale_down);
+            final Animation scaleUpAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.animate_scale_up);
 
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -171,8 +156,6 @@ public class SongRecyclerViewFragment extends Fragment implements SongAdapter.So
                 MaterialAlertDialogBuilder builder = createSongDeleteDialog(viewHolder);
                 builder.show();
             }
-
-
         };
 
         return callback;

@@ -156,40 +156,6 @@ public class SongPageFragment extends Fragment {
         // need to set isActive to false to be able to create new instance.
     }
 
-//    public void changeSong(Song song, int position) {
-//
-//        this.song = song;
-//        this.songPosition = position;
-//        this.songTitle.setText(song.getSongTitle());
-//        this.artistTitle.setText(song.getArtistTitle());
-//
-//        if (song.isFavorite()) {
-//            favoriteBtn.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.ic__favorite));
-//        }
-//        else {
-//            favoriteBtn.setBackground(ContextCompat.getDrawable(Objects.requireNonNull(getActivity()), R.drawable.ic_favorite_holo));
-//        }
-//
-//        if (song.getImagePath().equals("")) {
-//            songImage.startAnimation(fadeOutAnimation); // duration is 400ms
-//            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    Glide.with(getActivity()).load(defaultBitmap).into(songImage);
-//                }
-//            }, 400);
-//        }
-//        else {
-//            songImage.startAnimation(fadeOutAnimation);
-//            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    Glide.with(getActivity()).load(song.getImagePath()).into(songImage);
-//                }
-//            }, 400);
-//        }
-//    }
-
     public boolean isActive() {
         return isActive;
     }

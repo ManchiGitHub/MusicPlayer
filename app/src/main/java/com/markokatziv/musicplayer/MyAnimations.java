@@ -3,15 +3,8 @@ package com.markokatziv.musicplayer;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.ScaleAnimation;
+
 
 /**
  * Created By marko katziv
@@ -19,10 +12,8 @@ import android.view.animation.ScaleAnimation;
 public class MyAnimations {
 
     ObjectAnimator animation;
-    int value;
 
     public MyAnimations() {
-
     }
 
     public void startMyAnimation(View v, float value) {

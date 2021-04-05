@@ -58,7 +58,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
 
         private boolean isCardExpanded = false;
         private LinearLayout songCellDrawer;
-
         private ImageView songThumbNailIV;
         private TextView songTitleTV;
         private TextView artistTitleTV;
@@ -92,12 +91,9 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             infoImageIB.setOnClickListener(this);
             heartExpandedLayoutIB = v.findViewById(R.id.heart_expanded_layout);
 
-            // CHANGES HERE
             customHeight = 50 + heartExpandedLayoutIB.getLayoutParams().height + artistTitleTV.getLayoutParams().height;
-
             songThumbNailIV.setClipToOutline(true);
 
-            // CHANGES HERE
             heartExpandedLayoutIB.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -108,7 +104,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                     else {
                         heartExpandedLayoutIB.setImageResource(R.drawable.ic__favorite);
                         isFavorite = true;
-
                     }
                     listener.onFavoriteClicked(getAdapterPosition(), isFavorite);
                 }
@@ -128,7 +123,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
                 songCellDrawer.setEnabled(false);
             }
         }
-
 
         @Override
         public void onClick(final View view) {

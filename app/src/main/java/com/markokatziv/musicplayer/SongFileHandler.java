@@ -15,7 +15,6 @@ import java.util.List;
  */
 public class SongFileHandler {
 
-
     public static void saveSongList(Context context, List<Song> songs) {
         new Thread(new Runnable() {
             @Override

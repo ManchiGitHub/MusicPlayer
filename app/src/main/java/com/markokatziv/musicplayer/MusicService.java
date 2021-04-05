@@ -97,18 +97,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void onCreate() {
         super.onCreate();
 
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setOnCompletionListener(this);
-        mediaPlayer.setOnPreparedListener(this);
-        mediaPlayer.reset();
-
+        mediaPlayer = initMediaPlayer();
         manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= 26) {
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW);
-            manager.createNotificationChannel(channel);
-        }
-
+        createNotificationChannel();
         remoteViews = new RemoteViews(getPackageName(), R.layout.music_player_notification);
         buildCommandIntents();
         notification = buildNotification(remoteViews);
@@ -132,11 +123,31 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onPrepared(MediaPlayer mp) {
         mediaPlayer.start();
-        // Ready to play the song. set values to true.
         isSongReadyMLD.setValue(true);
         isMusicPlayingMLD.setValue(true);
         songDurationMLD.setValue(mediaPlayer.getDuration());
 
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        playSong(true);
+    }
+
+    private MediaPlayer initMediaPlayer() {
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setOnCompletionListener(this);
+        mediaPlayer.setOnPreparedListener(this);
+        mediaPlayer.reset();
+
+        return mediaPlayer;
+    }
+
+    private void createNotificationChannel(){
+        if (Build.VERSION.SDK_INT >= 26) {
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW);
+            manager.createNotificationChannel(channel);
+        }
     }
 
     public int getSongProgress() {
@@ -146,12 +157,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         return 0;
     }
-
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-        playSong(true);
-    }
-
 
     private void switchReceiveCommand(String command, int position) {
 
