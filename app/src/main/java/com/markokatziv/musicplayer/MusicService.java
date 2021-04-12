@@ -115,9 +115,12 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         songs = SongFileHandler.readSongList(MusicService.this);
         int currentPosition = intent.getIntExtra("position", 0);
-        songIndexMLD.setValue(currentPosition); // set song index in LiveData
-
         String command = intent.getStringExtra("command");
+
+
+      //  songIndexMLD.setValue(currentPosition); // set song index in LiveData
+
+
         progressToSeekTo = intent.getIntExtra("progress_from_user", 0);
         switchReceiveCommand(command, currentPosition);
 
@@ -174,12 +177,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         switch (command) {
             case COMMAND_NEW_INSTANCE:
+                songIndexMLD.setValue(position);
                 PreferenceHandler.putInt(PreferenceHandler.TAG_LAST_SONG_INDEX, position, this);
                 PreferenceHandler.putBoolean(PreferenceHandler.TAG_WAS_PLAYING, true, this);
                 PreferenceHandler.saveState(position,
-                                            songs.get(position).getSongTitle(),
-                                            songs.get(position).getArtistTitle(),
-                                            this);
+                        songs.get(position).getSongTitle(),
+                        songs.get(position).getArtistTitle(),
+                        this);
                 currentPlaying = position;
                 if (mediaPlayer.isPlaying()) {
                     mediaPlayer.stop();
@@ -207,7 +211,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 break;
             case COMMAND_PLAY_PAUSE:
                 PreferenceHandler.putBoolean(PreferenceHandler.TAG_WAS_PLAYING, false, this);
-                songIndexMLD.setValue(currentPlaying);
+                // songIndexMLD.setValue(currentPlaying);
                 if (mediaPlayer.isPlaying()) {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_play_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
@@ -286,9 +290,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         songIndexMLD.setValue(currentPlaying);
         PreferenceHandler.putInt(PreferenceHandler.TAG_LAST_SONG_INDEX, currentPlaying, this);
         PreferenceHandler.saveState(currentPlaying,
-                                    songs.get(currentPlaying).getSongTitle(),
-                                    songs.get(currentPlaying).getArtistTitle(),
-                                    this);
+                songs.get(currentPlaying).getSongTitle(),
+                songs.get(currentPlaying).getArtistTitle(),
+                this);
 
         mediaPlayer.reset();
         try {

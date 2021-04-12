@@ -28,7 +28,6 @@ import java.util.ArrayList;
 //TODO:
 // 2. better ui colors.
 
-
 /**
  * Created By marko
  */
@@ -68,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
         isPlaying = PreferenceHandler.getBoolean(PreferenceHandler.TAG_WAS_PLAYING, this);
         lastSongIndex = PreferenceHandler.getInt(PreferenceHandler.TAG_LAST_SONG_INDEX, this);
 
-        if (MusicService.isServiceRunning){
+        if (MusicService.isServiceRunning) {
             Intent bindIntent = new Intent(this, MusicService.class);
             bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE);
             isPlaying = PreferenceHandler.getBoolean(PreferenceHandler.TAG_WAS_PLAYING, this);
@@ -239,6 +238,8 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
     @Override
     public void onSkipPrevClickPlayerFrag(int prevSongPosition) {
 
+
+
         if (songsList.size() > 0) {
             Intent intent = new Intent(MainActivity.this, MusicService.class);
             intent.putExtra("command", "prev");
@@ -319,8 +320,14 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
             Observer<Integer> songIndexObserver = new Observer<Integer>() {
                 @Override
                 public void onChanged(Integer songIndex) {
-                    lastSongIndex = songIndex;
+
                     musicStateViewModel.setCurrentSong(songsList.get(songIndex));
+                    lastSongIndex = songIndex;
+
+                    if (songPageFragment!=null){
+                        songPageFragment.changeSongIndex(songIndex);
+                    }
+
                 }
             };
             musicService.getSongIndex().observe(MainActivity.this, songIndexObserver);

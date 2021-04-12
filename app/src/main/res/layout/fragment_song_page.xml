@@ -39,7 +39,7 @@
             android:layout_marginTop="20dp"
             android:layout_marginStart="20dp"
             android:background="@drawable/ic_favorite_holo"
-            android:backgroundTint="#9A8F7B"
+            android:backgroundTint="#1141A6"
             android:clickable="true"
             android:focusable="true"
             android:padding="10dp"

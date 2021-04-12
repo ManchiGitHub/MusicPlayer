@@ -5,9 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="3dp"
-    android:layout_marginTop="1dp"
-    android:layout_marginEnd="3dp"
-    android:layout_marginBottom="1dp"
     android:outlineProvider="paddedBounds"
     android:outlineSpotShadowColor="@color/dark_blue"
     app:cardCornerRadius="10dp">
@@ -16,6 +13,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#1B1B1B">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.3dp"
+            android:background="@drawable/card_background"
+            />
 
 
         <LinearLayout
@@ -29,10 +32,10 @@
             <ImageView
                 android:id="@+id/song_image"
                 android:layout_width="50dp"
-                android:layout_marginStart="10dp"
                 android:layout_height="50dp"
-                android:src="@drawable/thumbnail_stroke"
-                android:scaleType="centerCrop" />
+                android:layout_marginStart="10dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/thumbnail_stroke" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -78,7 +81,7 @@
                 android:alpha="0.8"
                 android:outlineProvider="bounds"
                 android:src="@drawable/ic__favorite"
-                app:tint="#A5A3A3" />
+                app:tint="#2196F3" />
 
 
             <ImageButton
@@ -116,7 +119,6 @@
 
                 <ImageButton
                     android:id="@+id/heart_expanded_layout"
-                    android:scaleType="fitXY"
                     android:layout_width="45dp"
                     android:layout_height="45dp"
                     android:layout_gravity="center"
@@ -124,8 +126,9 @@
                     android:alpha="0.8"
                     android:background="@drawable/notification_btn_ripple_background"
                     android:outlineProvider="bounds"
+                    android:scaleType="fitXY"
                     android:src="@drawable/ic__favorite"
-                    app:tint="#A5A3A3" />
+                    app:tint="#2196F3" />
 
             </LinearLayout>
 

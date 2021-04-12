@@ -1,5 +1,6 @@
 package com.markokatziv.musicplayer;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -101,28 +102,28 @@ public class SongPageFragment extends Fragment {
         artistTitle = rootView.findViewById(R.id.song_page_frag_artist);
         favoriteBtn = rootView.findViewById(R.id.song_page_frag_favorite_btn);
 
-        setSongInfo(song);
 
         MusicStateViewModel musicStateViewModel = new ViewModelProvider(requireActivity()).get(MusicStateViewModel.class);
         musicStateViewModel.getCurrentSong().observe(this, new Observer<Song>() {
             @Override
-            public void onChanged(Song song) {
-                setSongInfo(song);
+            public void onChanged(Song currentSong) {
+                song = currentSong;
+                setSongInfo(currentSong);
             }
         });
 
 
         favoriteBtn.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
-                // if song is not favorite
                 if (!song.isFavorite()) {
                     song.setFavorite(true);
-                    v.setBackground(getActivity().getDrawable(R.drawable.ic__favorite));
+                    v.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic__favorite));
                 }
-                else { //song is favorite
+                else {
                     song.setFavorite(false);
-                    v.setBackground(getActivity().getDrawable(R.drawable.ic_favorite_holo));
+                    v.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_favorite_holo));
                 }
 
                 callback.onFavoriteButtonClickSongPageFrag(songPosition);
@@ -132,13 +133,20 @@ public class SongPageFragment extends Fragment {
         return rootView;
     }
 
+    public void changeSongIndex(int position){
+        songPosition = position;
+    }
+
     private void setSongInfo(Song song){
 
         songTitle.setText(song.getSongTitle());
         artistTitle.setText(song.getArtistTitle());
 
         if (song.isFavorite()) {
-            favoriteBtn.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.heart_solid));
+            favoriteBtn.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic__favorite));
+        }
+        else{
+            favoriteBtn.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.ic_favorite_holo));
         }
 
         if (song.getImagePath().equals("")) {

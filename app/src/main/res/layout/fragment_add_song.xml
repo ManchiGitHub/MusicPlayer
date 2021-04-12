@@ -12,11 +12,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:textCursorDrawable="@null"
         android:textColorHint="#88FFFFFF"
-        app:backgroundTint="#FF507180"
+        app:backgroundTint="#507180"
         android:gravity="center"
         android:textColor="@color/white"
-        android:hint="Enter Artist's Name" />
+        android:hint="Artist's Name" />
 
     <EditText
         android:id="@+id/song_title_input"
@@ -24,21 +25,23 @@
         android:textColor="@color/white"
         android:layout_width="match_parent"
         app:backgroundTint="#FF507180"
+        android:textCursorDrawable="@null"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textColorHint="#88FFFFFF"
-        android:hint="Enter Song Title" />
+        android:hint="Song Title" />
 
     <EditText
         android:id="@+id/song_link"
         android:layout_margin="10dp"
         app:backgroundTint="#FF507180"
+        android:textCursorDrawable="@null"
         android:textColor="@color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textColorHint="#88FFFFFF"
-        android:hint="Enter Song Link" />
+        android:hint="Song Link" />
 
     <ImageView
         android:layout_width="200dp"
@@ -73,6 +76,7 @@
         android:id="@+id/favorite_checkbox"
         android:text="set as favorite"
         app:backgroundTint="#FF507180"
+        android:buttonTint="#FF507180"
         android:textColor="@color/white"
         android:layout_height="wrap_content"
         android:layout_gravity="center"/>
