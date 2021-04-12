@@ -81,11 +81,13 @@ public class FloatingFragment extends Fragment {
         setCallbacks();
         initObservers();
 
+        if (isPlaying) {
+            animateBtnRotation(true);
+        }
+
         fab.setOnClickListener(v -> {
             onFABButtonClicked();
-            if (isPlaying) {
-                animateBtnRotation(true);
-            }
+
         });
 
         return rootView;

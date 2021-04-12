@@ -10,6 +10,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.AssetManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -17,6 +18,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 
@@ -36,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
     private final String TAG_ADD_SONG_FRAGMENT = "add_song_fragment";
     private final String TAG_PLAYER_FRAGMENT = "player_fragment";
     private final String TAG_SONG_PAGE_FRAGMENT = "song_page_fragment";
-
 
     /* Service */
     private MusicService musicService;
@@ -61,18 +65,26 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
 
         boolean notFirstTime = PreferenceHandler.getBoolean(PreferenceHandler.TAG_FIRST_TIME, this);
 
-        lastSongIndex = PreferenceHandler.getInt(PreferenceHandler.TAG_LAST_SONG_INDEX, this);
         isPlaying = PreferenceHandler.getBoolean(PreferenceHandler.TAG_WAS_PLAYING, this);
+        lastSongIndex = PreferenceHandler.getInt(PreferenceHandler.TAG_LAST_SONG_INDEX, this);
 
-        if (!notFirstTime){
+        if (MusicService.isServiceRunning){
+            Intent bindIntent = new Intent(this, MusicService.class);
+            bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+            isPlaying = PreferenceHandler.getBoolean(PreferenceHandler.TAG_WAS_PLAYING, this);
+            lastSongIndex = PreferenceHandler.getInt(PreferenceHandler.TAG_LAST_SONG_INDEX, this);
+        }
+
+
+        if (!notFirstTime) {
             songsList = new ArrayList<>();
-            for (int i=0;i<5;i++){
+            for (int i = 0; i < 5; i++) {
                 insertMySongs();
             }
             SongFileHandler.saveSongList(this, songsList);
             PreferenceHandler.putBoolean(PreferenceHandler.TAG_FIRST_TIME, true, this);
         }
-        else{
+        else {
             /* load songs */
             songsList = SongFileHandler.readSongList(this);
 
@@ -97,18 +109,22 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
         song1.setSongTitle("One More Cup of Coffee");
         song1.setArtistTitle("Bob Dylan");
         song1.setLinkToSong("https://www.syntax.org.il/xtra/bob.m4a");
+        song1.setImagePath("/drawable/bob1.png");
+        song1.setImagePath("file:///android_asset/bob1.png");
 
         Song song2 = new Song();
         song2.setFavorite(false);
         song2.setSongTitle("The Main In me");
         song2.setArtistTitle("Bob Dylan");
         song2.setLinkToSong("https://www.syntax.org.il/xtra/bob2.mp3");
+        song2.setImagePath("file:///android_asset/bob2.png");
 
         Song song3 = new Song();
         song3.setFavorite(true);
         song3.setSongTitle("Sara");
         song3.setArtistTitle("Bob Dylan");
         song3.setLinkToSong("https://www.syntax.org.il/xtra/bob1.m4a");
+        song3.setImagePath("file:///android_asset/bob3.png");
 
         songsList.add(song1);
         songsList.add(song2);
@@ -371,10 +387,15 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
 
         PreferenceHandler.saveState(
                 lastSongIndex,
-                isPlaying,
                 songTitle,
                 artistTitle,
                 this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
     }
 
     @Override

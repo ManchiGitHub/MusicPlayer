@@ -15,7 +15,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#092767">
+        android:background="#1B1B1B">
 
 
         <LinearLayout

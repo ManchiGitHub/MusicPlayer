@@ -35,6 +35,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     final String CHANNEL_ID = "channel_id";
     final String CHANNEL_NAME = "music";
 
+    public static boolean isServiceRunning = false;
+
     /* LiveData */
     private MutableLiveData<Boolean> isMusicPlayingMLD;
     private MutableLiveData<Integer> songIndexMLD;
@@ -97,6 +99,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void onCreate() {
         super.onCreate();
 
+        isServiceRunning = true;
+
         mediaPlayer = initMediaPlayer();
         manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         createNotificationChannel();
@@ -143,7 +147,15 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         return mediaPlayer;
     }
 
-    private void createNotificationChannel(){
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        isServiceRunning = false;
+        isMusicPlayingMLD.setValue(false);
+        PreferenceHandler.putBoolean(PreferenceHandler.TAG_WAS_PLAYING, false, this);
+    }
+
+    private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= 26) {
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW);
             manager.createNotificationChannel(channel);
@@ -162,6 +174,12 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         switch (command) {
             case COMMAND_NEW_INSTANCE:
+                PreferenceHandler.putInt(PreferenceHandler.TAG_LAST_SONG_INDEX, position, this);
+                PreferenceHandler.putBoolean(PreferenceHandler.TAG_WAS_PLAYING, true, this);
+                PreferenceHandler.saveState(position,
+                                            songs.get(position).getSongTitle(),
+                                            songs.get(position).getArtistTitle(),
+                                            this);
                 currentPlaying = position;
                 if (mediaPlayer.isPlaying()) {
                     mediaPlayer.stop();
@@ -188,6 +206,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
                 break;
             case COMMAND_PLAY_PAUSE:
+                PreferenceHandler.putBoolean(PreferenceHandler.TAG_WAS_PLAYING, false, this);
                 songIndexMLD.setValue(currentPlaying);
                 if (mediaPlayer.isPlaying()) {
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_play_circle_24);
@@ -197,6 +216,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                     isMusicPlayingMLD.setValue(false);
                 }
                 else { // mediaPlayer is not playing
+                    PreferenceHandler.putBoolean(PreferenceHandler.TAG_WAS_PLAYING, true, this);
+                    PreferenceHandler.putInt(PreferenceHandler.TAG_LAST_SONG_INDEX, position, this);
                     remoteViews.setImageViewResource(R.id.play_pause_btn_notif, R.drawable.ic_outline_pause_circle_24);
                     manager.notify(NOTIFICATION_IDENTIFIER_ID, notification);
                     mediaPlayer.start();
@@ -230,6 +251,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 break;
 
             case COMMAND_CLOSE:
+                isMusicPlayingMLD.setValue(false);
+                PreferenceHandler.putBoolean(PreferenceHandler.TAG_WAS_PLAYING, false, this);
                 if (listener != null) {
                     listener.onCloseClickFromService(mediaPlayer);
                 }
@@ -261,6 +284,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         /* Set new position (Integer) */
         songIndexMLD.setValue(currentPlaying);
+        PreferenceHandler.putInt(PreferenceHandler.TAG_LAST_SONG_INDEX, currentPlaying, this);
+        PreferenceHandler.saveState(currentPlaying,
+                                    songs.get(currentPlaying).getSongTitle(),
+                                    songs.get(currentPlaying).getArtistTitle(),
+                                    this);
 
         mediaPlayer.reset();
         try {

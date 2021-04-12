@@ -151,7 +151,7 @@ public class AddSongDialogFragment extends DialogFragment {
         });
 
         AlertDialog dialog = builder.create();
-        dialog.getWindow().setBackgroundDrawableResource(R.color.light_pink);
+        dialog.getWindow().setBackgroundDrawableResource(R.color.dark_blue);
         dialog.getWindow().getAttributes().windowAnimations = R.style.SlidingDialogAnimation;
 
         return dialog;

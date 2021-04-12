@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/thumbnail_stroke"
+    android:backgroundTint="@color/dark_blue"
     android:orientation="vertical">
 
     <EditText
@@ -10,23 +12,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:textColorHint="#88FFFFFF"
+        app:backgroundTint="#FF507180"
         android:gravity="center"
+        android:textColor="@color/white"
         android:hint="Enter Artist's Name" />
 
     <EditText
         android:id="@+id/song_title_input"
         android:layout_margin="10dp"
+        android:textColor="@color/white"
         android:layout_width="match_parent"
+        app:backgroundTint="#FF507180"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:textColorHint="#88FFFFFF"
         android:hint="Enter Song Title" />
 
     <EditText
         android:id="@+id/song_link"
         android:layout_margin="10dp"
+        app:backgroundTint="#FF507180"
+        android:textColor="@color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:textColorHint="#88FFFFFF"
         android:hint="Enter Song Link" />
 
     <ImageView
@@ -43,6 +54,7 @@
         android:id="@+id/choose_from_gallery_btn"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        app:backgroundTint="#FF507180"
         android:layout_marginTop="20dp"
         android:text="Choose from gallery"/>
 
@@ -52,6 +64,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
+        app:backgroundTint="#FF507180"
         android:text="Take a picture"/>
 
     <CheckBox
@@ -59,6 +72,8 @@
         android:layout_marginTop="20dp"
         android:id="@+id/favorite_checkbox"
         android:text="set as favorite"
+        app:backgroundTint="#FF507180"
+        android:textColor="@color/white"
         android:layout_height="wrap_content"
         android:layout_gravity="center"/>
 

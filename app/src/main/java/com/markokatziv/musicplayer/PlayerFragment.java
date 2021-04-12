@@ -129,7 +129,6 @@ public class PlayerFragment extends Fragment implements View.OnClickListener {
             public void run() {
                 callbackToActivity.onRequestSongProgress();
                 seekBar.setProgress(currentSongProgress / 1000);
-                Log.d("markomarko", "run: " + seekBar.getProgress());
                 handler.postDelayed(this, 1000);
             }
         };
