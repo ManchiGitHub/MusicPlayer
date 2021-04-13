@@ -32,7 +32,7 @@ import java.util.ArrayList;
  * Created By marko
  */
 public class MainActivity extends AppCompatActivity implements FloatingFragment.FloatingFragmentListener,
-        AddSongDialogFragment.AddSongListener,
+        AddSongFragment.AddSongFragmentListener,
         SongRecyclerViewFragment.SongRecyclerViewListener,
         SongPageFragment.SongPageListener,
         PlayerFragment.PlayerFragmentListener, MusicService.MusicServiceListener {
@@ -50,8 +50,11 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
 
     private ArrayList<Song> songsList;
     private SongRecyclerViewFragment songRecyclerViewFragment;
+
     private PlayerFragment playerFragment;
     private SongPageFragment songPageFragment;
+    AddSongFragment addSongFragment;
+
     private boolean isServiceBounded = false;
     private boolean isPlaying;
     private int lastSongIndex = 0;
@@ -132,8 +135,12 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
 
     @Override
     public void onAddSongBtnClickFloatFrag() {
-        AddSongDialogFragment addSongDialogFragment = new AddSongDialogFragment();
-        addSongDialogFragment.show(getSupportFragmentManager(), TAG_ADD_SONG_FRAGMENT);
+        addSongFragment = AddSongFragment.newInstance();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_fade_out, R.anim.animate_fade_in, R.anim.slide_down_add_song);
+        fragmentTransaction.add(R.id.activity_main_layout, addSongFragment, TAG_ADD_SONG_FRAGMENT).addToBackStack("add_song_frag");
+        fragmentTransaction.commit();
     }
 
 
@@ -157,13 +164,7 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
         //TODO: Decide functionality
     }
 
-    @Override
-    public void onAddSongAddSongFrag(Song song) {
 
-        songsList.add(song);
-        SongFileHandler.saveSongList(this, songsList);
-        songRecyclerViewFragment.notifyItemInsert(song);
-    }
 
     @Override
     public void onCardClick(View view, int position) {
@@ -400,14 +401,20 @@ public class MainActivity extends AppCompatActivity implements FloatingFragment.
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    public void onSaveSongClick(Song song) {
+        songsList.add(song);
+        SongFileHandler.saveSongList(this, songsList);
+        songRecyclerViewFragment.notifyItemInsert(song);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.slide_up_add_song, R.anim.animate_fade_out, R.anim.animate_fade_in, R.anim.slide_down_add_song);
+        fragmentTransaction.remove(addSongFragment).commit();
     }
 }
 

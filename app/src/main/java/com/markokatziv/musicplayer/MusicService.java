@@ -120,7 +120,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
       //  songIndexMLD.setValue(currentPosition); // set song index in LiveData
 
-
         progressToSeekTo = intent.getIntExtra("progress_from_user", 0);
         switchReceiveCommand(command, currentPosition);
 
