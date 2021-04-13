@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:gravity="center"
+    android:background="@color/dark_blue"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/artist_name_input_add_song_frag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:hint="Artist's Name"
+        android:textColor="@color/white"
+        android:textColorHint="#88FFFFFF"
+        android:textCursorDrawable="@null"
+        app:backgroundTint="#507180" />
+
+    <EditText
+        android:id="@+id/song_title_input_add_song_frag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:hint="Song Title"
+        android:textColor="@color/white"
+        android:textColorHint="#88FFFFFF"
+        android:textCursorDrawable="@null"
+        app:backgroundTint="#FF507180" />
+
+    <EditText
+        android:id="@+id/song_link_add_song_frag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:hint="Song Link"
+        android:textColor="@color/white"
+        android:textColorHint="#88FFFFFF"
+        android:textCursorDrawable="@null"
+        app:backgroundTint="#FF507180" />
+
+    <ImageView
+        android:id="@+id/img_preview_add_song_frag"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:background="@drawable/thumbnail_stroke"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/choose_from_gallery_btn_add_song_frag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:text="Choose image from gallery"
+        app:backgroundTint="#FF507180" />
+
+    <Button
+        android:id="@+id/take_pic_btn_add_song_frag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:text="Take a picture"
+        app:backgroundTint="#FF507180" />
+
+    <CheckBox
+        android:id="@+id/favorite_checkbox_add_song_frag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:buttonTint="#FF507180"
+        android:text="set as favorite"
+        android:textColor="@color/white"
+        app:backgroundTint="#FF507180" />
+
+    <Button
+        android:id="@+id/save_song_btn_add_song_frag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="15dp"
+        android:buttonTint="#FF507180"
+        android:text="Save Song"
+        android:textColor="@color/white"
+        app:backgroundTint="#FF507180" />
+
+</LinearLayout>
